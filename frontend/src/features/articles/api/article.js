@@ -91,7 +91,7 @@ function uploadArticleImage(formData) {
 }
 
 function getPendingArticles() {
-    return api.get('/article_snapshots/pending/', { withCredentials: true });
+    return api.get('/article_snapshots/pending_ones/', { withCredentials: true });
 }
 
 function getThePendingArticle(id) {

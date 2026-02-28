@@ -11,7 +11,7 @@ class CustomUserAdmin(UserAdmin):
     model = User
     list_display = ('id', 'email', 'username', 'is_moderator')
     ordering = ('id',)
-    search_fields = ('=id', 'email', 'username')
+    search_fields = ('email', 'username')
 
     readonly_fields = ('id', 'date_joined', 'last_login')
 

@@ -1,18 +1,18 @@
-from .models import FELog
+from .models import FrontendLog
 from core.fields import FlexibleDateTimeField
 from core.serializers import BaseSerializer, BaseModelSerializer
 
 
-class SingleFELogSerializer(BaseModelSerializer):
+class SingleFrontendLogSerializer(BaseModelSerializer):
     timestamp = FlexibleDateTimeField(required=True)
 
     class Meta:
-        model = FELog
+        model = FrontendLog
         fields = ['level', 'message', 'extra', 'timestamp', 'page']
 
 
-class ListFELogSerializer(BaseSerializer):
-    logs = SingleFELogSerializer(many=True)
+class ListFrontendLogSerializer(BaseSerializer):
+    logs = SingleFrontendLogSerializer(many=True)
 
     def create(self, validated_data):
         logs_data = validated_data.pop('logs')

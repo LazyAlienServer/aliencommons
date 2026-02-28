@@ -16,6 +16,7 @@ services:
   backend:
     command: >
       sh -c "
+        python manage.py makemigrations &&
         python manage.py migrate &&
         python manage.py collectstatic --noinput &&
         python manage.py init_tasks &&

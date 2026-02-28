@@ -3,13 +3,13 @@ from django.utils import timezone
 
 from datetime import timedelta
 
-from .models import FELog
+from .models import FrontendLog
 
 
 def delete_old_logs(level, days):
     cutoff = timezone.now() - timedelta(days=days)
 
-    logs_deleted, _ = FELog.objects.filter(
+    logs_deleted, _ = FrontendLog.objects.filter(
         level__in=[level],
         timestamp__lt=cutoff
     ).delete()

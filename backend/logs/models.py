@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class FrontendLog(models.Model):
@@ -9,12 +10,30 @@ class FrontendLog(models.Model):
         ('error', 'ERROR'),
     ]
 
-    level = models.CharField(max_length=10, choices=LEVEL_CHOICES)
-    message = models.TextField()
-    extra = models.JSONField(null=True, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    page = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+    level = models.CharField(
+        verbose_name=_("level"),
+        max_length=10, choices=LEVEL_CHOICES, db_index=True, editable=False
+    )
+    message = models.TextField(
+        verbose_name=_("message"),
+        editable=False
+    )
+    extra = models.JSONField(
+        verbose_name=_("extra"),
+        null=True, blank=True, editable=False
+    )
+    timestamp = models.DateTimeField(
+        verbose_name=_("timestamp"),
+        editable=False
+    )
+    page = models.CharField(
+        verbose_name=_("page"),
+        max_length=255, editable=False
+    )
+    created_at = models.DateTimeField(
+        verbose_name=_("created at"),
+        auto_now_add=True, db_index=True, editable=False
+    )
 
     class Meta:
         verbose_name = 'frontend log'

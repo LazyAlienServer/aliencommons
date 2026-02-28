@@ -76,7 +76,8 @@ class ProfileManager(BaseUserManager):
         return user
 
 
-class User(UUIDPrimaryKeyMixin, AbstractUser):
+class User(UUIDPrimaryKeyMixin,
+           AbstractUser):
     """
     The User model, inherits from AbstractUser.
     'email' field, 'first_name' field and 'last_name' field are set to None.
@@ -85,19 +86,24 @@ class User(UUIDPrimaryKeyMixin, AbstractUser):
     default_signature = "This player is somewhat mysterious..."
 
     username = models.CharField(
-        _("username"), max_length=30, unique=True
+        verbose_name=_("username"),
+        max_length=30, unique=True
     )
     avatar = models.ImageField(
-        _("avatar"), upload_to=avatar_upload_to, blank=True, null=True, storage=AvatarStorage()
+        verbose_name=_("avatar"),
+        upload_to=avatar_upload_to, blank=True, null=True, storage=AvatarStorage()
     )
     signature = models.CharField(
-        _("signature"), max_length=60, blank=True, default=default_signature,
+        verbose_name=_("signature"),
+        max_length=60, blank=True, default=default_signature,
     )
     is_moderator = models.BooleanField(
-        _("moderator status"), default=False
+        verbose_name= _("moderator status"),
+        default=False
     )
     is_email_verified = models.BooleanField(
-        _("email verified"), default=False
+        verbose_name=_("email verified"),
+        default=False
     )
 
     email = None
@@ -117,21 +123,26 @@ class User(UUIDPrimaryKeyMixin, AbstractUser):
         return self.username
 
 
-class EmailAddress(UUIDPrimaryKeyMixin, models.Model):
+class EmailAddress(UUIDPrimaryKeyMixin,
+                   models.Model):
     """
     This model extracts email information from the user model, Profile.
     """
     user = models.ForeignKey(
-        _("user"), User, on_delete=models.CASCADE, related_name="related_emails"
+        verbose_name=_("user"),
+        to=User, on_delete=models.CASCADE, related_name="related_emails"
     )
     email = models.EmailField(
-        _("email"), unique=True
+        verbose_name=_("email"),
+        unique=True
     )
     is_verified = models.BooleanField(
-        _("verified"), default=False
+        verbose_name=_("verified"),
+        default=False
     )
     is_primary = models.BooleanField(
-        _("primary"), default=False
+        verbose_name=_("primary"),
+        default=False
     )
 
     class Meta:

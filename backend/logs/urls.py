@@ -1,10 +1,10 @@
 from django.urls import path
 
 from .views import (
-    FELogCreateView
+    FrontendLogCreateView
 )
 
 
 urlpatterns = [
-    path('collect/', FELogCreateView.as_view(), name='frontend_logs_bulkcreate'),
+    path('collect/', FrontendLogCreateView.as_view(), name='frontend_logs_bulkcreate'),
 ]

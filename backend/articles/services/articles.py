@@ -17,10 +17,10 @@ from .utils import (
 User = get_user_model()
 
 
-def get_locked_source_article(article_id: UUID) -> SourceArticle:
+def get_locked_source_article(source_article_id: UUID) -> SourceArticle:
     article = get_object_or_404(
         SourceArticle.objects.select_for_update(),
-        pk=article_id,
+        pk=source_article_id,
     )
 
     return article
@@ -75,11 +75,11 @@ def build_article_action_result(*,
 
 @transaction.atomic
 def submit(*,
-           article_id: UUID,
+           source_article_id: UUID,
            actor: User,
            annotation: str | None = None) -> ArticleActionResult:
 
-    source_article = get_locked_source_article(article_id)
+    source_article = get_locked_source_article(source_article_id)
 
     # If submitted within 12 hours since last submission, raise CoolingDownError
     last_moderation_at = source_article.last_moderation_at
@@ -137,11 +137,11 @@ def submit(*,
 
 @transaction.atomic
 def withdraw(*,
-             article_id: UUID,
+             source_article_id: UUID,
              actor: User,
              annotation: str | None = None) -> ArticleActionResult:
 
-    source_article = get_locked_source_article(article_id)
+    source_article = get_locked_source_article(source_article_id)
 
     if source_article.status != SourceArticle.ArticleStatus.PENDING:
         raise ServiceError(
@@ -175,11 +175,11 @@ def withdraw(*,
 
 @transaction.atomic
 def approve(*,
-            article_id: UUID,
+            source_article_id: UUID,
             actor: User,
             annotation: str | None = None) -> ArticleActionResult:
 
-    source_article = get_locked_source_article(article_id)
+    source_article = get_locked_source_article(source_article_id)
 
     # Can only approve when the Source Article is PENDING
     if source_article.status != SourceArticle.ArticleStatus.PENDING:
@@ -224,11 +224,11 @@ def approve(*,
 
 @transaction.atomic
 def reject(*,
-           article_id: UUID,
+           source_article_id: UUID,
            actor: User,
            annotation: str | None = None) -> ArticleActionResult:
 
-    source_article = get_locked_source_article(article_id)
+    source_article = get_locked_source_article(source_article_id)
 
     # Can only reject when the Source Article is PENDING
     if source_article.status != SourceArticle.ArticleStatus.PENDING:
@@ -269,11 +269,11 @@ def reject(*,
 
 @transaction.atomic
 def unpublish(*,
-              article_id: UUID,
+              source_article_id: UUID,
               actor: User,
               annotation: str | None = None) -> ArticleActionResult:
 
-    source_article = get_locked_source_article(article_id)
+    source_article = get_locked_source_article(source_article_id)
 
     # Can only unpublish when the Source Article is PUBLISHED
     if source_article.status != SourceArticle.ArticleStatus.PUBLISHED:
@@ -310,11 +310,11 @@ def unpublish(*,
 
 @transaction.atomic
 def soft_delete(*,
-                article_id: UUID,
+                source_article_id: UUID,
                 actor: User,
                 annotation: str | None = None) -> ArticleActionResult:
 
-    source_article = get_locked_source_article(article_id)
+    source_article = get_locked_source_article(source_article_id)
 
     # Can only delete when the Source Article is not PENDING
     if source_article.status == SourceArticle.ArticleStatus.PENDING:

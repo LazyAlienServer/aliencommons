@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import FELog
+from .models import FrontendLog
 
 
-@admin.register(FELog)
-class FELogAdmin(admin.ModelAdmin):
-    model = FELog
+@admin.register(FrontendLog)
+class FrontendLogAdmin(admin.ModelAdmin):
+    model = FrontendLog
     list_display = ('level', 'message_short', 'page', 'timestamp', 'created_at')
     ordering = ('level', 'page', 'timestamp', 'created_at')
     search_fields = ('level', 'page', 'message')

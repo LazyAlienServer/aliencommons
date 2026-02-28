@@ -9,8 +9,14 @@ class TimeStampedMixin(models.Model):
     """
     Provide 'created_at' and 'updated_at' fields for models.
     """
-    created_at = models.DateTimeField(default=timezone.now, db_index=True, editable=False)
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    created_at = models.DateTimeField(
+        verbose_name=_("created at"),
+        default=timezone.now, db_index=True, editable=False
+    )
+    updated_at = models.DateTimeField(
+        verbose_name=_("updated at"),
+        auto_now=True, db_index=True
+    )
 
     class Meta:
         abstract = True
@@ -21,7 +27,8 @@ class UUIDPrimaryKeyMixin(models.Model):
     Provide UUID as the primary key for models.
     """
     id = models.UUIDField(
-        _("ID"), primary_key=True, default=uuid.uuid4, editable=False
+        verbose_name=_("ID"),
+        primary_key=True, default=uuid.uuid4, editable=False
     )
 
     class Meta:
@@ -56,8 +63,11 @@ class SoftDeleteMixin(models.Model):
     """
     Provide 'is_deleted' field and soft delete functionality for models.
     """
-    is_deleted = models.BooleanField(default=False, db_index=True)
     # Corresponds to 'self.filter(is_deleted=True)'
+    is_deleted = models.BooleanField(
+        verbose_name=_("deleted"),
+        default=False, db_index=True
+    )
 
     objects = SoftDeleteManager()
     all_objects = SoftDeleteQuerySet.as_manager()

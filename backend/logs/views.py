@@ -2,11 +2,11 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from .serializers import ListFELogSerializer
+from .serializers import ListFrontendLogSerializer
 
 
-class FELogCreateView(generics.GenericAPIView):
-    serializer_class = ListFELogSerializer
+class FrontendLogCreateView(generics.GenericAPIView):
+    serializer_class = ListFrontendLogSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):

@@ -129,7 +129,7 @@ class PublishedArticleSerializer(BaseModelSerializer):
         fields = '__all__'
         read_only_fields = (
             'id',
-            'article',
+            'source_article',
             'title',
             'content',
             'created_at',
@@ -142,14 +142,14 @@ class ArticleSnapshotSerializer(BaseModelSerializer):
     Serializer for article snapshots. All fields are ready-only.
     """
     moderation_status_display = serializers.SerializerMethodField()
-    article_id = serializers.SerializerMethodField()
+    source_article_id = serializers.SerializerMethodField()
 
     class Meta:
         model = ArticleSnapshot
         fields = '__all__'
         read_only_fields = (
             'id',
-            'article',
+            'source_article',
             'title',
             'content',
             'content_hash',
@@ -161,7 +161,7 @@ class ArticleSnapshotSerializer(BaseModelSerializer):
     def get_moderation_status_display(self, obj):
         return obj.get_moderation_status_display()
 
-    def get_article_id(self, obj):
+    def get_source_article_id(self, obj):
         return obj.article_id
 
 
@@ -174,8 +174,8 @@ class ArticleEventSerializer(BaseModelSerializer):
         fields = '__all__'
         read_only_fields = [
             'id',
-            'article',
-            'snapshot',
+            'source_article',
+            'article_snapshot',
             'annotation',
             'event_type',
             'actor',
@@ -214,9 +214,9 @@ class ArticleActionInputSerializer(BaseSerializer):
 class ArticleActionOutputSerializer(BaseSerializer):
     event_type = serializers.IntegerField()
     actor_id = serializers.UUIDField()
-    article_id = serializers.UUIDField()
+    source_article_id = serializers.UUIDField()
     status = serializers.IntegerField()
-    snapshot_id = serializers.UUIDField()
+    article_snapshot_id = serializers.UUIDField()
     event_id = serializers.UUIDField()
 
     def to_representation(self, instance):

@@ -43,19 +43,24 @@ class SourceArticle(UUIDPrimaryKeyMixin,
         DELETED = 5, "Deleted"
 
     author = models.ForeignKey(
-        _("author"), settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="articles"
+        verbose_name=_("author"),
+        to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="source_articles"
     )
     title = models.CharField(
-        _("title"), max_length=60, db_index=True, default=""
+        verbose_name=_("title"),
+        max_length=60, db_index=True, default=""
     )
     content = models.JSONField(
-        _("content"), blank=True, default=dict
+        verbose_name=_("content"),
+        blank=True, default=dict
     )
     status = models.IntegerField(
-        _("status"), choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True
+        verbose_name=_("status"),
+        choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True
     )
     last_moderation_at = models.DateTimeField(
-        _("last moderation at"), blank=True, null=True
+        verbose_name=_("last moderation at"),
+        blank=True, null=True
     )
 
     class Meta:
@@ -83,13 +88,16 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
     """
 
     source_article = models.OneToOneField(
-        _("source article"), SourceArticle, on_delete=models.CASCADE, related_name="article_published_version"
+        verbose_name=_("source article"),
+        to=SourceArticle, on_delete=models.CASCADE, related_name="published_version"
     )
     title = models.CharField(
-        _("title"), max_length=60, db_index=True, default=""
+        verbose_name=_("title"),
+        max_length=60, db_index=True, default=""
     )
     content = models.JSONField(
-        _("content"), blank=True, default=dict
+        verbose_name=_("content"),
+        blank=True, default=dict
     )
 
     class Meta:
@@ -112,29 +120,34 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
     """
 
     class SnapshotStatus(models.IntegerChoices):
-
         PENDING = 1, "Pending"
         WITHDRAWN = 2, "Withdrawn"
         APPROVED = 3, "Approved"
         REJECTED = 4, "Rejected"
 
     source_article = models.ForeignKey(
-        _("source article"), SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots"
+        verbose_name=_("source article"),
+        to=SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots"
     )
     title = models.CharField(
-        _("title"), max_length=60, db_index=True, default=""
+        verbose_name=_("title"),
+        max_length=60, db_index=True, default=""
     )
     content = models.JSONField(
-        _("content"), blank=True, default=dict
+        verbose_name=_("content"),
+        blank=True, default=dict
     )
     content_hash = models.CharField(
-        _("content hash"), max_length=64, blank=True, default="", db_index=True
+        verbose_name=_("content hash"),
+        max_length=64, blank=True, default="", db_index=True
     )
     created_at = models.DateTimeField(
-        _("created at"), default=timezone.now, db_index=True, editable=False
+        verbose_name=_("created at"),
+        default=timezone.now, db_index=True, editable=False
     )
     moderation_status = models.IntegerField(
-        _("moderation status"), choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True
+        verbose_name=_("moderation status"),
+        choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True
     )
 
     class Meta:
@@ -143,9 +156,9 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
 
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['article', 'created_at']),
+            models.Index(fields=['source_article', 'created_at']),
             models.Index(fields=['moderation_status', 'created_at']),
-            models.Index(fields=['article', 'content_hash']),
+            models.Index(fields=['source_article', 'content_hash']),
         ]
 
     def __str__(self):
@@ -162,10 +175,6 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
     """
 
     class EventType(models.IntegerChoices):
-        """
-        6 different event types
-        """
-
         SUBMIT = 1, "Submit"
         WITHDRAW = 2, "Withdraw"
         APPROVE = 3, "Approve"
@@ -174,23 +183,28 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
         DELETE = 6, "Delete"
 
     source_article = models.ForeignKey(
-        _("source articles"), SourceArticle, on_delete=models.CASCADE, related_name="article_events"
+        verbose_name=_("source articles"),
+        to=SourceArticle, on_delete=models.CASCADE, related_name="article_events"
     )
     article_snapshot = models.ForeignKey(
-        _("snapshot"), ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events"
+        verbose_name=_("snapshot"),
+        to=ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events"
     )
     annotation = models.TextField(
-        _("annotation"), null=True, blank=True
+        verbose_name=_("annotation"),
+        null=True, blank=True
     )
     event_type = models.IntegerField(
-        _("event type"), choices=EventType.choices
+        verbose_name=_("event type"),
+        choices=EventType.choices
     )
     actor = models.ForeignKey(
-        _("actor"), settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
-        related_name="article_events_actors"
+        verbose_name=_("actor"),
+        to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="article_events_actors"
     )
     created_at = models.DateTimeField(
-        _("created at"), default=timezone.now, db_index=True, editable=False
+        verbose_name=_("created at"),
+        default=timezone.now, db_index=True, editable=False
     )
 
     class Meta:
@@ -199,9 +213,9 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
 
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['article', 'created_at']),
+            models.Index(fields=['source_article', 'created_at']),
             models.Index(fields=['actor', 'created_at']),
-            models.Index(fields=['snapshot', 'created_at']),
+            models.Index(fields=['article_snapshot', 'created_at']),
             models.Index(fields=['event_type', 'created_at']),
         ]
 

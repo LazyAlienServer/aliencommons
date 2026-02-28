@@ -24,8 +24,10 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 INSTALLED_APPS = [
     # ASGI Server
     "daphne",
+    # Core
+    "core.apps.CoreConfig",
     # User App
-    "users.apps.ProfilesConfig",
+    "users.apps.UsersConfig",
     # Django Apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -34,7 +36,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Local Apps
-    "core.apps.CoreConfig",
     "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
 ]
 
-AUTH_USER_MODEL = "users.Profile"
+AUTH_USER_MODEL = "users.User"
 
 # Custom setting - default user avatars
 DEFAULT_AVATARS = [

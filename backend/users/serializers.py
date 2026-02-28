@@ -9,7 +9,6 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.settings import api_settings
 
-import string
 import random
 import io
 from PIL import Image
@@ -28,10 +27,19 @@ class ProfileCreateSerializer(BaseModelSerializer):
     """
     Register a new user.
     """
+    username = serializers.CharField(
+        required=True,
+        error_messages={
+            'required': "A username is required",
+        },
+        validators = [
+            UniqueValidator(queryset=User.objects.all(), message="This username has already existed")
+        ],
+    )
     email = serializers.EmailField(
         required=True,
         error_messages={
-            'required': 'An email is required',
+            'required': "An email is required",
         },
         validators=[
             UniqueValidator(queryset=User.objects.all(), message="This email has already existed")
@@ -41,7 +49,7 @@ class ProfileCreateSerializer(BaseModelSerializer):
         write_only=True,
         required=True,
         error_messages={
-            'required': 'A password is required',
+            'required': "A password is required",
         },
         validators=[PasswordValidator()],
     )
@@ -49,18 +57,18 @@ class ProfileCreateSerializer(BaseModelSerializer):
         write_only=True,
         required=True,
         error_messages={
-            'required': 'A confirm password is required',
+            'required': "A confirm password is required",
         }
     )
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'confirm_password')
+        fields = ('username', 'email', 'password', 'confirm_password')
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
             raise serializers.ValidationError(
-                detail="Passwords do not match", code="passwords_do_not_match"
+                detail="Passwords do not match", code='passwords_do_not_match'
             )
 
         return data
@@ -70,16 +78,9 @@ class ProfileCreateSerializer(BaseModelSerializer):
             avatar = random.choice(settings.DEFAULT_AVATARS)
             return avatar
 
-        def generate_unique_username():
-            while True:
-                uid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-                username = f"user_{uid}"
-                if not User.objects.filter(username=username).exists():
-                    return username
-
         user = User(
             email=validated_data['email'],
-            username=generate_unique_username(),
+            username=validated_data['username'],
             avatar=pick_random_avatar(),
         )
 

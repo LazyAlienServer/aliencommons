@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class FELog(models.Model):
+class FrontendLog(models.Model):
     LEVEL_CHOICES = [
         ('debug', 'DEBUG'),
         ('info', 'INFO'),
@@ -17,8 +17,8 @@ class FELog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Frontend Log'
-        verbose_name_plural = 'Frontend Logs'
+        verbose_name = 'frontend log'
+        verbose_name_plural = 'frontend logs'
 
     def __str__(self):
         return f"[{self.level.upper()}]: {self.page} - {self.message[:50]}"

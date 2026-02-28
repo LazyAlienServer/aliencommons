@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 @admin.register(User)
-class ProfileAdmin(UserAdmin):
+class CustomUserAdmin(UserAdmin):
     model = User
     list_display = ('id', 'email', 'username', 'is_moderator')
     ordering = ('id',)

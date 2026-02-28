@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from core.models import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
 
@@ -8,7 +10,10 @@ from core.models import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
 User = get_user_model()
 
 
-class SourceArticle(TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin):
+class SourceArticle(UUIDPrimaryKeyMixin,
+                    TimeStampedMixin,
+                    SoftDeleteMixin,
+                    models.Model):
     """
     Model for all articles
 
@@ -37,18 +42,27 @@ class SourceArticle(TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin):
         UNPUBLISHED = 4, "Unpublished"
         DELETED = 5, "Deleted"
 
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="articles")
-
-    title = models.CharField(max_length=60, db_index=True, default="")
-    content = models.JSONField(blank=True, default=dict)
-
-    status = models.IntegerField(choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True)
-
-    last_moderation_at = models.DateTimeField(blank=True, null=True)
+    author = models.ForeignKey(
+        _("author"), settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="articles"
+    )
+    title = models.CharField(
+        _("title"), max_length=60, db_index=True, default=""
+    )
+    content = models.JSONField(
+        _("content"), blank=True, default=dict
+    )
+    status = models.IntegerField(
+        _("status"), choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True
+    )
+    last_moderation_at = models.DateTimeField(
+        _("last moderation at"), blank=True, null=True
+    )
 
     class Meta:
-        ordering = ['-created_at']
+        verbose_name = _("source article")
+        verbose_name_plural = _("source articles")
 
+        ordering = ['-created_at']
         indexes = [
             models.Index(fields=['author', 'created_at']),
             models.Index(fields=['status', 'created_at']),
@@ -58,7 +72,9 @@ class SourceArticle(TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin):
         return self.title
 
 
-class PublishedArticle(UUIDPrimaryKeyMixin, TimeStampedMixin):
+class PublishedArticle(UUIDPrimaryKeyMixin,
+                       TimeStampedMixin,
+                       models.Model):
     """
     Mixin fields:
     - id
@@ -66,19 +82,28 @@ class PublishedArticle(UUIDPrimaryKeyMixin, TimeStampedMixin):
     - updated_at
     """
 
-    article = models.OneToOneField(SourceArticle, on_delete=models.CASCADE, related_name="article_published_version")
-
-    title = models.CharField(max_length=60, db_index=True, default="")
-    content = models.JSONField(blank=True, default=dict)
+    source_article = models.OneToOneField(
+        _("source article"), SourceArticle, on_delete=models.CASCADE, related_name="article_published_version"
+    )
+    title = models.CharField(
+        _("title"), max_length=60, db_index=True, default=""
+    )
+    content = models.JSONField(
+        _("content"), blank=True, default=dict
+    )
 
     class Meta:
+        verbose_name = _("published article")
+        verbose_name_plural = _("published articles")
+
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Published version of article {self.article}"
+        return f"Published version of article {self.source_article}"
 
 
-class ArticleSnapshot(UUIDPrimaryKeyMixin):
+class ArticleSnapshot(UUIDPrimaryKeyMixin,
+                      models.Model):
     """
     Freeze the current version of the article for review and retrospection.
 
@@ -93,16 +118,29 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin):
         APPROVED = 3, "Approved"
         REJECTED = 4, "Rejected"
 
-    article = models.ForeignKey(SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots")
-
-    title = models.CharField(max_length=60, db_index=True, default="")
-    content = models.JSONField(blank=True, default=dict)
-    content_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
-
-    created_at = models.DateTimeField(default=timezone.now, db_index=True, editable=False)
-    moderation_status = models.IntegerField(choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True)
+    source_article = models.ForeignKey(
+        _("source article"), SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots"
+    )
+    title = models.CharField(
+        _("title"), max_length=60, db_index=True, default=""
+    )
+    content = models.JSONField(
+        _("content"), blank=True, default=dict
+    )
+    content_hash = models.CharField(
+        _("content hash"), max_length=64, blank=True, default="", db_index=True
+    )
+    created_at = models.DateTimeField(
+        _("created at"), default=timezone.now, db_index=True, editable=False
+    )
+    moderation_status = models.IntegerField(
+        _("moderation status"), choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True
+    )
 
     class Meta:
+        verbose_name = _("article snapshot")
+        verbose_name_plural = _("article snapshots")
+
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['article', 'created_at']),
@@ -111,10 +149,11 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin):
         ]
 
     def __str__(self):
-        return f"Snapshot of article {self.article_id} created @ {self.created_at}"
+        return f"Snapshot of article {self.source_article_id}"
 
 
-class ArticleEvent(UUIDPrimaryKeyMixin):
+class ArticleEvent(UUIDPrimaryKeyMixin,
+                   models.Model):
     """
     Record events related to articles
 
@@ -134,19 +173,30 @@ class ArticleEvent(UUIDPrimaryKeyMixin):
         UNPUBLISH = 5, "Unpublish"
         DELETE = 6, "Delete"
 
-    article = models.ForeignKey(SourceArticle, on_delete=models.CASCADE, related_name="article_events")
-    snapshot = models.ForeignKey(
-        ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events"
+    source_article = models.ForeignKey(
+        _("source articles"), SourceArticle, on_delete=models.CASCADE, related_name="article_events"
+    )
+    article_snapshot = models.ForeignKey(
+        _("snapshot"), ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events"
+    )
+    annotation = models.TextField(
+        _("annotation"), null=True, blank=True
+    )
+    event_type = models.IntegerField(
+        _("event type"), choices=EventType.choices
+    )
+    actor = models.ForeignKey(
+        _("actor"), settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        related_name="article_events_actors"
+    )
+    created_at = models.DateTimeField(
+        _("created at"), default=timezone.now, db_index=True, editable=False
     )
 
-    annotation = models.TextField(null=True, blank=True)
-
-    event_type = models.IntegerField(choices=EventType.choices)
-    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="article_events_actors")
-
-    created_at = models.DateTimeField(default=timezone.now, db_index=True, editable=False)
-
     class Meta:
+        verbose_name = _("article event")
+        verbose_name_plural = _("article events")
+
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['article', 'created_at']),
@@ -156,4 +206,8 @@ class ArticleEvent(UUIDPrimaryKeyMixin):
         ]
 
     def __str__(self):
-        return f"Operation {self.get_event_type_display()} by {self.actor_id} on article {self.article_id} @ {self.created_at}"
+        return (
+            f"Operation {self.get_event_type_display()} "
+            f"by {self.actor_id} "
+            f"on article {self.source_article_id}"
+        )

@@ -8,7 +8,7 @@ class ServiceError(Exception):
 
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Request failed"
-    default_code = "service_error"
+    default_code = 'service_error'
 
     def __init__(self, *, detail=None, code=None, status_code=None):
         self.detail = self.default_detail if detail is None else detail

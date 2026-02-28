@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 import uuid
 
@@ -19,7 +20,9 @@ class UUIDPrimaryKeyMixin(models.Model):
     """
     Provide UUID as the primary key for models.
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(
+        _("ID"), primary_key=True, default=uuid.uuid4, editable=False
+    )
 
     class Meta:
         abstract = True
@@ -80,7 +83,7 @@ class SoftDeleteMixin(models.Model):
         if hasattr(self, 'updated_at'):
             update_fields.append('updated_at')
 
-        self.save(update_fields=update_fields)
+        self.save(update_fields=update_fields, using=using)
 
     class Meta:
         abstract = True

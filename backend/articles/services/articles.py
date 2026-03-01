@@ -1,355 +1,329 @@
 from django.db import transaction
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
-from uuid import UUID
-from typing import TypedDict, Any
+from datetime import timedelta
+import json
+import hashlib
 
 from articles.models import (
     SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 )
 from core.exceptions import ServiceError
-from .utils import (
-    hash_and_normalize, get_last_snapshot, get_published_version, within_submit_cooldown
-)
-
-User = get_user_model()
 
 
-def get_locked_source_article(source_article_id: UUID) -> SourceArticle:
-    article = get_object_or_404(
+def _get_locked_source_article(source_article_id):
+    """
+    Return a locked source article for business logic.
+    """
+    source_article = get_object_or_404(
         SourceArticle.objects.select_for_update(),
         pk=source_article_id,
     )
-
-    return article
-
-
-def create_or_update_published_article(*,
-                                       source_article: SourceArticle,
-                                       article_snapshot: ArticleSnapshot) -> PublishedArticle:
-
-    published = get_published_version(source_article)
-
-    if published:
-        published.title = article_snapshot.title
-        published.content = article_snapshot.content
-        published.save(update_fields=['title', 'content'])
-
-        return published
-
-    published_article = PublishedArticle.objects.create(
-        source_article=source_article,
-        title=article_snapshot.title,
-        content=article_snapshot.content,
-    )
-
-    return published_article
-
-
-class ArticleActionResult(TypedDict):
-    event_type: int
-    actor_id: int
-    source_article_id: UUID | Any
-    status: int
-    snapshot_id: UUID | None | Any
-    event_id: UUID | Any
-
-
-def build_article_action_result(*,
-                                source_article: SourceArticle,
-                                actor: User,
-                                event: ArticleEvent,
-                                article_snapshot: ArticleSnapshot) -> ArticleActionResult:
-
-    return {
-        "event_type": event.event_type,
-        "actor_id": actor.id,
-        "source_article_id": source_article.id,
-        "status": source_article.status,
-        "snapshot_id": article_snapshot.id if article_snapshot else None,
-        "event_id": event.id,
-    }
+    return source_article
 
 
 @transaction.atomic
-def submit(*,
-           source_article_id: UUID,
-           actor: User,
-           annotation: str | None = None) -> ArticleActionResult:
-
-    source_article = get_locked_source_article(source_article_id)
-
-    # If submitted within 12 hours since last submission, raise CoolingDownError
-    last_moderation_at = source_article.last_moderation_at
-    if last_moderation_at and within_submit_cooldown(last_moderation_at, hours=6):
-        raise ServiceError(
-            detail="Submission has a cooldown of 6 hours.",
-            code='cooldown_error'
-        )
-
-    if source_article.status == SourceArticle.ArticleStatus.PENDING:
-        raise ServiceError(
-            detail="You cannot submit a pending article!",
-            code='state_transition_error'
-        )
-
-    current_hash = hash_and_normalize(
-        source_article.title,
-        source_article.content
-    )
-
-    # If unchanged, raise NoChangeError
-    last_snapshot = get_last_snapshot(source_article)
-    if last_snapshot and last_snapshot.content_hash == current_hash:
-        raise ServiceError(
-            detail="Please modify before submission.",
-            code='no_change_error'
-        )
-
-    # Create snapshot
-    snapshot = ArticleSnapshot.objects.create(
-        article=source_article,
-        title=source_article.title,
-        content=source_article.content,
-        content_hash=current_hash,
-        moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
-    )
-
-    # Create article event
-    article_event = ArticleEvent.objects.create(
-        source_article=source_article,
-        article_snapshot=snapshot,
-        annotation=annotation,
-        event_type=ArticleEvent.EventType.SUBMIT,
-        actor=actor,
-    )
-
-    # Update source article
-    source_article.status = SourceArticle.ArticleStatus.PENDING
-    source_article.save(update_fields=['status'])
-
-    return build_article_action_result(
-        source_article=source_article, actor=actor, event=article_event, article_snapshot=snapshot
-    )
+def submit(*, source_article_id, actor, annotation=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    return workflow.submit()
 
 
 @transaction.atomic
-def withdraw(*,
-             source_article_id: UUID,
-             actor: User,
-             annotation: str | None = None) -> ArticleActionResult:
-
-    source_article = get_locked_source_article(source_article_id)
-
-    if source_article.status != SourceArticle.ArticleStatus.PENDING:
-        raise ServiceError(
-            detail="You can only withdraw a pending article!",
-            code='state_transition_error'
-        )
-
-    snapshot = get_last_snapshot(source_article)
-
-    # Create article event
-    article_event = ArticleEvent.objects.create(
-        source_article=source_article,
-        article_snapshot=snapshot,
-        annotation=annotation,
-        event_type=ArticleEvent.EventType.WITHDRAW,
-        actor=actor,
-    )
-
-    # Update source article
-    source_article.status = SourceArticle.ArticleStatus.DRAFT
-    source_article.save(update_fields=['status'])
-
-    # Update last article snapshot
-    snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.WITHDRAWN
-    snapshot.save(update_fields=['moderation_status'])
-
-    return build_article_action_result(
-        source_article=source_article, actor=actor, event=article_event, article_snapshot=snapshot
-    )
+def withdraw(*, source_article_id, actor, annotation=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    return workflow.withdraw()
 
 
 @transaction.atomic
-def approve(*,
-            source_article_id: UUID,
-            actor: User,
-            annotation: str | None = None) -> ArticleActionResult:
-
-    source_article = get_locked_source_article(source_article_id)
-
-    # Can only approve when the Source Article is PENDING
-    if source_article.status != SourceArticle.ArticleStatus.PENDING:
-        raise ServiceError(
-            detail="Only a pending article can be approved!",
-            code='state_transition_error'
-        )
-
-    snapshot = get_last_snapshot(source_article)
-    if not snapshot:
-        raise ServiceError(
-            detail="There are no snapshots for this article!",
-            code='no_change_error'
-        )
-
-    create_or_update_published_article(
-        source_article=source_article, article_snapshot=snapshot
-    )
-
-    # Create article event
-    article_event = ArticleEvent.objects.create(
-        source_article=source_article,
-        article_snapshot=snapshot,
-        annotation=annotation,
-        event_type=ArticleEvent.EventType.APPROVE,
-        actor=actor,
-    )
-
-    # Update source article
-    source_article.status = SourceArticle.ArticleStatus.PUBLISHED
-    source_article.last_moderation_at = timezone.now()
-    source_article.save(update_fields=['status', 'last_moderation_at'])
-
-    # Update last article snapshot
-    snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.APPROVED
-    snapshot.save(update_fields=['moderation_status'])
-
-    return build_article_action_result(
-        source_article=source_article, actor=actor, event=article_event, article_snapshot=snapshot
-    )
+def approve(*, source_article_id, actor, annotation=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    return workflow.approve()
 
 
 @transaction.atomic
-def reject(*,
-           source_article_id: UUID,
-           actor: User,
-           annotation: str | None = None) -> ArticleActionResult:
-
-    source_article = get_locked_source_article(source_article_id)
-
-    # Can only reject when the Source Article is PENDING
-    if source_article.status != SourceArticle.ArticleStatus.PENDING:
-        raise ServiceError(
-            detail="Only a pending article can be rejected!",
-            code='state_transition_error'
-        )
-
-    snapshot = get_last_snapshot(source_article)
-    if not snapshot:
-        raise ServiceError(
-            detail="There are no snapshots for this article!",
-            code='no_snapshot_error'
-        )
-
-    # Create article event
-    article_event = ArticleEvent.objects.create(
-        source_article=source_article,
-        article_snapshot=snapshot,
-        annotation=annotation,
-        event_type=ArticleEvent.EventType.REJECT,
-        actor=actor,
-    )
-
-    # Update source article
-    source_article.status = SourceArticle.ArticleStatus.REJECTED
-    source_article.last_moderation_at = timezone.now()
-    source_article.save(update_fields=['status', 'last_moderation_at'])
-
-    # Update last article snapshot
-    snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.REJECTED
-    snapshot.save(update_fields=['moderation_status'])
-
-    return build_article_action_result(
-        source_article=source_article, actor=actor, event=article_event, article_snapshot=snapshot
-    )
+def reject(*, source_article_id, actor, annotation=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    return workflow.reject()
 
 
 @transaction.atomic
-def unpublish(*,
-              source_article_id: UUID,
-              actor: User,
-              annotation: str | None = None) -> ArticleActionResult:
-
-    source_article = get_locked_source_article(source_article_id)
-
-    # Can only unpublish when the Source Article is PUBLISHED
-    if source_article.status != SourceArticle.ArticleStatus.PUBLISHED:
-        raise ServiceError(
-            detail="Only a published article can be unpublished!",
-            code='state_transition_error'
-        )
-
-    snapshot = get_last_snapshot(source_article)
-    if not snapshot:
-        raise ServiceError(
-            detail="There are no snapshots for this article!",
-            code='no_snapshot_error'
-        )
-
-    # Create article event
-    article_event = ArticleEvent.objects.create(
-        source_article=source_article,
-        article_snapshot=snapshot,
-        annotation=annotation,
-        event_type=ArticleEvent.EventType.UNPUBLISH,
-        actor=actor,
-    )
-
-    # Update source article
-    source_article.status = SourceArticle.ArticleStatus.UNPUBLISHED
-    source_article.last_moderation_at = timezone.now()
-    source_article.save(update_fields=['status', 'last_moderation_at'])
-
-    return build_article_action_result(
-        source_article=source_article, actor=actor, event=article_event, article_snapshot=snapshot
-    )
+def unpublish(*, source_article_id, actor, annotation=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    return workflow.unpublish()
 
 
 @transaction.atomic
-def soft_delete(*,
-                source_article_id: UUID,
-                actor: User,
-                annotation: str | None = None) -> ArticleActionResult:
+def soft_delete(*, source_article_id, actor, annotation=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    return workflow.soft_delete()
 
-    source_article = get_locked_source_article(source_article_id)
 
-    # Can only delete when the Source Article is not PENDING
-    if source_article.status == SourceArticle.ArticleStatus.PENDING:
-        raise ServiceError(
-            detail="A pending article cannot be deleted! Please withdraw it from moderation first.",
-            code='state_transition_error'
+class ArticleWorkflow:
+    def __init__(self, *, source_article, actor, annotation=None):
+        self.source_article = source_article
+        self.article_snapshot = self._get_last_snapshot()
+        self.actor = actor
+        self.annotation = annotation
+
+    def _get_last_snapshot(self):
+        """
+        Return the most recent snapshot of the source article.
+        'None' will be returned if no snapshot is available.
+        """
+        return (
+            ArticleSnapshot.objects
+            .filter(source_article=self.source_article)
+            .order_by('-created_at')
+            .first()
         )
 
-    # For this method, snapshot may not be available
-    # as user may delete an article that has never been submitted.
-    # In this case, 'None' will be returned.
-    snapshot = get_last_snapshot(source_article)
+    @staticmethod
+    def _hash_and_normalize(title, content):
+        """
+        Make a stable representation of the article and calculate its hash value.
+        It strips the spaces before and after the title and the summary.
+        Return: hash_value
+        """
+        items_to_hash = {
+            'title': title.strip(),
+            'content': content,
+        }
+        items_json = json.dumps(items_to_hash, sort_keys=True)
+        hash_value = hashlib.blake2b(items_json.encode("utf-8")).hexdigest()
 
-    published_article = get_published_version(source_article)
+        return hash_value
 
-    # Soft delete source article
-    source_article.delete()
+    def _get_the_published_article(self):
+        """
+        Return the published version of the article
+        """
+        return PublishedArticle.objects.filter(source_article=self.source_article).first()
 
-    # Delete associated published article
-    if published_article:
-        published_article.delete()
+    @staticmethod
+    def _assert(*, condition, error_message):
+        """
+        Check whether the source article's status is legal.
+        """
+        if not condition:
+            raise ServiceError(detail=error_message, code='state_transition_error')
 
-    # Create article event
-    article_event = ArticleEvent.objects.create(
-        source_article=source_article,
-        article_snapshot=snapshot,
-        annotation=annotation,
-        event_type=ArticleEvent.EventType.DELETE,
-        actor=actor,
-    )
+    @staticmethod
+    def _within_submit_cooldown(last_moderation_at, hours=12):
+        """
+        Check if the source article is within the submit cooldown.
+        Return is_within
+        """
+        if not last_moderation_at:  # First time submit
+            return False
 
-    # Update Source Article
-    source_article.status = SourceArticle.ArticleStatus.DELETED
-    source_article.save(update_fields=['status'])
+        now = timezone.now()
+        is_within = now - last_moderation_at < timedelta(hours=hours)
 
-    return build_article_action_result(
-        source_article=source_article, actor=actor, event=article_event, article_snapshot=snapshot
-    )
+        return is_within
+
+    def _create_or_update_published_article(self):
+        """
+        Create or update the source article's published version.
+        Return the published_article.
+        """
+        published_article = self._get_the_published_article()
+
+        if published_article:
+            published_article.title = self.article_snapshot.title
+            published_article.content = self.article_snapshot.content
+            published_article.save(update_fields=['title', 'content'])
+
+            return published_article
+
+        published_article = PublishedArticle.objects.create(
+            source_article=self.source_article,
+            title=self.article_snapshot.title,
+            content=self.article_snapshot.content,
+        )
+
+        return published_article
+
+    def _create_article_event(self, event_type):
+        """
+        Return an article event.
+        """
+        return ArticleEvent.objects.create(
+            source_article=self.source_article,
+            article_snapshot=self.article_snapshot,
+            annotation=self.annotation,
+            event_type=event_type,
+            actor=self.actor,
+        )
+
+    @staticmethod
+    def _build_action_result(event):
+        """
+        Build a standard action result.
+        Return a dict containing the information.
+        """
+        return {
+            "event_type": event.event_type,
+            "actor_id": event.actor_id,
+            "source_article_id": event.source_article_id,
+            "snapshot_id": event.article_snapshot_id if event.article_snapshot else None,
+            "event_id": event.id,
+        }
+
+    def submit(self):
+        last_moderation_at = self.source_article.last_moderation_at
+        if last_moderation_at and self._within_submit_cooldown(last_moderation_at, hours=6):
+            raise ServiceError(
+                detail="Submission has a cooldown of 6 hours.",
+                code='cooldown_error'
+            )
+
+        self._assert(
+            condition=self.source_article.status == SourceArticle.ArticleStatus.DRAFT,
+            error_message="You can only submit an article draft!"
+        )
+
+        current_hash = self._hash_and_normalize(
+            self.source_article.title,
+            self.source_article.content
+        )
+
+        if self.article_snapshot and self.article_snapshot.content_hash == current_hash:
+            raise ServiceError(
+                detail="Please modify before submission.",
+                code='no_change_error'
+            )
+
+        new_snapshot = ArticleSnapshot.objects.create(
+            source_article=self.source_article,
+            title=self.source_article.title,
+            content=self.source_article.content,
+            content_hash=current_hash,
+            moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
+        )
+        self.article_snapshot = new_snapshot
+
+        self.source_article.status = SourceArticle.ArticleStatus.PENDING
+        self.source_article.save(update_fields=['status'])
+
+        article_event = self._create_article_event(event_type=ArticleEvent.EventType.SUBMIT)
+
+        return self._build_action_result(event=article_event)
+
+    def withdraw(self):
+        self._assert(
+            condition=self.source_article.status == SourceArticle.ArticleStatus.PENDING,
+            error_message="You can only withdraw a pending article!"
+        )
+
+        if not self.article_snapshot:
+            raise ServiceError(
+                detail="A article snapshot is required!",
+                code='article_snapshot_required'
+            )
+
+        self.source_article.status = SourceArticle.ArticleStatus.DRAFT
+        self.source_article.save(update_fields=['status'])
+
+        self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.WITHDRAWN
+        self.article_snapshot.save(update_fields=['moderation_status'])
+
+        article_event = self._create_article_event(event_type=ArticleEvent.EventType.WITHDRAW)
+
+        return self._build_action_result(event=article_event)
+
+    def approve(self):
+        self._assert(
+            condition=self.source_article.status == SourceArticle.ArticleStatus.PENDING,
+            error_message="You can only approve a pending article!"
+        )
+
+        if not self.article_snapshot:
+            raise ServiceError(
+                detail="There are no snapshots for this article!",
+                code='no_change_error'
+            )
+
+        self._create_or_update_published_article()
+
+        self.source_article.status = SourceArticle.ArticleStatus.PUBLISHED
+        self.source_article.last_moderation_at = timezone.now()
+        self.source_article.save(update_fields=['status', 'last_moderation_at'])
+
+        self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.APPROVED
+        self.article_snapshot.save(update_fields=['moderation_status'])
+
+        article_event = self._create_article_event(event_type=ArticleEvent.EventType.APPROVE)
+
+        return self._build_action_result(event=article_event)
+
+    def reject(self):
+        self._assert(
+            condition=self.source_article.status == SourceArticle.ArticleStatus.PENDING,
+            error_message="You can only reject a pending article!"
+        )
+
+        if not self.article_snapshot:
+            raise ServiceError(
+                detail="There are no snapshots for this article!",
+                code='no_snapshot_error'
+            )
+
+        self.source_article.status = SourceArticle.ArticleStatus.DRAFT
+        self.source_article.last_moderation_at = timezone.now()
+        self.source_article.save(update_fields=['status', 'last_moderation_at'])
+
+        self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.REJECTED
+        self.article_snapshot.save(update_fields=['moderation_status'])
+
+        article_event = self._create_article_event(event_type=ArticleEvent.EventType.REJECT)
+
+        return self._build_action_result(event=article_event)
+
+    def unpublish(self):
+        self._assert(
+            condition=self.source_article.status == SourceArticle.ArticleStatus.PUBLISHED,
+            error_message="You can only unpublish a published article!"
+        )
+
+        if not self.article_snapshot:
+            raise ServiceError(
+                detail="There are no snapshots for this article!",
+                code='no_snapshot_error'
+            )
+
+        self.source_article.status = SourceArticle.ArticleStatus.UNPUBLISHED
+        self.source_article.last_moderation_at = timezone.now()
+        self.source_article.save(update_fields=['status', 'last_moderation_at'])
+
+        article_event = self._create_article_event(event_type=ArticleEvent.EventType.UNPUBLISH)
+
+        return self._build_action_result(event=article_event)
+
+    def soft_delete(self):
+        """
+        For this method, snapshot may not be available
+        as user may delete an article that has never been submitted.
+        """
+        self._assert(
+            condition=self.source_article.status != SourceArticle.ArticleStatus.PENDING,
+            error_message="A pending article cannot be deleted! Please withdraw it first."
+        )
+
+        published_article = self._get_the_published_article()
+
+        if published_article:
+            published_article.delete()
+
+        self.source_article.is_deleted = True  # Soft delete source article
+        self.source_article.save(update_fields=['is_deleted'])
+
+        article_event = self._create_article_event(event_type=ArticleEvent.EventType.DELETE)
+
+        return self._build_action_result(event=article_event)

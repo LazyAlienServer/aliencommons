@@ -33,14 +33,12 @@ class SourceArticle(UUIDPrimaryKeyMixin,
 
     class ArticleStatus(models.IntegerChoices):
         """
-        5 different article status
+        4 different source article status
         """
         DRAFT = 0, "Draft"
         PENDING = 1, "Pending"
         PUBLISHED = 2, "Published"
-        REJECTED = 3, "Rejected"
-        UNPUBLISHED = 4, "Unpublished"
-        DELETED = 5, "Deleted"
+        UNPUBLISHED = 3, "Unpublished"
 
     author = models.ForeignKey(
         verbose_name=_("author"),
@@ -141,13 +139,13 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
         verbose_name=_("content hash"),
         max_length=64, blank=True, default="", db_index=True
     )
-    created_at = models.DateTimeField(
-        verbose_name=_("created at"),
-        default=timezone.now, db_index=True, editable=False
-    )
     moderation_status = models.IntegerField(
         verbose_name=_("moderation status"),
         choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True
+    )
+    created_at = models.DateTimeField(
+        verbose_name=_("created at"),
+        auto_now_add=True, db_index=True, editable=False
     )
 
     class Meta:
@@ -204,7 +202,7 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
     )
     created_at = models.DateTimeField(
         verbose_name=_("created at"),
-        default=timezone.now, db_index=True, editable=False
+        auto_now_add=True, db_index=True, editable=False
     )
 
     class Meta:

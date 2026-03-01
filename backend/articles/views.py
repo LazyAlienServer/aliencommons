@@ -86,12 +86,10 @@ class SourceArticleViewSet(MyModelViewSet):
         )
         input_serializer.is_valid(raise_exception=True)
 
-        instance = input_serializer.save(author=self.request.user)
-
-        instance = self.get_queryset().get(pk=instance.pk)
+        source_article = input_serializer.save(author=self.request.user)
 
         output_serializer = SourceArticleReadSerializer(
-            instance=instance,
+            instance=source_article,
             context=self.get_serializer_context(),
         )
 

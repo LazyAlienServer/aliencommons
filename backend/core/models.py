@@ -11,7 +11,7 @@ class TimeStampedMixin(models.Model):
     """
     created_at = models.DateTimeField(
         verbose_name=_("created at"),
-        default=timezone.now, db_index=True, editable=False
+        auto_now_add=True, db_index=True, editable=False
     )
     updated_at = models.DateTimeField(
         verbose_name=_("updated at"),
@@ -56,7 +56,7 @@ class SoftDeleteQuerySet(models.QuerySet):
 
 class SoftDeleteManager(models.Manager):
     def get_queryset(self):
-        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
+        return SoftDeleteQuerySet(self.model, using=self._db).alive()
 
 
 class SoftDeleteMixin(models.Model):
@@ -71,29 +71,6 @@ class SoftDeleteMixin(models.Model):
 
     objects = SoftDeleteManager()
     all_objects = SoftDeleteQuerySet.as_manager()
-
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        update_fields = ['is_deleted']
-
-        # If 'TimeStampedMixin' is used
-        if hasattr(self, 'updated_at'):
-            update_fields.append('updated_at')
-
-        self.save(update_fields=update_fields)
-
-    def hard_delete(self, using=None, keep_parents=False):
-        return super().delete(using=using, keep_parents=keep_parents)
-
-    def restore(self, using=None):
-        self.is_deleted = False
-        update_fields = ['is_deleted']
-
-        # If 'TimeStampedMixin' is used
-        if hasattr(self, 'updated_at'):
-            update_fields.append('updated_at')
-
-        self.save(update_fields=update_fields, using=using)
 
     class Meta:
         abstract = True

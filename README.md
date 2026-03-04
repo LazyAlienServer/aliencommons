@@ -1,2 +1,7 @@
-# How to run a backend command directly (example)
-```docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python manage.py makemigrations```
+# AlienCommons
+
+The source code of the website of Lazy Alien Server Technical Mincraft Translation Team is hosted here.
+
+## Developer Documentation
+
+Documents for our developers: [alien-commons-docs](https://lazyalienserver.github.io/alien-commons-docs/)

@@ -50,6 +50,19 @@ def delete_cache(*, namespace, entity, identifier):
     return cache.delete(key)
 
 
+def incr_cache(*, namespace, entity, identifier, delta=1, timeout=None):
+    """
+    Increase a number in cache. If not exist, create it as 0 then increment.
+    """
+    key = _get_key(namespace, entity, identifier)
+    try:
+        return cache.incr(key, delta)
+    except ValueError:
+        # key not found or not int
+        cache.add(key, 0, timeout=timeout)
+        return cache.incr(key, delta)
+
+
 def get_or_set_cache(*, namespace, entity, identifier, creator, timeout=None):
     """
     Retrieves a key value from the cache and sets the value if it does not exist.

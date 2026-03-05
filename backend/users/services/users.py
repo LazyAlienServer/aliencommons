@@ -8,7 +8,7 @@ import random
 import hashlib
 
 from core.exceptions import ServiceError
-from core.utils.cache import add_cache, set_cache, get_cache, delete_cache
+from core.utils.cache import add_cache, set_cache, get_cache, delete_cache, incr_cache
 from users.models import EmailAddress
 
 User = get_user_model()
@@ -33,7 +33,7 @@ def _send_verification_email(*, to_email, code):
     """
     send_mail(
         subject="Your Verification Code",
-        message=f"Your Verification Code is {code}",
+        message=f"Your verification code is {code}",
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[to_email],
         fail_silently=False,
@@ -46,13 +46,11 @@ def _send_verification_code(*, email):
     Another code can only be generated and sent after 60 seconds.
     """
     namespace = 'email_verification'
-    resend_cooldown = 60
-    code_ttl = 600
 
     # Cooldown check: cannot generate and send another code in 60 seconds
     success = add_cache(
         namespace=namespace, entity='cooldown_check', identifier=email,
-        value='60', timeout=resend_cooldown
+        value='60', timeout=settings.VERIFICATION_CODE_RESEND_COOLDOWN
     )
     if not success:
         raise ServiceError(
@@ -64,14 +62,18 @@ def _send_verification_code(*, email):
     # Generate another code and override the original code
     set_cache(
         namespace=namespace, entity='code', identifier=email,
-        value=_hash_code(email, code), timeout=code_ttl
+        value=_hash_code(email, code), timeout=settings.VERIFICATION_CODE_TTL
+    )
+    set_cache(
+        namespace=namespace, entity='attempts', identifier=email,
+        value=0, timeout=settings.VERIFICATION_CODE_TTL
     )
 
     _send_verification_email(to_email=email, code=code)
 
     return {
-        "resend_cooldown_seconds": resend_cooldown,
-        "code_ttl_seconds": code_ttl,
+        "resend_cooldown_seconds": settings.VERIFICATION_CODE_RESEND_COOLDOWN,
+        "code_ttl_seconds": settings.VERIFICATION_CODE_TTL,
     }
 
 
@@ -143,7 +145,16 @@ def verify_email(*, user, email, code):
         raise ServiceError(
             detail="The verification code is either expired or not sent", code='code_not_found'
         )
+
     if stored_code != _hash_code(email, code):
+        attempts = incr_cache(
+            namespace=namespace, entity="attempts", identifier=email, delta=1, timeout=600
+        )
+        if attempts >= settings.MAX_VERIFICATION_ATTEMPTS:
+            raise ServiceError(
+                detail="Maximum number of attempts reached",
+                code="max_attempts_reached",
+            )
         raise ServiceError(
             detail="Incorrect verification code", code='incorrect_code'
         )

@@ -5,6 +5,7 @@ from django.db import transaction
 
 import secrets
 import random
+import hashlib
 
 from core.exceptions import ServiceError
 from core.utils.cache import add_cache, set_cache, get_cache, delete_cache
@@ -21,6 +22,11 @@ def _generate_6_digit_code():
     return code
 
 
+def _hash_code(email, code):
+    raw = f"{email}:{code}:{settings.SECRET_KEY}"
+    return hashlib.blake2b(raw.encode("utf-8")).hexdigest()
+
+
 def _send_verification_email(*, to_email, code):
     """
     Send verification email.
@@ -34,7 +40,7 @@ def _send_verification_email(*, to_email, code):
     )
 
 
-def _verify_email(*, to_email):
+def _send_verification_code(*, email):
     """
     Generate, store and send the code.
     Another code can only be generated and sent after 60 seconds.
@@ -45,7 +51,7 @@ def _verify_email(*, to_email):
 
     # Cooldown check: cannot generate and send another code in 60 seconds
     success = add_cache(
-        namespace=namespace, entity='cooldown_check', identifier=to_email,
+        namespace=namespace, entity='cooldown_check', identifier=email,
         value='60', timeout=resend_cooldown
     )
     if not success:
@@ -57,11 +63,11 @@ def _verify_email(*, to_email):
 
     # Generate another code and override the original code
     set_cache(
-        namespace=namespace, entity='code', identifier=to_email,
-        value=code, timeout=code_ttl
+        namespace=namespace, entity='code', identifier=email,
+        value=_hash_code(email, code), timeout=code_ttl
     )
 
-    _send_verification_email(to_email=to_email, code=code)
+    _send_verification_email(to_email=email, code=code)
 
     return {
         "resend_cooldown_seconds": resend_cooldown,
@@ -93,7 +99,7 @@ def register(*, username, email, password):
         is_primary=True,
     )
 
-    result = _verify_email(to_email=email_address.email)
+    result = _send_verification_code(email=email_address.email)
 
     return {
         "user_id": user.id,
@@ -137,7 +143,7 @@ def verify_email(*, user, email, code):
         raise ServiceError(
             detail="The verification code is either expired or not sent", code='code_not_found'
         )
-    if stored_code != code:
+    if stored_code != _hash_code(email, code):
         raise ServiceError(
             detail="Incorrect verification code", code='incorrect_code'
         )

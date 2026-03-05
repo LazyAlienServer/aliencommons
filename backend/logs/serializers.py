@@ -1,9 +1,10 @@
+from rest_framework import serializers
+
 from .models import FrontendLog
 from core.fields import FlexibleDateTimeField
-from core.serializers import BaseSerializer, BaseModelSerializer
 
 
-class SingleFrontendLogSerializer(BaseModelSerializer):
+class SingleFrontendLogSerializer(serializers.ModelSerializer):
     timestamp = FlexibleDateTimeField(required=True)
 
     class Meta:
@@ -11,7 +12,7 @@ class SingleFrontendLogSerializer(BaseModelSerializer):
         fields = ['level', 'message', 'extra', 'timestamp', 'page']
 
 
-class ListFrontendLogSerializer(BaseSerializer):
+class ListFrontendLogSerializer(serializers.Serializer):
     logs = SingleFrontendLogSerializer(many=True)
 
     def create(self, validated_data):
@@ -21,7 +22,7 @@ class ListFrontendLogSerializer(BaseSerializer):
 
         for log in logs_data:
             logs_instances.append(
-                FELog(
+                FrontendLog(
                     level=log['level'],
                     message=log['message'],
                     extra=log['extra'],
@@ -30,5 +31,5 @@ class ListFrontendLogSerializer(BaseSerializer):
                 )
             )
 
-        created_logs = FELog.objects.bulk_create(logs_instances)
+        created_logs = FrontendLog.objects.bulk_create(logs_instances)
         return created_logs

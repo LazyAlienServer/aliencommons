@@ -125,7 +125,7 @@ class SourceArticleViewSet(MyModelViewSet):
             annotation=input_serializer.validated_data.get("annotation", None)
         )
 
-        output_serializer = ArticleActionOutputSerializer(result)
+        output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
             message="submitted",
@@ -145,7 +145,7 @@ class SourceArticleViewSet(MyModelViewSet):
             annotation=input_serializer.validated_data.get("annotation", None)
         )
 
-        output_serializer = ArticleActionOutputSerializer(result)
+        output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
             message="withdrawn",
@@ -165,7 +165,7 @@ class SourceArticleViewSet(MyModelViewSet):
             annotation=input_serializer.validated_data.get("annotation", None)
         )
 
-        output_serializer = ArticleActionOutputSerializer(result)
+        output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
             message="approved",
@@ -185,7 +185,7 @@ class SourceArticleViewSet(MyModelViewSet):
             annotation=input_serializer.validated_data.get("annotation", None)
         )
 
-        output_serializer = ArticleActionOutputSerializer(result)
+        output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
             message="rejected",
@@ -205,7 +205,7 @@ class SourceArticleViewSet(MyModelViewSet):
             annotation=input_serializer.validated_data.get("annotation", None)
         )
 
-        output_serializer = ArticleActionOutputSerializer(result)
+        output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
             message="unpublished",
@@ -225,7 +225,7 @@ class SourceArticleViewSet(MyModelViewSet):
             annotation=input_serializer.validated_data.get("annotation", None)
         )
 
-        output_serializer = ArticleActionOutputSerializer(result)
+        output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
             message="deleted",

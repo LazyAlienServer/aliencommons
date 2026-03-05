@@ -1,4 +1,4 @@
-from django.core.cache import cache
+from django.conf import settings
 
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -15,10 +15,17 @@ def days_since_start(date="2023-03-17"):
     return delta.days
 
 
-def fetch_youtube_cache():
-    """Fetch cached YouTube data"""
+def _fetch_youtube_cache():
+    """
+    Fetch cached YouTube data
+    """
+    namespace = 'youtube_data'
+    entity = 'channel_stats'
+    identifier = settings.YOUTUBE_CHANNEL_ID
 
-    raw_data = get_cache("youtube_data", "channel_stats")
+    raw_data = get_cache(
+        namespace=namespace, entity=entity, identifier=identifier
+    )
 
     if not raw_data:
         return None
@@ -33,13 +40,13 @@ def fetch_youtube_cache():
 
 
 class YoutubeSnapshotView(APIView):
-    """Return YouTube Channel Snapshot"""
-
+    """
+    Return YouTube Channel Snapshot
+    """
     permission_classes = (AllowAny,)
 
     def get(self, request):
-
-        data = fetch_youtube_cache()
+        data = _fetch_youtube_cache()
 
         if data:
             thumbnail_url = data["snippet"]["thumbnails"]["high"]["url"]

@@ -63,6 +63,8 @@ YOUTUBE_CHANNEL_HANDLE = env.str("YOUTUBE_CHANNEL_HANDLE")
 YOUTUBE_REQUEST_HEADERS = {
     "Referer": "http://localhost:8000",
 }
+YOUTUBE_API_KEY = env.str("YOUTUBE_API_KEY")
+YOUTUBE_API_URL = f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet,statistics&id={YOUTUBE_CHANNEL_ID}&key={YOUTUBE_API_KEY}"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -183,11 +185,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_URL = env.str("SITE_URL")
 
-YOUTUBE_API_KEY = env.str("YOUTUBE_API_KEY")
-YOUTUBE_API_URL = f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet,statistics&id={YOUTUBE_CHANNEL_ID}&key={YOUTUBE_API_KEY}"
-
 CELERY_TIMEZONE = "UTC"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+DEFAULT_FROM_EMAIL = "noreply@aliencommons.com"

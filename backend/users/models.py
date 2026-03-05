@@ -144,6 +144,10 @@ class EmailAddress(UUIDPrimaryKeyMixin,
         verbose_name=_("primary"),
         default=False
     )
+    created_at = models.DateTimeField(
+        verbose_name=_("created at"),
+        auto_now_add=True, db_index=True, editable=False
+    )
 
     class Meta:
         verbose_name = _("email")

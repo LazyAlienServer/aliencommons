@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from datetime import timedelta
@@ -14,13 +13,17 @@ from core.exceptions import ServiceError
 
 def _get_locked_source_article(source_article_id):
     """
-    Return a locked source article for business logic.
+    Return a locked SourceArticle for business logic.
+    If the SourceArticle does not exist, a ServiceError will be raised.
     """
-    source_article = get_object_or_404(
-        SourceArticle.objects.select_for_update(),
-        pk=source_article_id,
-    )
-    return source_article
+    try:
+        source_article = SourceArticle.objects.select_for_update().get(id=source_article_id)
+        return source_article
+
+    except SourceArticle.DoesNotExist:
+        raise ServiceError(
+            detail="Source article not found", code='source_article_not_found'
+        )
 
 
 @transaction.atomic

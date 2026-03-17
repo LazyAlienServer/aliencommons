@@ -1,6 +1,7 @@
 from rest_framework import permissions
 
 from core.utils.permissions import is_moderator
+from .models import ArticleEvent
 
 
 def is_the_author(user, obj):
@@ -39,4 +40,5 @@ class ArticleEventPermission(permissions.BasePermission):
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        return is_moderator(request.user) or is_the_author(request.user, obj.article)
+        obj: ArticleEvent
+        return is_moderator(request.user) or is_the_author(request.user, obj.source_article)

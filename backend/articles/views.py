@@ -71,7 +71,12 @@ class SourceArticleViewSet(MyModelViewSet):
             return queryset.none()
 
         queryset = queryset.filter(author=user)
-        last_snapshot_id = ArticleSnapshot.objects.filter(source_article_id=OuterRef("pk")).order_by("-created_at").values("id")[:1]
+        last_snapshot_id = (
+            ArticleSnapshot.objects
+            .filter(source_article_id=OuterRef("pk"))
+            .order_by("-created_at")
+            .values("id")[:1]
+        )
         published_version_id = PublishedArticle.objects.filter(source_article_id=OuterRef("pk")).values("id")
 
         return queryset.annotate(

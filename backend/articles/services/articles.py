@@ -175,7 +175,7 @@ class ArticleWorkflow:
             "event_type": event.event_type,
             "actor_id": event.actor_id,
             "source_article_id": event.source_article_id,
-            "snapshot_id": event.article_snapshot_id if event.article_snapshot else None,
+            "article_snapshot_id": event.article_snapshot_id if event.article_snapshot else None,
             "event_id": event.id,
         }
 

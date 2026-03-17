@@ -21,6 +21,7 @@ venv/
 celerybeat-schedule*
 media/
 staticfiles/
+test_db.sqlite3
 
 # Frontend
 node_modules/

@@ -27,8 +27,8 @@ class SourceArticleReadSerializer(serializers.ModelSerializer):
 
     author_username = serializers.CharField(source='author.username')
     status_display = serializers.SerializerMethodField()
-    last_snapshot_id = serializers.UUIDField()
-    published_version_id = serializers.UUIDField()
+    last_snapshot_id = serializers.SerializerMethodField()
+    published_version_id = serializers.SerializerMethodField()
 
     class Meta:
         model = SourceArticle
@@ -51,6 +51,31 @@ class SourceArticleReadSerializer(serializers.ModelSerializer):
 
     def get_status_display(self, obj):
         return obj.get_status_display()
+
+    def get_last_snapshot_id(self, obj):
+        annotated_value = getattr(obj, "last_snapshot_id", None)
+        if annotated_value is not None:
+            return annotated_value
+
+        last_snapshot_id = (
+            obj.article_snapshots
+            .order_by("-created_at")
+            .values_list("id", flat=True)
+            .first()
+        )
+        return last_snapshot_id
+
+    def get_published_version_id(self, obj):
+        annotated_value = getattr(obj, "published_version_id", None)
+        if annotated_value is not None:
+            return annotated_value
+
+        return (
+            PublishedArticle.objects
+            .filter(source_article=obj)
+            .values_list("id", flat=True)
+            .first()
+        )
 
 
 class SourceArticleWriteSerializer(serializers.ModelSerializer):
@@ -161,7 +186,8 @@ class ArticleSnapshotSerializer(serializers.ModelSerializer):
         return obj.get_moderation_status_display()
 
     def get_source_article_id(self, obj):
-        return obj.article_id
+        obj: ArticleSnapshot
+        return obj.source_article_id
 
 
 class ArticleEventSerializer(serializers.ModelSerializer):

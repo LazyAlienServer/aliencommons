@@ -33,7 +33,7 @@ class UserViewSet(MyListModelMixin,
 
     Register, User List, User Info, Update (username, signature, avatar)
     """
-    queryset = User.objects.all()
+    queryset = User.objects.order_by("-date_joined")
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     default_serializer_class = UserRetrieveSerializer
 
@@ -45,7 +45,7 @@ class UserViewSet(MyListModelMixin,
 
     def get_serializer_class(self):
         self.action: str
-        return self.serializer_class_mapping[self.action, self.default_serializer_class]
+        return self.serializer_class_mapping.get(self.action, self.default_serializer_class)
 
     def get_permissions(self):
         self.action: str

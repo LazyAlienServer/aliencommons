@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     # 3rd-party Apps
     "corsheaders",
     "rest_framework",
-    "django_celery_beat",
     "django_filters",
     'drf_spectacular',
 ]
@@ -184,10 +183,13 @@ DATABASES = {
     }
 }
 
+# Redis DB 0 is for django cache, Redis DB 1 is for tasks
+REDIS_URL = env.str("REDIS_URL")
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env.str("REDIS_URL"),
+        "LOCATION": f"{REDIS_URL}/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
@@ -196,14 +198,21 @@ CACHES = {
     }
 }
 
+RQ_QUEUES = {
+    "default": {
+        "URL": f"{REDIS_URL}/0",
+        "DEFAULT_TIMEOUT": 300,
+    },
+    "emails": {
+        "URL": f"{REDIS_URL}/0",
+        "DEFAULT_TIMEOUT": 300,
+    },
+    "maintenance": {
+        "URL": f"{REDIS_URL}/0",
+        "DEFAULT_TIMEOUT": 300,
+    },
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_URL = env.str("SITE_URL")
-
-CELERY_TIMEZONE = "UTC"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
-DEFAULT_FROM_EMAIL = "noreply@aliencommons.com"

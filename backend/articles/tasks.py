@@ -1,10 +1,9 @@
-from pathlib import Path
-from typing import Any, Iterable, Set
-from urllib.parse import urlparse
-
-from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
+from django.tasks import task
+
+from pathlib import Path
+from urllib.parse import urlparse
 
 from articles.models import SourceArticle
 
@@ -18,8 +17,8 @@ def _extract_media_relpaths_from_tiptap(doc):
     Return:
       - "article_images/2026/01/xx.webp"
     """
-    media_url = (settings.MEDIA_URL or "/media/").rstrip("/") + "/"
-    relpaths: Set[str] = set()
+    media_url = settings.MEDIA_URL.rstrip("/") + "/"
+    relpaths = set()
 
     def normalize_src(src):
         if not src:
@@ -66,7 +65,7 @@ def _iter_article_image_files():
     return (p for p in root.rglob("*") if p.is_file())
 
 
-@shared_task
+@task
 def cleanup_unreferenced_article_images(grace_days=1):
     """
     Delete article_images/* files that are not referenced by any SourceArticle.content.

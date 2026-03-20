@@ -1,5 +1,3 @@
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.exceptions import APIException, ValidationError

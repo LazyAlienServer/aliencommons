@@ -1,10 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from core.models import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
+from core.models.mixins import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
 
 
 User = get_user_model()
@@ -108,8 +107,7 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
         return f"Published version of article {self.source_article}"
 
 
-class ArticleSnapshot(UUIDPrimaryKeyMixin,
-                      models.Model):
+class ArticleSnapshot(UUIDPrimaryKeyMixin, models.Model):
     """
     Freeze the current version of the article for review and retrospection.
 
@@ -163,8 +161,7 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
         return f"Snapshot of article {self.source_article_id}"
 
 
-class ArticleEvent(UUIDPrimaryKeyMixin,
-                   models.Model):
+class ArticleEvent(UUIDPrimaryKeyMixin, models.Model):
     """
     Record events related to articles
 

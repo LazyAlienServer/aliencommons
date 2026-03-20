@@ -10,7 +10,7 @@ import uuid
 from pathlib import Path
 from urllib.parse import urljoin
 
-from core.models import UUIDPrimaryKeyMixin
+from core.models.mixins import UUIDPrimaryKeyMixin
 
 
 def avatar_upload_to(instance):

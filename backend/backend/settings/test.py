@@ -26,8 +26,9 @@ INSTALLED_APPS = [
     "articles.apps.ArticlesConfig",
     "corsheaders",
     "rest_framework",
-    "django_celery_beat",
     "django_filters",
+    "django_rq",
+    "django_tasks_rq",
     "drf_spectacular",
 ]
 
@@ -150,13 +151,12 @@ CACHES = {
     }
 }
 
+TASKS = {
+    "default": {
+        "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+    }
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SITE_URL = "http://testserver"
-
-# CELERY_TIMEZONE = "UTC"
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-# CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-# CELERY_BROKER_URL = "memory://"
-# CELERY_RESULT_BACKEND = "cache+memory://"

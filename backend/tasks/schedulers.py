@@ -46,10 +46,13 @@ def _lock_is_acquired(lock):
     return True
 
 
-def compute_next_run_at(*, previous_run_at, interval_seconds) -> datetime:
-    if interval_seconds <= 0:
-        raise ValueError("interval_seconds must be greater than 0")
-    return previous_run_at + timedelta(seconds=interval_seconds)
+def compute_next_run_at(*, previous_run_at, interval) -> datetime:
+    if interval <= 0:
+        raise ValueError("interval must be greater than 0")
+
+    next_run_at = previous_run_at + timedelta(seconds=interval)
+
+    return next_run_at
 
 
 def dispatch_schedule(*, schedule, now=None):
@@ -65,9 +68,9 @@ def dispatch_schedule(*, schedule, now=None):
         return False
 
     task = import_string(schedule.task_path)
-    args = schedule.args_json or []
-    kwargs = schedule.kwargs_json or {}
-    queue_name = schedule.queue_name or "default"
+    args = schedule.args or []
+    kwargs = schedule.kwargs or {}
+    queue = schedule.queue or "default"
 
     with transaction.atomic():
         manager = getattr(type(schedule), "objects")
@@ -84,13 +87,13 @@ def dispatch_schedule(*, schedule, now=None):
         task.enqueue(
             *args,
             **kwargs,
-            queue_name=queue_name,
+            queue=queue,
         )
 
         locked_schedule.last_enqueued_at = now
         locked_schedule.next_run_at= compute_next_run_at(
             previous_run_at=now,
-            interval_seconds=locked_schedule.interval_seconds,
+            interval=locked_schedule.interval,
         )
         locked_schedule.save(update_fields=["last_enqueued_at", "next_run_at"])
 
@@ -100,7 +103,7 @@ def dispatch_schedule(*, schedule, now=None):
             "schedule_id": str(locked_schedule.id),
             "schedule_name": locked_schedule.name,
             "task_path": locked_schedule.task_path,
-            "queue_name": queue_name,
+            "queue": queue,
             "next_run_at": locked_schedule.next_run_at.isoformat() if locked_schedule.next_run_at else None,
         },
     )

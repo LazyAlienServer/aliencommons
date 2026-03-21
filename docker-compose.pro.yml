@@ -1,26 +1,29 @@
 services:
-  db:
+  postgres:
     volumes:
-      - postgres_data_pro:/var/lib/postgresql/data
+      - postgres_data_pro:/var/lib/postgresql
     env_file:
-    - ./env/backend.env.pro
+    - ./env/.env.pro
   
   redis:
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     env_file:
-    - ./env/backend.env.pro
+    - ./env/.env.pro
 
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
     command: >
       sh -c "
-        python manage.py migrate &&
         python manage.py collectstatic --noinput &&
         python manage.py init_tasks &&
         daphne -b 0.0.0.0 -p 8000 backend.asgi:application
       "
-    env_file:
-      - ./env/backend.env.pro
+    environment:
+      - DJANGO_ENV: pro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend-production.rule=Host(`api.aliencommons.lazyalienserver.top`)"
@@ -31,19 +34,12 @@ services:
       - /srv/alien-commons/pro/media:/code/media
       - /srv/alien-commons/pro/static:/code/staticfiles
 
-  celery_worker:
-    env_file:
-      - ./env/backend.env.pro
-
-  celery_beat:
-    env_file:
-      - ./env/backend.env.pro
-
   frontend:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
       VITE_MODE: production
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend-production.rule=Host(`aliencommons.lazyalienserver.top`)"

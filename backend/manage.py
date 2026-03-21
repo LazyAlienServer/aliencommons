@@ -1,10 +1,20 @@
-"""Django's command-line utility for administrative tasks."""
 import os
 import sys
 from environs import Env
+from pathlib import Path
+
+env_name = os.getenv("DJANGO_ENV", "dev")
+BASE_DIR = Path(__file__).resolve().parent
+
+env_file_map = {
+    "dev": BASE_DIR / ".env.dev",
+    "staging": BASE_DIR / ".env.staging",
+    "pro": BASE_DIR / ".env.pro",
+    "test": BASE_DIR / ".env.test",
+}
 
 env = Env()
-env.read_env()
+env.read_env(env_file_map[env_name])
 
 
 def main():

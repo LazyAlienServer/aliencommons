@@ -1,0 +1,51 @@
+services:
+  postgres:
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
+    env_file:
+    - ./env/.env.dev
+  
+  redis:
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: >
+      sh -c "
+        python manage.py collectstatic --noinput &&
+        python manage.py init_tasks &&
+        daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+      "
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_ENV: devfull
+    volumes:
+      - ./backend:/code
+
+  frontend:
+    restart: unless-stopped
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: >
+      sh -c "
+        npm install &&
+        npm run dev
+      "
+    ports:
+      - "8080:5173"
+
+volumes:
+  postgres_data_dev:
+  

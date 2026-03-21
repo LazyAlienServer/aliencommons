@@ -8,7 +8,7 @@ from corsheaders.defaults import default_headers
 env = Env()
 env.read_env()
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 SECRET_KEY = env.str("SECRET_KEY")
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
+    "tasks.apps.TasksConfig",
     # 3rd-party Apps
     "corsheaders",
     "rest_framework",
@@ -180,7 +181,7 @@ DATABASES = {
         "NAME": env("POSTGRES_DB"),
         "USER": env("POSTGRES_USER"),
         "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": "db",
+        "HOST": env("POSTGRES_HOST"),
         "PORT": "5432",
     }
 }

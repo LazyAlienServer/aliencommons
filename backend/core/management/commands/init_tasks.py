@@ -3,6 +3,8 @@ from django.utils import timezone
 
 import json
 
+from tasks.models import IntervalSchedule, PeriodicTask
+
 
 class Command(BaseCommand):
     help = 'Initialize all tasks'
@@ -11,13 +13,12 @@ class Command(BaseCommand):
         # Timer in minutes
         minute_schedule, _ = IntervalSchedule.objects.get_or_create(
             every=1,
-            period=IntervalSchedule.MINUTES,
+            period=IntervalSchedule.Periods.MINUTES,
         )
-
         # Timer in days
         day_schedule, _ = IntervalSchedule.objects.get_or_create(
             every=1,
-            period=IntervalSchedule.DAYS,
+            period=IntervalSchedule.Periods.DAYS,
         )
 
         # tasks config

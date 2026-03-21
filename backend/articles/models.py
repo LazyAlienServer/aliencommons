@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from core.models.mixins import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
+from core.model_mixins import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
 
 
 User = get_user_model()
@@ -15,19 +15,11 @@ class SourceArticle(UUIDPrimaryKeyMixin,
                     models.Model):
     """
     Model for all articles
-
-    Local fields:
-        - author
-        - title
-        - content
-        - last_moderation_at
-        - status
-
     Mixin fields:
-        - created_at
-        - updated_at
-        - id
-        - is_deleted
+    - created_at
+    - updated_at
+    - id
+    - is_deleted
     """
 
     class ArticleStatus(models.IntegerChoices):
@@ -40,24 +32,29 @@ class SourceArticle(UUIDPrimaryKeyMixin,
         UNPUBLISHED = 3, "Unpublished"
 
     author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="source_articles",
         verbose_name=_("author"),
-        to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="source_articles"
+        help_text=_("The author of the article"),
     )
     title = models.CharField(
+        max_length=60, db_index=True, default="",
         verbose_name=_("title"),
-        max_length=60, db_index=True, default=""
+        help_text=_("The title of the article"),
     )
     content = models.JSONField(
+        blank=True, default=dict,
         verbose_name=_("content"),
-        blank=True, default=dict
+        help_text=_("The content of the article"),
     )
     status = models.IntegerField(
+        choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True,
         verbose_name=_("status"),
-        choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True
+        help_text=_("The status of the article"),
     )
     last_moderation_at = models.DateTimeField(
+        blank=True, null=True,
         verbose_name=_("last moderation at"),
-        blank=True, null=True
+        help_text=_("The last moderation DateTime of the article"),
     )
 
     class Meta:
@@ -85,16 +82,19 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
     """
 
     source_article = models.OneToOneField(
+        SourceArticle, on_delete=models.CASCADE, related_name="published_version",
         verbose_name=_("source article"),
-        to=SourceArticle, on_delete=models.CASCADE, related_name="published_version"
+        help_text=_("The source article of the published version"),
     )
     title = models.CharField(
+        max_length=60, db_index=True, default="",
         verbose_name=_("title"),
-        max_length=60, db_index=True, default=""
+        help_text=_("The title of the published article"),
     )
     content = models.JSONField(
+        blank=True, default=dict,
         verbose_name=_("content"),
-        blank=True, default=dict
+        help_text=_("The content of the published article"),
     )
 
     class Meta:
@@ -122,28 +122,34 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin, models.Model):
         REJECTED = 4, "Rejected"
 
     source_article = models.ForeignKey(
+        SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots",
         verbose_name=_("source article"),
-        to=SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots"
+        help_text=_("The source article of the article snapshot"),
     )
     title = models.CharField(
+        max_length=60, db_index=True, default="",
         verbose_name=_("title"),
-        max_length=60, db_index=True, default=""
+        help_text=_("The title of the article snapshot"),
     )
     content = models.JSONField(
+        blank=True, default=dict,
         verbose_name=_("content"),
-        blank=True, default=dict
+        help_text=_("The content of the article snapshot"),
     )
     content_hash = models.CharField(
+        max_length=64, blank=True, default="", db_index=True,
         verbose_name=_("content hash"),
-        max_length=64, blank=True, default="", db_index=True
+        help_text=_("The content hash of the article snapshot"),
     )
     moderation_status = models.IntegerField(
+        choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True,
         verbose_name=_("moderation status"),
-        choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True
+        help_text=_("The moderation status of the article snapshot"),
     )
     created_at = models.DateTimeField(
+        auto_now_add=True, db_index=True, editable=False,
         verbose_name=_("created at"),
-        auto_now_add=True, db_index=True, editable=False
+        help_text=_("The created DateTime of the article snapshot"),
     )
 
     class Meta:
@@ -178,28 +184,34 @@ class ArticleEvent(UUIDPrimaryKeyMixin, models.Model):
         DELETE = 6, "Delete"
 
     source_article = models.ForeignKey(
+        SourceArticle, on_delete=models.CASCADE, related_name="article_events",
         verbose_name=_("source articles"),
-        to=SourceArticle, on_delete=models.CASCADE, related_name="article_events"
+        help_text=_("The source article of the article event"),
     )
     article_snapshot = models.ForeignKey(
+        ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events",
         verbose_name=_("snapshot"),
-        to=ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events"
+        help_text=_("The article snapshot of the article event"),
     )
     annotation = models.TextField(
+        null=True, blank=True,
         verbose_name=_("annotation"),
-        null=True, blank=True
+        help_text=_("The annotation of the article event"),
     )
     event_type = models.IntegerField(
+        choices=EventType.choices,
         verbose_name=_("event type"),
-        choices=EventType.choices
+        help_text=_("The event type of the article event"),
     )
     actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="article_events_actors",
         verbose_name=_("actor"),
-        to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="article_events_actors"
+        help_text=_("The actor of the article event"),
     )
     created_at = models.DateTimeField(
+        auto_now_add=True, db_index=True, editable=False,
         verbose_name=_("created at"),
-        auto_now_add=True, db_index=True, editable=False
+        help_text=_("The created DateTime of the article event"),
     )
 
     class Meta:

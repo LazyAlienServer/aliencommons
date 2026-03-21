@@ -1,0 +1,8 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+
+  redis:
+    image: redis:8
+    restart: unless-stopped

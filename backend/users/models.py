@@ -10,7 +10,7 @@ import uuid
 from pathlib import Path
 from urllib.parse import urljoin
 
-from core.models.mixins import UUIDPrimaryKeyMixin
+from core.model_mixins import UUIDPrimaryKeyMixin
 
 
 def avatar_upload_to(instance):
@@ -86,24 +86,29 @@ class User(UUIDPrimaryKeyMixin,
     default_signature = "This player is somewhat mysterious..."
 
     username = models.CharField(
+        max_length=30, unique=True,
         verbose_name=_("username"),
-        max_length=30, unique=True
+        help_text=_("The username of the user"),
     )
     avatar = models.ImageField(
+        upload_to=avatar_upload_to, blank=True, null=True, storage=AvatarStorage(),
         verbose_name=_("avatar"),
-        upload_to=avatar_upload_to, blank=True, null=True, storage=AvatarStorage()
+        help_text=_("The avatar of the user")
     )
     signature = models.CharField(
-        verbose_name=_("signature"),
         max_length=60, blank=True, default=default_signature,
+        verbose_name=_("signature"),
+        help_text=_("The signature of the user")
     )
     is_moderator = models.BooleanField(
-        verbose_name= _("moderator status"),
-        default=False
+        default=False,
+        verbose_name=_("moderator status"),
+        help_text=_("Whether the user is a moderator")
     )
     is_email_verified = models.BooleanField(
+        default=False, editable=False,
         verbose_name=_("email verified"),
-        default=False
+        help_text=_("Whether at least an email of the user is verified")
     )
 
     email = None
@@ -129,24 +134,29 @@ class EmailAddress(UUIDPrimaryKeyMixin,
     This model extracts email information from the user model, Profile.
     """
     user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="related_emails",
         verbose_name=_("user"),
-        to=User, on_delete=models.CASCADE, related_name="related_emails"
+        help_text=_("The user of the email address"),
     )
     email = models.EmailField(
+        unique=True,
         verbose_name=_("email"),
-        unique=True
+        help_text=_("The email of the email address"),
     )
     is_verified = models.BooleanField(
+        default=False,
         verbose_name=_("verified"),
-        default=False
+        help_text=_("Whether the email is verified"),
     )
     is_primary = models.BooleanField(
+        default=False,
         verbose_name=_("primary"),
-        default=False
+        help_text=_("Whether the email is the primary email of the user"),
     )
     created_at = models.DateTimeField(
+        auto_now_add=True, db_index=True, editable=False,
         verbose_name=_("created at"),
-        auto_now_add=True, db_index=True, editable=False
+        help_text=_("The created DateTime of the email address"),
     )
 
     class Meta:

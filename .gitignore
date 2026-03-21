@@ -31,9 +31,16 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # Environment files
-env/backend.env.dev
-env/backend.env.pro
-env/backend.env.staging
+env/.env.dev
+env/.env.pro
+env/.env.staging
+
+backend/.env.dev
+backend/.env.devfull
+backend/.env.pro
+backend/.env.staging
+backend/.env.test
+
 frontend/.env.local
 frontend/.env.*.local
 !frontend/.env.example

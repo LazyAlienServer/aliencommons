@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.model_mixins import UUIDPrimaryKeyMixin
@@ -10,10 +9,12 @@ class IntervalSchedule(models.Model):
     Schedule executing on a regular interval.
     """
     class Periods(models.TextChoices):
-        SECONDS = 'seconds', _('seconds')
-        MINUTES = 'minutes', _('minutes')
-        DAYS = 'days', _('days')
-        WEEKS = 'weeks', _('weeks')
+        MILLISECOND = 'millisecond', _('millisecond')
+        SECOND = 'second', _('second')
+        MINUTE = 'minute', _('minute')
+        HOUR = 'hour', _('hour')
+        DAY = 'day', _('day')
+        WEEK = 'week', _('week')
 
     every = models.PositiveIntegerField(
         verbose_name=_("number of periods"),
@@ -29,8 +30,31 @@ class IntervalSchedule(models.Model):
         verbose_name = _("interval schedule")
         verbose_name_plural = _("interval schedules")
 
+        constraints = [
+            models.UniqueConstraint(
+                fields=['every', 'period'],
+                name='unique_interval_schedule',
+            )
+        ]
+
     def __str__(self):
         return f"every {self.every} {self.period}"
+
+    @property
+    def in_seconds(self) -> float:
+        period_multiplier_mapping = {
+            'millisecond': 0.001,
+            'second': 1,
+            'minute': 60,
+            'hour': 3600,
+            'day': 86400,
+            'week': 604800,
+        }
+
+        multiplier = period_multiplier_mapping[self.period]
+        period_in_seconds = int(self.every) * multiplier
+
+        return period_in_seconds
 
 
 class PeriodicTask(UUIDPrimaryKeyMixin, models.Model):
@@ -39,16 +63,16 @@ class PeriodicTask(UUIDPrimaryKeyMixin, models.Model):
     """
 
     name = models.CharField(
-        max_length=150,
+        max_length=150, unique=True,
         verbose_name=_("name"),
-        help_text=_("A short description for this task"),
+        help_text=_("A short, unique description for this task"),
     )
     description = models.TextField(
         blank=True, default="",
         verbose_name=_("description"),
         help_text=_("A extended description for this task"),
     )
-    task_path = models.CharField(
+    task = models.CharField(
         max_length=255,
         verbose_name=_("task path"),
         help_text=_("The path of the task function to be run")
@@ -59,7 +83,7 @@ class PeriodicTask(UUIDPrimaryKeyMixin, models.Model):
         help_text=_("The name of the queue that this task belongs to"),
     )
     interval = models.ForeignKey(
-        IntervalSchedule, on_delete=models.PROTECT,
+        IntervalSchedule, on_delete=models.PROTECT, related_name='periodic_tasks',
         verbose_name=_("interval"),
         help_text=_("The time between two task executions"),
     )
@@ -77,11 +101,6 @@ class PeriodicTask(UUIDPrimaryKeyMixin, models.Model):
         default=True, db_index=True,
         verbose_name=_("enabled"),
         help_text=_("Only enabled tasks will be queued"),
-    )
-    started_at = models.DateTimeField(
-        default=timezone.now, blank=True, db_index=True,
-        verbose_name=_("start at"),
-        help_text=_("The start time of the task"),
     )
     next_run_at = models.DateTimeField(
         blank=True,

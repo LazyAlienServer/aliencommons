@@ -189,7 +189,7 @@ class ArticleEvent(UUIDPrimaryKeyMixin, models.Model):
         help_text=_("The source article of the article event"),
     )
     article_snapshot = models.ForeignKey(
-        ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="related_events",
+        ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="article_events",
         verbose_name=_("snapshot"),
         help_text=_("The article snapshot of the article event"),
     )
@@ -204,7 +204,7 @@ class ArticleEvent(UUIDPrimaryKeyMixin, models.Model):
         help_text=_("The event type of the article event"),
     )
     actor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="article_events_actors",
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="article_events",
         verbose_name=_("actor"),
         help_text=_("The actor of the article event"),
     )

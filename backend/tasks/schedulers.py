@@ -67,9 +67,9 @@ def dispatch_schedule(*, schedule, now=None):
     if not schedule.is_enabled:
         return False
 
-    task = import_string(schedule.task_path)
-    args = schedule.args or []
-    kwargs = schedule.kwargs or {}
+    task = import_string(schedule.task)
+    args = schedule.args
+    kwargs = schedule.kwargs
     queue = schedule.queue or "default"
 
     with transaction.atomic():
@@ -102,7 +102,7 @@ def dispatch_schedule(*, schedule, now=None):
         extra={
             "schedule_id": str(locked_schedule.id),
             "schedule_name": locked_schedule.name,
-            "task_path": locked_schedule.task_path,
+            "task": locked_schedule.task,
             "queue": queue,
             "next_run_at": locked_schedule.next_run_at.isoformat() if locked_schedule.next_run_at else None,
         },
@@ -110,7 +110,7 @@ def dispatch_schedule(*, schedule, now=None):
     return True
 
 
-def run_due_schedules(schedules, *, now=None, batch_size=100):
+def run_due_schedules(schedules):
     """
     The main entrance for scheduled tasks, should be called by a management command.
     Dispatch at most 'batch_size' due schedules.
@@ -118,7 +118,8 @@ def run_due_schedules(schedules, *, now=None, batch_size=100):
 
     'schedules' is expected to be a queryset or iterable of schedule records.
     """
-    now = now or timezone.now()
+    now = timezone.now()
+    batch_size = 100
 
     with acquire_scheduler_lock() as lock:
 

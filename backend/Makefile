@@ -1,4 +1,8 @@
-dev:
-	DJANGO_ENV=dev gunicorn -b 0.0.0.0 -p 8000 backend.wsgi:application
-test:
-	DJANGO_ENV=test gunicorn -b 0.0.0.0 -p 8000 backend.wsgi:application
+runserver:
+	DJANGO_ENV=dev python manage.py runserver
+init_tasks:
+	DJANGO_ENV=dev python manage.py init_tasks
+runscheduler:
+	DJANGO_ENV=dev python manage.py runscheduler
+runworker:
+	DJANGO_ENV=dev python manage.py runworker

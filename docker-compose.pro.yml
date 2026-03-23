@@ -20,7 +20,7 @@ services:
       sh -c "
         python manage.py collectstatic --noinput &&
         python manage.py init_tasks &&
-        daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+        gunicorn -b 0.0.0.0 -p 8000 backend.wsgi:application
       "
     environment:
       - DJANGO_ENV: pro

@@ -22,25 +22,18 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 
 INSTALLED_APPS = [
-    # ASGI Server
-    "daphne",
-    # Core
-    "core.apps.CoreConfig",
-    # User App
-    "users.apps.UsersConfig",
-    # Django Apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Local Apps
+    "core.apps.CoreConfig",
+    "users.apps.UsersConfig",
     "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
     "tasks.apps.TasksConfig",
-    # 3rd-party Apps
     "corsheaders",
     "rest_framework",
     "django_filters",

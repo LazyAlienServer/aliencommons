@@ -39,7 +39,6 @@ backend/.env.dev
 backend/.env.devfull
 backend/.env.pro
 backend/.env.staging
-backend/.env.test
 
 frontend/.env.local
 frontend/.env.*.local

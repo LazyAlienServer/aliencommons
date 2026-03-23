@@ -6,7 +6,6 @@ cachetools==7.0.5
 cbor2==5.8.0
 certifi==2026.2.25
 cffi==2.0.0
-channels==4.3.2
 charset-normalizer==3.4.1
 click==8.3.1
 click-didyoumean==0.3.1
@@ -17,11 +16,7 @@ cron_descriptor==2.0.6
 croniter==6.2.2
 crontab==1.0.5
 cryptography==46.0.5
-daphne==4.2.1
-dj-database-url==3.1.2
-dj-email-url==1.0.6
 Django==6.0.3
-django-cache-url==3.4.5
 django-cors-headers==4.9.0
 django-filter==25.2
 django-redis==6.0.0
@@ -35,6 +30,7 @@ djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.29.0
 environs==14.6.0
 freezegun==1.5.5
+gunicorn==25.1.0
 httplib2==0.31.2
 humanize==4.12.1
 hyperlink==21.0.0
@@ -47,7 +43,6 @@ marshmallow==4.2.2
 msgpack==1.1.2
 packaging==26.0
 pillow==12.1.1
-prometheus_client==0.21.1
 prompt_toolkit==3.0.50
 proto-plus==1.27.1
 protobuf==6.33.6
@@ -59,7 +54,6 @@ pycparser==2.22
 PyJWT==2.12.1
 pyOpenSSL==26.0.0
 pyparsing==3.2.1
-python-crontab==3.2.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.1

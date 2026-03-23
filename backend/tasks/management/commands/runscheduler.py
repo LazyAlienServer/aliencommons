@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 import time
 import logging
 
-from tasks.schedulers import run_due_schedules
+from tasks.schedulers import enqueue_due_schedules
 from tasks.models import PeriodicTask
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,9 @@ class Command(BaseCommand):
         try:
             while True:
                 try:
-                    result = run_due_schedules(PeriodicTask.objects.filter(is_enabled=True))
+                    result = enqueue_due_schedules(
+                        PeriodicTask.objects.filter(is_enabled=True)
+                    )
 
                     logger.info(
                         "Scheduler tick completed",
@@ -33,4 +35,4 @@ class Command(BaseCommand):
                 time.sleep(2)
 
         except KeyboardInterrupt:
-            logger.exception("Keyborad Interruption while running periodic task")
+            logger.info("Keyboard Interruption")

@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from core.utils.cache import get_key, add_cache, delete_cache
+from .models import PeriodicTask
+from .utils import compute_next_enqueue_at
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ class SchedulerRunResult:
     """
     scanned: int = 0
     enqueued: int = 0
-    skipped: int = 0
+    failed: int = 0
 
 
 def acquire_scheduler_lock(*, identifier="dispatch", ttl=30):
@@ -46,77 +48,52 @@ def _lock_is_acquired(lock):
     return True
 
 
-def compute_next_run_at(*, previous_run_at, interval) -> datetime:
-    if interval <= 0:
-        raise ValueError("interval must be greater than 0")
-
-    next_run_at = previous_run_at + timedelta(seconds=interval)
-
-    return next_run_at
-
-
-def dispatch_schedule(*, schedule, now=None):
+def dispatch_task(*, task, now):
     """
     Enqueue one due schedule and advance its next run time.
 
     This method intentionally does not execute the task itself. It only
     dispatches to the task queue and updates scheduling metadata.
     """
-    now = now or timezone.now()
-
-    if not schedule.is_enabled:
-        return False
-
-    task = import_string(schedule.task)
-    args = schedule.args
-    kwargs = schedule.kwargs
-    queue = schedule.queue or "default"
+    task_function = import_string(task.task)
+    args = task.args
+    kwargs = task.kwargs
+    queue_name = task.queue_name or "default"
 
     with transaction.atomic():
-        manager = getattr(type(schedule), "objects")
-        locked_schedule = manager.select_for_update().get(pk=schedule.pk)
+        locked_task = PeriodicTask.objects.select_for_update().get(pk=task.pk)
 
-        # Re-check inside the transaction so concurrent scheduler loops do not
-        # enqueue the same record twice.
-        if not locked_schedule.is_enabled:
-            return False
-
-        if locked_schedule.next_run_at and locked_schedule.next_run_at > now:
-            return False
-
-        task.enqueue(
+        task_function.enqueue(
             *args,
             **kwargs,
-            queue=queue,
+            queue_name=queue_name,
         )
 
-        locked_schedule.last_enqueued_at = now
-        locked_schedule.next_run_at= compute_next_run_at(
-            previous_run_at=now,
-            interval=locked_schedule.interval,
+        locked_task.last_enqueued_at = now
+
+        locked_task.next_enqueue_at = compute_next_enqueue_at(
+            interval_seconds=locked_task.interval.in_seconds
         )
-        locked_schedule.save(update_fields=["last_enqueued_at", "next_run_at"])
+
+        locked_task.save(update_fields=['last_enqueued_at', 'next_enqueue_at'])
 
     logger.info(
         "Scheduled task enqueued",
         extra={
-            "schedule_id": str(locked_schedule.id),
-            "schedule_name": locked_schedule.name,
-            "task": locked_schedule.task,
-            "queue": queue,
-            "next_run_at": locked_schedule.next_run_at.isoformat() if locked_schedule.next_run_at else None,
+            "task_id": str(locked_task.id),
+            "task_name": locked_task.name,
+            "task_path": locked_task.task,
+            "queue_name": queue_name,
+            "next_enqueue_at": locked_task.next_enqueue_at.isoformat() if locked_task.next_enqueue_at else None,
         },
     )
-    return True
 
 
-def run_due_schedules(schedules):
+def enqueue_due_tasks(tasks):
     """
     The main entrance for scheduled tasks, should be called by a management command.
     Dispatch at most 'batch_size' due schedules.
-    In other words, batch_size is the maximum number of schedules in a single run.
-
-    'schedules' is expected to be a queryset or iterable of schedule records.
+    In other words, batch_size is the maximum number of schedules run in a single run.
     """
     now = timezone.now()
     batch_size = 100
@@ -126,25 +103,21 @@ def run_due_schedules(schedules):
         # Prevent task to be run twice
         if not _lock_is_acquired(lock):
             logger.info("Scheduler dispatch skipped because another scheduler holds the lock")
-            return SchedulerRunResult(scanned=0, enqueued=0, skipped=0)
+            return SchedulerRunResult(scanned=0, enqueued=0, failed=0)
 
-        due_schedules = list(
-            schedules.filter(is_enabled=True, next_run_at__lte=now)
-            .order_by("next_run_at")[:batch_size]
+        due_tasks = list(
+            tasks.filter(next_enqueue_at__lte=now).order_by("next_enqueue_at")[:batch_size]
         )
 
         enqueued = 0
-        skipped = 0
+        for task in due_tasks:
+            dispatch_task(task=task, now=now)
+            enqueued += 1
 
-        for schedule in due_schedules:
-            dispatched = dispatch_schedule(schedule=schedule, now=now)
-            # a schedule may not be dispatched
-            if dispatched:
-                enqueued += 1
-            else:
-                skipped += 1
+        scanned = len(due_tasks)
+        failed = scanned - enqueued
 
-        return SchedulerRunResult(scanned=len(due_schedules), enqueued=enqueued, skipped=skipped)
+        return SchedulerRunResult(scanned=scanned, enqueued=enqueued, failed=failed)
 
 
 class _CacheAddLock:

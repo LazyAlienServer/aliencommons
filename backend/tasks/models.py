@@ -102,22 +102,32 @@ class PeriodicTask(UUIDPrimaryKeyMixin, models.Model):
         verbose_name=_("enabled"),
         help_text=_("Only enabled tasks will be queued"),
     )
-    next_run_at = models.DateTimeField(
-        blank=True,
-        verbose_name=_("next run at"),
-        help_text=_("The next run time of the task"),
+    last_enqueued_at = models.DateTimeField(
+        null=True, blank=True, editable=False,
+        verbose_name=_("last enqueued at"),
+        help_text=_("The last enqueued DateTime of the task"),
     )
-    last_run_at = models.DateTimeField(
-        null=True, blank=True,
-        verbose_name=_("last run at"),
-        help_text=_("The last run time of the task"),
+    next_enqueue_at = models.DateTimeField(
+        blank=True,
+        verbose_name=_("next enqueue at"),
+        help_text=_("The next enqueue DateTime of the task"),
+    )
+    last_started_at = models.DateTimeField(
+        null=True, blank=True, editable=False,
+        verbose_name=_("last started at"),
+        help_text=_("The last started DateTime of the task"),
+    )
+    last_finished_at = models.DateTimeField(
+        null=True, blank=True, editable=False,
+        verbose_name=_("last finished at"),
+        help_text=_("The last finished DateTime of the task"),
     )
 
     class Meta:
         verbose_name = _("periodic task")
         verbose_name_plural = _("periodic tasks")
 
-        ordering = ["-next_run_at",]
+        ordering = ["-next_enqueue_at"]
 
     def __str__(self):
         return self.name

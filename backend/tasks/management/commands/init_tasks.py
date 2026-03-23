@@ -1,11 +1,9 @@
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
-
-from datetime import timedelta
 
 from tasks.models import IntervalSchedule, PeriodicTask
 from tasks.periodic_tasks_registry import periodic_tasks
+from tasks.utils import compute_next_enqueue_at
 
 
 class Command(BaseCommand):
@@ -42,7 +40,7 @@ class Command(BaseCommand):
                     "args": config.get("args", []),
                     "kwargs": config.get("kwargs", {}),
                     "is_enabled": config.get("is_enabled", True),
-                    "next_run_at": timezone.now() + timedelta(seconds=schedule.in_seconds),
+                    "next_enqueue_at": compute_next_enqueue_at(schedule.in_seconds)
                 },
             )
 

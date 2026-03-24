@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 import time
 import logging
 
-from tasks.schedulers import enqueue_due_schedules
+from tasks.schedulers import enqueue_due_tasks
 from tasks.models import PeriodicTask
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class Command(BaseCommand):
         try:
             while True:
                 try:
-                    result = enqueue_due_schedules(
+                    result = enqueue_due_tasks(
                         PeriodicTask.objects.filter(is_enabled=True)
                     )
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                         extra={
                             "scanned": result.scanned,
                             "enqueued": result.enqueued,
-                            "skipped": result.skipped,
+                            "failed": result.failed,
                         }
                     )
 

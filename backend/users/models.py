@@ -50,10 +50,9 @@ class ProfileManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, username, email, password, **extra_fields):
+    def create_superuser(self, username, password, **extra_fields):
         """
         Used by Django `createsuperuser`.
-        Keep it here to avoid breaking the management command.
         """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -64,14 +63,6 @@ class ProfileManager(BaseUserManager):
             raise ValueError("Superuser must have 'is_superuser=True'.")
 
         user = self.create_user(username=username, password=password, **extra_fields)
-
-        email = self.normalize_email(email)
-        EmailAddress.objects.create(
-            user=user,
-            email=email,
-            is_verified=False,
-            is_primary=True
-        )
 
         return user
 

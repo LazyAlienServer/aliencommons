@@ -61,7 +61,6 @@ class PeriodicTask(UUIDPrimaryKeyMixin, models.Model):
     """
     Model representing a periodic task.
     """
-
     name = models.CharField(
         max_length=150, unique=True,
         verbose_name=_("name"),

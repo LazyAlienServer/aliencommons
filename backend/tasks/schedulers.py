@@ -5,7 +5,6 @@ from django.utils.module_loading import import_string
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 
 from core.utils.cache import get_key, add_cache, delete_cache
 from .models import PeriodicTask
@@ -60,14 +59,10 @@ def dispatch_task(*, task, now):
     kwargs = task.kwargs
     queue_name = task.queue_name or "default"
 
-    with transaction.atomic():
+    with (transaction.atomic()):
         locked_task = PeriodicTask.objects.select_for_update().get(pk=task.pk)
 
-        task_function.enqueue(
-            *args,
-            **kwargs,
-            queue_name=queue_name,
-        )
+        task_function.using(queue_name=queue_name).enqueue(*args, **kwargs)
 
         locked_task.last_enqueued_at = now
 

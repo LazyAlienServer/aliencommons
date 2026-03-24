@@ -28,11 +28,11 @@ class SourceArticleAdmin(admin.ModelAdmin):
 
     readonly_fields = ("id", "created_at", "updated_at", "last_moderation_at")
 
-    fieldsets = (
+    fieldsets = [
         ("Basic", {"fields": ("id", "title", "content")}),
         ("Ownership & Status", {"fields": ("author", "status", "is_deleted")}),
         ("Timestamps", {"fields": ("created_at", "updated_at")}),
-    )
+    ]
 
     actions = ["action_soft_delete", "action_restore", "action_hard_delete"]
 
@@ -77,11 +77,11 @@ class PublishedArticleAdmin(admin.ModelAdmin):
 
     readonly_fields = ("id", "created_at", "source_article", "title", "content")
 
-    fieldsets = (
+    fieldsets = [
         ("Basic", {"fields": ("id", "title", "content")}),
         ("Key Info", {"fields": ("source_article", )}),
         ("Timestamps", {"fields": ("created_at",)}),
-    )
+    ]
 
 
 @admin.register(ArticleSnapshot)
@@ -107,11 +107,11 @@ class ArticleSnapshotAdmin(admin.ModelAdmin):
         "moderation_status", "moderation_status_display",
     )
 
-    fieldsets = (
+    fieldsets = [
         ("Basic", {"fields": ("id", "title", "content", "content_hash")}),
         ("Key Info", {"fields": ("source_article", "moderation_status", "moderation_status_display")}),
         ("Timestamps", {"fields": ("created_at",)}),
-    )
+    ]
 
     def moderation_status_display(self, obj):
         return obj.get_moderation_status_display()
@@ -139,12 +139,12 @@ class ArticleEventAdmin(admin.ModelAdmin):
 
     readonly_fields = ("id", "source_article", "article_snapshot", "event_type", "actor", "created_at")
 
-    fieldsets = (
+    fieldsets = [
         ("Key Info", {
             "fields": ("id", "event_type", "actor", "source_article", "article_snapshot", "annotation")
         }),
         ("Timestamps", {"fields": ("created_at",)}),
-    )
+    ]
 
     def type_display(self, obj):
         return obj.get_event_type_display()

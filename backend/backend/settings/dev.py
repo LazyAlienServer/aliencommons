@@ -11,13 +11,3 @@ EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
-
-TASKS = {
-    "default": {
-        "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
-        "QUEUES": [
-            "default", "emails", "maintenance"
-        ],
-        "OPTIONS": {}
-    }
-}

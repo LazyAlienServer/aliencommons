@@ -194,6 +194,16 @@ CACHES = {
     }
 }
 
+TASKS = {
+    "default": {
+        "BACKEND": "django_tasks_rq.backend.RQBackend",
+        "QUEUES": [
+            "default", "emails", "maintenance"
+        ],
+        "OPTIONS": {}
+    }
+}
+
 RQ_QUEUES = {
     "default": {
         "URL": f"{REDIS_URL}/0",

@@ -75,7 +75,7 @@ def cleanup_unreferenced_article_images(grace_days=1):
         but not yet saved into content (or in-flight edits).
     """
     # 1) Build a set of all referenced storage-relative paths
-    referenced: Set[str] = set()
+    referenced = set()
 
     qs = SourceArticle.objects.filter(is_deleted=False).values_list("content", flat=True)
     for content in qs:

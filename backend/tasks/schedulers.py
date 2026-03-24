@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.utils import timezone
 from django.utils.module_loading import import_string
@@ -6,7 +7,7 @@ from django.utils.module_loading import import_string
 import logging
 from dataclasses import dataclass
 
-from core.utils.cache import get_key, add_cache, delete_cache
+from core.utils.cache import get_key
 from .models import PeriodicTask
 from .utils import compute_next_enqueue_at
 
@@ -28,7 +29,6 @@ def acquire_scheduler_lock(*, identifier="dispatch", ttl=30):
     Acquire a coarse lock so only one scheduler loop dispatches due jobs.
 
     With django-redis, ``cache.lock`` returns a proper distributed lock.
-    In simpler backends we fall back to ``cache.add`` for a best-effort lock.
 
     PS: dispatch (分派/调度)
     """
@@ -37,14 +37,10 @@ def acquire_scheduler_lock(*, identifier="dispatch", ttl=30):
 
     if callable(lock_function):
         return lock_function(key, timeout=ttl)
-
-    return _CacheAddLock(identifier=identifier, ttl=ttl)
-
-
-def _lock_is_acquired(lock):
-    if isinstance(lock, _CacheAddLock):
-        return lock.acquired
-    return True
+    else:
+        raise ImproperlyConfigured(
+            "The task backend does not provide a callable .lock() function. "
+        )
 
 
 def dispatch_task(*, task, now):
@@ -62,6 +58,8 @@ def dispatch_task(*, task, now):
     with (transaction.atomic()):
         locked_task = PeriodicTask.objects.select_for_update().get(pk=task.pk)
 
+        # using() passes arguments to the Django Task object,
+        # while enqueue passes arguments to the task function itself
         task_function.using(queue_name=queue_name).enqueue(*args, **kwargs)
 
         locked_task.last_enqueued_at = now
@@ -93,12 +91,7 @@ def enqueue_due_tasks(tasks):
     now = timezone.now()
     batch_size = 100
 
-    with acquire_scheduler_lock() as lock:
-
-        # Prevent task to be run twice
-        if not _lock_is_acquired(lock):
-            logger.info("Scheduler dispatch skipped because another scheduler holds the lock")
-            return SchedulerRunResult(scanned=0, enqueued=0, failed=0)
+    with acquire_scheduler_lock():
 
         due_tasks = list(
             tasks.filter(next_enqueue_at__lte=now).order_by("next_enqueue_at")[:batch_size]
@@ -113,29 +106,3 @@ def enqueue_due_tasks(tasks):
         failed = scanned - enqueued
 
         return SchedulerRunResult(scanned=scanned, enqueued=enqueued, failed=failed)
-
-
-class _CacheAddLock:
-    """
-    Return a context manager that is similar to 'cache.lock'.
-
-    Note that '__enter__' and '__exit__' methods are necessary for a context manager.
-    """
-    def __init__(self, *, identifier, ttl):
-        self.identifier = identifier
-        self.ttl = ttl
-        self.acquired = False
-
-    def __enter__(self):
-        self.acquired = add_cache(
-            namespace='scheduler', entity='lock', identifier=self.identifier,
-            value="1", timeout=self.ttl
-        )
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        if self.acquired:
-            delete_cache(
-                namespace='scheduler', entity='lock', identifier=self.identifier,
-            )
-        return False

@@ -11,11 +11,3 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
-
-TASKS = {
-    "default": {
-        "BACKEND": "django_tasks_rq.backend.RQBackend",
-        "QUEUES": ["default"],
-        "OPTIONS": {}
-    }
-}

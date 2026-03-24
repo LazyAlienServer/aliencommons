@@ -1,5 +1,4 @@
-from django.core.management.base import BaseCommand
-from django.core.exceptions import ImproperlyConfigured
+from django.core.management.base import BaseCommand, CommandError
 
 from tasks.models import IntervalSchedule, PeriodicTask
 from tasks.periodic_tasks_registry import periodic_tasks
@@ -20,7 +19,7 @@ class Command(BaseCommand):
             try:
                 period = IntervalSchedule.Periods(required_schedule["period"])
             except ValueError as exc:
-                raise ImproperlyConfigured(
+                raise CommandError(
                     f"Invalid period configured {required_schedule['period']}"
                 ) from exc
 

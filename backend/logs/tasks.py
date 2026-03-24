@@ -1,21 +1,8 @@
 from django.tasks import task
-from django.utils import timezone
-
-from datetime import timedelta
-
-from .models import FrontendLog
 
 
 def delete_old_logs(level, days):
-    cutoff = timezone.now() - timedelta(days=days)
-
-    logs_deleted, _ = FrontendLog.objects.filter(
-        level__in=[level],
-        timestamp__lt=cutoff
-    ).delete()
-
-    # Return the number of debug logs
-    return logs_deleted
+    return 1
 
 
 @task

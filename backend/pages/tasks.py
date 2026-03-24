@@ -8,5 +8,5 @@ def refresh_youtube_cache():
     try:
         fetch_youtube_data()
         return {"status": "success", "message": "YouTube channel data successfully refreshed"}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    except Exception as exc:
+        raise Exception(exc)

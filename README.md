@@ -1,6 +1,6 @@
 # AlienCommons
 
-The source code of the website of Lazy Alien Server Technical Mincraft Translation Team is hosted here.
+The website under LazyAlienServer Technical Mincraft Translation Team.
 
 ## Developer Documentation
 

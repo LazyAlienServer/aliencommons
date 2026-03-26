@@ -19,13 +19,27 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      sh -c "
-        python manage.py collectstatic --noinput &&
-        python manage.py init_tasks &&
-        gunicorn -b 0.0.0.0 -p 8000 backend.wsgi:application
-      "
+      sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - "8000:8000"
+    environment:
+      DJANGO_ENV: devfull
+    volumes:
+      - ./backend:/code
+  
+  backend-task-scheduler:
+    restrat: unless-stopped
+    command: >
+      sh -c "python manage.py runscheduler"
+    environment:
+      DJANGO_ENV: devfull
+    volumes:
+      - ./backend:/code
+  
+  backend-task-worker:
+    restrat: unless-stopped
+    command: >
+      sh -c "python manage.py rqworker default email maintenance"
     environment:
       DJANGO_ENV: devfull
     volumes:

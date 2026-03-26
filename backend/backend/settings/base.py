@@ -198,7 +198,7 @@ TASKS = {
     "default": {
         "BACKEND": "django_tasks_rq.backend.RQBackend",
         "QUEUES": [
-            "default", "emails", "maintenance"
+            "default", "email", "maintenance"
         ],
         "OPTIONS": {}
     }
@@ -209,7 +209,7 @@ RQ_QUEUES = {
         "URL": f"{REDIS_URL}/0",
         "DEFAULT_TIMEOUT": 300,
     },
-    "emails": {
+    "email": {
         "URL": f"{REDIS_URL}/0",
         "DEFAULT_TIMEOUT": 300,
     },

@@ -17,22 +17,36 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      sh -c "
-        python manage.py collectstatic --noinput &&
-        python manage.py init_tasks &&
-        gunicorn -b 0.0.0.0 -p 8000 backend.wsgi:application
-      "
+      sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
     environment:
       - DJANGO_ENV: pro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend-production.rule=Host(`api.aliencommons.lazyalienserver.top`)"
+      - "traefik.http.routers.backend-production.rule=Host(`api.aliencommons.com`)"
       - "traefik.http.routers.backend-production.entrypoints=websecure"
       - "traefik.http.routers.backend-production.tls.certresolver=le"
       - "traefik.http.services.backend-production.loadbalancer.server.port=8000"
     volumes:
       - /srv/alien-commons/pro/media:/code/media
       - /srv/alien-commons/pro/static:/code/staticfiles
+
+  backend-task-scheduler:
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py runscheduler"
+    environment:
+      DJANGO_ENV: pro
+    volumes:
+      - ./backend:/code
+  
+  backend-task-worker:
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py rqworker default email maintenance"
+    environment:
+      DJANGO_ENV: pro
+    volumes:
+      - ./backend:/code
 
   frontend:
     build: 
@@ -42,7 +56,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend-production.rule=Host(`aliencommons.lazyalienserver.top`)"
+      - "traefik.http.routers.frontend-production.rule=Host(`aliencommons.com`)"
       - "traefik.http.routers.frontend-production.entrypoints=websecure"
       - "traefik.http.routers.frontend-production.tls.certresolver=le"
       - "traefik.http.services.frontend-production.loadbalancer.server.port=80"
@@ -51,7 +65,7 @@ services:
     image: nginx:alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.media.rule=Host(`api.aliencommons.lazyalienserver.top`) && PathPrefix(`/media`)"
+      - "traefik.http.routers.media.rule=Host(`api.aliencommons.com`) && PathPrefix(`/media`)"
       - "traefik.http.routers.media.entrypoints=websecure"
       - "traefik.http.routers.media.tls.certresolver=le"
       - "traefik.http.services.media.loadbalancer.server.port=80"
@@ -63,7 +77,7 @@ services:
     image: nginx:alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.static.rule=Host(`api.aliencommons.lazyalienserver.top`) && PathPrefix(`/static`)"
+      - "traefik.http.routers.static.rule=Host(`api.aliencommons.com`) && PathPrefix(`/static`)"
       - "traefik.http.routers.static.entrypoints=websecure"
       - "traefik.http.routers.static.tls.certresolver=le"
       - "traefik.http.services.static.loadbalancer.server.port=80"

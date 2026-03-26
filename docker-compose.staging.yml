@@ -19,20 +19,38 @@ services:
     command: >
       sh -c "
         python manage.py collectstatic --noinput &&
-        python manage.py init_tasks &&
-        gunicorn -b 0.0.0.0 -p 8000 backend.wsgi:application
+        gunicorn backend.wsgi:application --bind 0.0.0.0:8000 &&
+        python manage.py init_tasks
       "
     environment:
       - DJANGO_ENV: staging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend-staging.rule=Host(`api.staging.aliencommons.lazyalienserver.top`)"
+      - "traefik.http.routers.backend-staging.rule=Host(`api.staging.aliencommons.com`)"
       - "traefik.http.routers.backend-staging.entrypoints=websecure"
       - "traefik.http.routers.backend-staging.tls.certresolver=le"
       - "traefik.http.services.backend-staging.loadbalancer.server.port=8000"
     volumes:
       - /srv/alien-commons/staging/media:/code/media
       - /srv/alien-commons/staging/static:/code/staticfiles
+    
+  backend-task-scheduler:
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py runscheduler"
+    environment:
+      DJANGO_ENV: staging
+    volumes:
+      - ./backend:/code
+  
+  backend-task-worker:
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py rqworker default email maintenance"
+    environment:
+      DJANGO_ENV: staging
+    volumes:
+      - ./backend:/code
 
   frontend:
     build: 
@@ -43,7 +61,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend-staging.rule=Host(`staging.aliencommons.lazyalienserver.top`)"
+      - "traefik.http.routers.frontend-staging.rule=Host(`staging.aliencommons.com`)"
       - "traefik.http.routers.frontend-staging.entrypoints=websecure"
       - "traefik.http.routers.frontend-staging.tls.certresolver=le"
       - "traefik.http.services.frontend-staging.loadbalancer.server.port=80"
@@ -52,7 +70,7 @@ services:
     image: nginx:alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.media.rule=Host(`api.staging.aliencommons.lazyalienserver.top`) && PathPrefix(`/media`)"
+      - "traefik.http.routers.media.rule=Host(`api.staging.aliencommons.com`) && PathPrefix(`/media`)"
       - "traefik.http.routers.media.entrypoints=websecure"
       - "traefik.http.routers.media.tls.certresolver=le"
       - "traefik.http.services.media.loadbalancer.server.port=80"
@@ -64,7 +82,7 @@ services:
     image: nginx:alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.static.rule=Host(`api.staging.aliencommons.lazyalienserver.top`) && PathPrefix(`/static`)"
+      - "traefik.http.routers.static.rule=Host(`api.staging.aliencommons.com`) && PathPrefix(`/static`)"
       - "traefik.http.routers.static.entrypoints=websecure"
       - "traefik.http.routers.static.tls.certresolver=le"
       - "traefik.http.services.static.loadbalancer.server.port=80"

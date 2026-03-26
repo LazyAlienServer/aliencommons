@@ -23,6 +23,9 @@ media/
 staticfiles/
 test_db.sqlite3
 
+backend/runtime_logs/
+!backend/runtime_logs/.gitkeep
+
 # Frontend
 node_modules/
 dist/

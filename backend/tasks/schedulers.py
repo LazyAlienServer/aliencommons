@@ -4,14 +4,14 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.module_loading import import_string
 
-import logging
 from dataclasses import dataclass
 
 from core.utils.cache import get_key
+from logs.logging.logger import get_logger
 from .models import PeriodicTask
 from .utils import compute_next_enqueue_at
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

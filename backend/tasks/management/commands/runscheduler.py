@@ -1,12 +1,12 @@
 from django.core.management.base import BaseCommand
 
 import time
-import logging
 
 from tasks.schedulers import enqueue_due_tasks
 from tasks.models import PeriodicTask
+from logs.logging.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):

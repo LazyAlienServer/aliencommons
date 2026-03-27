@@ -2,8 +2,6 @@ FROM node:23 AS build-stage
 
 ENV NODE_OPTIONS="--max-old-space-size=512"
 
-WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
 

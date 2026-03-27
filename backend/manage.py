@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 env_file_map = {
     "dev": BASE_DIR / ".env.dev",
-    "staging": BASE_DIR / ".env.staging",
+    "stg": BASE_DIR / ".env.stg",
     "pro": BASE_DIR / ".env.pro",
     "test": BASE_DIR / ".env.test",
 }

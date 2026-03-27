@@ -35,10 +35,10 @@ pnpm-debug.log*
 
 # Environment files
 env/.env.pro
-env/.env.staging
+env/.env.stg
 
 backend/.env.pro
-backend/.env.staging
+backend/.env.stg
 
 frontend/.env.local
 frontend/.env.*.local

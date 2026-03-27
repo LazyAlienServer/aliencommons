@@ -1,0 +1,116 @@
+services:
+  postgres:
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
+    env_file:
+    - ./env/.env.dev
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  backend-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /code
+    restart: unless-stopped
+    command: >
+      sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_ENV: devfull
+    volumes:
+      - ./backend:/code
+
+  backend-task-scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /code
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py runscheduler"
+    environment:
+      DJANGO_ENV: devfull
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./backend:/code
+  
+  backend-task-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /code
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py rqworker default email maintenance"
+    environment:
+      DJANGO_ENV: devfull
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./backend:/code:ro
+
+  frontend:
+    image: node:20
+    restart: unless-stopped
+    working_dir: /code
+    volumes:
+      - ./frontend:/code:ro
+      - /code/node_modules
+    command: >
+      sh -c "
+        npm install &&
+        npm run dev
+      "
+    ports:
+      - "8080:5173"
+  
+  alloy:
+    image: grafana/alloy:latest
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/alloy.config.dev
+    volumes:
+      - ./observability/alloy/alloy.config.dev:/etc/alloy/alloy.config.dev:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/loki/loki.dev.yml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
+      - ./observability/loki/data:/loki
+  
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/data:/var/lib/grafana
+    depends_on:
+      - loki
+
+volumes:
+  postgres_data_dev:

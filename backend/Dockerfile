@@ -1,13 +1,10 @@
 # Pull Base Image
-FROM python:3.13.2-slim-bullseye
+FROM python:3.14-slim
 
 # Set Environment Variables
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-
-# Set Work Directory
-WORKDIR /code
 
 # Install Dependencies
 COPY ./requirements.txt .

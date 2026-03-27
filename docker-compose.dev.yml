@@ -12,7 +12,43 @@ services:
   redis:
     ports:
       - "6379:6379"
+  
+  alloy:
+    image: grafana/alloy:latest
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/alloy.config.dev
+    volumes:
+      - ./observability/alloy/alloy.config.dev:/etc/alloy/alloy.config.dev:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/loki/loki.dev.yml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
+      - ./observability/loki/data:/loki
+  
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/data:/var/lib/grafana
+    depends_on:
+      - loki
 
 volumes:
   postgres_data_dev:
-  

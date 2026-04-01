@@ -3,10 +3,15 @@ from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
 
 from datetime import datetime
 
 from core.utils.cache import get_cache
+from core.views.mixins import FormattedResponseMixin
+from logs.logging.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def days_since_start(date="2023-03-17"):
@@ -39,7 +44,7 @@ def _fetch_youtube_cache():
     return data
 
 
-class YoutubeSnapshotView(APIView):
+class YoutubeSnapshotView(FormattedResponseMixin, APIView):
     """
     Return YouTube Channel Snapshot
     """
@@ -54,12 +59,16 @@ class YoutubeSnapshotView(APIView):
             video_count = data["statistics"]["videoCount"]
             view_count = data["statistics"]["viewCount"]
 
-            return Response({
-                "thumbnail_url": thumbnail_url,
-                "subscriber_count": subscriber_count,
-                "video_count": video_count,
-                "view_count": view_count,
-                "since": days_since_start(),
-            })
+            self.format_success_response(
+                data={
+                    "thumbnail_url": thumbnail_url,
+                    "subscriber_count": subscriber_count,
+                    "video_count": video_count,
+                    "view_count": view_count,
+                    "since": days_since_start(),
+                }
+            )
+
         else:
-            return Response({"error": "No data found in cache"})
+            logger.error("No YouTube data found in cache")
+            raise NotFound("No YouTube data found in cache")

@@ -4,7 +4,7 @@ from rest_framework import status
 
 def format_api_response(
         *,
-        success=True, message="ok", code="ok", data=None, errors=None, request=None,
+        success, message, code, data=None, errors=None, request=None,
         status_code=status.HTTP_200_OK, headers=None
 ):
     """

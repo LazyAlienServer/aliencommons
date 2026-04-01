@@ -87,7 +87,7 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-    "core.middleware.RequestMetaMiddleware",
+    "core.middlewares.RequestMetaMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",

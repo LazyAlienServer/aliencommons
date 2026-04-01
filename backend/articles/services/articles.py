@@ -5,10 +5,11 @@ from datetime import timedelta
 import json
 import hashlib
 
-from articles.models import (
-    SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
-)
+from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 from core.exceptions import ServiceError
+from logs.logging.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def _get_locked_source_article(source_article_id):
@@ -153,7 +154,7 @@ class ArticleWorkflow:
 
         return published_article
 
-    def _create_article_event(self, event_type):
+    def _create_article_event(self, event_type: ArticleEvent.EventType) -> ArticleEvent:
         """
         Return an article event.
         """
@@ -166,17 +167,34 @@ class ArticleWorkflow:
         )
 
     @staticmethod
-    def _build_action_result(event):
+    def _build_action_result(event: ArticleEvent):
         """
-        Build a standard action result.
+        Build and log a standard action result.
         Return a dict containing the information.
         """
+        event_type: ArticleEvent.EventType = ArticleEvent.EventType(event.event_type)
+        actor_id = event.actor_id
+        source_article_id = event.source_article_id
+        article_snapshot_id = event.article_snapshot_id if event.article_snapshot else None
+        event_id = event.id
+
+        logger.info(
+            f"Article {event_type.label} action completed",
+            extra={
+                'event_type': event_type,
+                'actor_id': actor_id,
+                'source_article_id': source_article_id,
+                'article_snapshot_id': article_snapshot_id,
+                'event_id': event_id,
+            }
+        )
+
         return {
-            "event_type": event.event_type,
-            "actor_id": event.actor_id,
-            "source_article_id": event.source_article_id,
-            "article_snapshot_id": event.article_snapshot_id if event.article_snapshot else None,
-            "event_id": event.id,
+            "event_type": event_type,
+            "actor_id": actor_id,
+            "source_article_id": source_article_id,
+            "article_snapshot_id": article_snapshot_id,
+            "event_id": event_id,
         }
 
     def submit(self):

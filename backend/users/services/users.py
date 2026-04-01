@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
 from django.conf import settings
 from django.db import transaction
 
@@ -10,7 +9,10 @@ import hashlib
 from core.exceptions import ServiceError
 from core.utils.cache import add_cache, set_cache, get_cache, delete_cache, incr_cache
 from users.models import EmailAddress
+from users.tasks import send_verification_email_task
+from logs.logging.logger import get_logger
 
+logger = get_logger(__name__)
 User = get_user_model()
 
 
@@ -27,20 +29,7 @@ def _hash_code(email, code):
     return hashlib.blake2b(raw.encode("utf-8")).hexdigest()
 
 
-def _send_verification_email(*, to_email, code):
-    """
-    Send verification email.
-    """
-    send_mail(
-        subject="Your Verification Code",
-        message=f"Your verification code is {code}",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[to_email],
-        fail_silently=False,
-    )
-
-
-def _send_verification_code(*, email):
+def _prepare_verification_code(*, email):
     """
     Generate, store and send the code.
     Another code can only be generated and sent after 60 seconds.
@@ -69,9 +58,9 @@ def _send_verification_code(*, email):
         value=0, timeout=settings.VERIFICATION_CODE_TTL
     )
 
-    _send_verification_email(to_email=email, code=code)
-
     return {
+        "to_email": email,
+        "code": code,
         "resend_cooldown_seconds": settings.VERIFICATION_CODE_RESEND_COOLDOWN,
         "code_ttl_seconds": settings.VERIFICATION_CODE_TTL,
     }
@@ -101,7 +90,17 @@ def register(*, username, email, password):
         is_primary=True,
     )
 
-    result = _send_verification_code(email=email_address.email)
+    result = _prepare_verification_code(email=email_address.email)
+
+    # Email is only sent when the transaction is finished
+    transaction.on_commit(
+        lambda: send_verification_email_task.enqueue(
+            to_email=result['to_email'],
+            code=result['code'],
+        )
+    )
+
+    logger.info(f"User {user.id} successfully registered")
 
     return {
         "user_id": user.id,
@@ -169,6 +168,8 @@ def verify_email(*, user, email, code):
 
     delete_cache(namespace=namespace, entity='code', identifier=email)
     delete_cache(namespace=namespace, entity="cooldown_check", identifier=email)
+
+    logger.info(f"Email {email} successfully verified")
 
     return {
         "email": email_address.email

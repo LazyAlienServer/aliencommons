@@ -3,6 +3,9 @@ from django.core.management.base import BaseCommand, CommandError
 from tasks.models import IntervalSchedule, PeriodicTask
 from tasks.periodic_tasks_registry import periodic_tasks
 from tasks.utils import compute_next_enqueue_at
+from logs.logging.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -11,22 +14,26 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         task_configs = periodic_tasks
 
-        # Init tasks
         for config in task_configs:
 
+            # Initialize schedules
             required_schedule = config["schedule"]
-
             try:
                 period = IntervalSchedule.Periods(required_schedule["period"])
             except ValueError as exc:
+                logger.exception(
+                    f"Invalid period configured: {required_schedule['period']}"
+                )
+
                 raise CommandError(
-                    f"Invalid period configured {required_schedule['period']}"
+                    f"Invalid period configured: {required_schedule['period']}"
                 ) from exc
 
             schedule, _ = IntervalSchedule.objects.get_or_create(
                 every=required_schedule['every'],
                 period=period,
             )
+            logger.info(f"Schedule initialized: {schedule.__str__}")
 
             # Create all uncreated tasks in task_configs
             task, _ = PeriodicTask.objects.update_or_create(
@@ -42,6 +49,7 @@ class Command(BaseCommand):
                     "next_enqueue_at": compute_next_enqueue_at(schedule.in_seconds)
                 },
             )
+            logger.info(f"Schedule initialized: {schedule.__str__}")
 
         # Delete all orphan tasks
         existing_tasks = PeriodicTask.objects.all()
@@ -49,9 +57,7 @@ class Command(BaseCommand):
 
         for task in existing_tasks:
             if task.name not in required_names:
-                self.stdout.write(
-                    self.style.WARNING(f"Deleting old task: {task.name} ({task.task})")
-                )
+                logger.warning(f"Deleting old task: {task.name} ({task.task})")
                 task.delete()
 
         # Delete all orphan schedules
@@ -59,4 +65,4 @@ class Command(BaseCommand):
         for schedule in orphan_schedules:
             schedule.delete()
 
-        self.stdout.write(self.style.SUCCESS('Successfully initialized tasks.'))
+        logger.info("All tasks successfully initialized")

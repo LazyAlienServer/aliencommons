@@ -199,38 +199,22 @@ LOGGING = {
         },
     },
     "formatters": {
-        "django.server": {
-            "()": "django.utils.log.ServerFormatter",
-            "format": "[{server_time}] {message}",
-            "style": "{",
+        "runtime": {
+            "()": "logs.logging.formatters.RuntimeFormatter",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     },
     "handlers": {
         "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
-        },
-        "django.server": {
+            "formatter": "runtime",
             "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "django.server",
-        },
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false"],
-            "class": "django.utils.log.AdminEmailHandler",
         },
     },
     "loggers": {
-        "django": {
-            "handlers": ["console", "mail_admins"],
+        "": {
+            "handlers": ["console"],
             "level": "INFO",
-        },
-        "django.server": {
-            "handlers": ["django.server"],
-            "level": "INFO",
-            "propagate": False,
         },
     },
 }
@@ -242,7 +226,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
 MIDDLEWARE = [
-    "core.middleware.RequestMetaMiddleware",
+    "core.middlewares.RequestMetaMiddleware",
+    "core.middlewares.RequestLoggingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",

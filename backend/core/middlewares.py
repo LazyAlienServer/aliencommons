@@ -1,5 +1,4 @@
 from django.utils import timezone
-from django.conf import settings
 
 import uuid
 
@@ -38,8 +37,11 @@ class RequestLoggingMiddleware:
     def __call__(self, request):
         started_at = timezone.now()
 
-        request_id = getattr(request, 'request_id', settings.LOGGING_CONTEXT_NULL_VALUE)
-        add_log_context(request_id=request_id)
+        request_id = getattr(request, 'request_id', None)
+        if request_id:
+            add_log_context(request_id=request_id)
+        else:
+            logger.warning("Request id does not exist")
 
         logger.info(f"Request started: {request.method} {request.path}")
 

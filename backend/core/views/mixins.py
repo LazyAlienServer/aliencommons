@@ -11,7 +11,7 @@ class FormattedResponseMixin:
     Wrap response with format_api_response().
     """
     def format_success_response(
-            self, *, message="ok", code="ok", data=None, status_code=status.HTTP_200_OK, headers=None
+            self, *, message="ok", code="ok", data: dict = None, status_code=status.HTTP_200_OK, headers=None
     ):
         request = getattr(self, 'request', None)
 

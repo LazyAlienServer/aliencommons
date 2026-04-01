@@ -55,8 +55,18 @@ def dispatch_task(*, task, now):
     kwargs = task.kwargs
     queue_name = task.queue_name or "default"
 
-    with (transaction.atomic()):
+    with transaction.atomic():
         locked_task = PeriodicTask.objects.select_for_update().get(pk=task.pk)
+
+        logger.info(
+            "Dispatching scheduled task",
+            extra={
+                "task_id": str(locked_task.id),
+                "task_name": locked_task.name,
+                "task_path": locked_task.task,
+                "queue_name": queue_name,
+            },
+        )
 
         # using() passes arguments to the Django Task object,
         # while enqueue passes arguments to the task function itself
@@ -98,11 +108,41 @@ def enqueue_due_tasks(tasks):
         )
 
         enqueued = 0
+        failed = 0
+
+        logger.info(
+            "Scheduler tick started",
+            extra={
+                "due_task_count": len(due_tasks),
+                "batch_size": batch_size,
+            },
+        )
+
         for task in due_tasks:
-            dispatch_task(task=task, now=now)
-            enqueued += 1
+            try:
+                dispatch_task(task=task, now=now)
+                enqueued += 1
+            except Exception:
+                failed += 1
+                logger.exception(
+                    "Scheduled task dispatch failed",
+                    extra={
+                        "task_id": str(task.id),
+                        "task_name": task.name,
+                        "task_path": task.task,
+                        "queue_name": task.queue_name,
+                    },
+                )
 
         scanned = len(due_tasks)
-        failed = scanned - enqueued
+
+        logger.info(
+            "Scheduler tick completed",
+            extra={
+                "scanned": scanned,
+                "enqueued": enqueued,
+                "failed": failed,
+            },
+        )
 
         return SchedulerRunResult(scanned=scanned, enqueued=enqueued, failed=failed)

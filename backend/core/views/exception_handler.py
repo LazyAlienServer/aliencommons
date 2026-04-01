@@ -4,6 +4,9 @@ from rest_framework.exceptions import APIException, ValidationError
 
 from core.responses import format_api_response
 from core.exceptions import ServiceError
+from logs.logging.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def custom_exception_handler(exc, context):
@@ -20,49 +23,48 @@ def custom_exception_handler(exc, context):
 
     # Service layer errors
     if isinstance(exc, ServiceError):
+        message = str(getattr(exc, 'detail', "Request failed"))
+        code = str(getattr(exc, 'code', 'request_failed'))
+        status_code = getattr(exc, 'status_code', status.HTTP_400_BAD_REQUEST)
+
+        logger.warning(f"Service Error: {message}")
 
         return format_api_response(
-            success=False,
-            message=str(getattr(exc, 'detail', "Request failed")),
-            code=str(getattr(exc, 'code', 'request_failed')),
-            data=None,
-            errors=None,
-            request=request,
-            status_code=getattr(exc, 'status_code', status.HTTP_400_BAD_REQUEST)
+            success=False, message=message, code=code,
+            data=None, errors=None, request=request,
+            status_code=status_code
         )
 
     # Serializer layer (validation) errors
     if isinstance(exc, ValidationError):
+        code = str(getattr(exc, 'code', 'validation_error'))
+        status_code = getattr(exc, 'status_code', status.HTTP_400_BAD_REQUEST)
+
+        logger.warning(f"Validation Error")
 
         return format_api_response(
-            success=False,
-            message="Validation failed",
-            code='validation_error',
-            data=None,
-            errors=exc.detail,
-            request=request,
-            status_code=getattr(exc, 'status_code', status.HTTP_400_BAD_REQUEST)
+            success=False, message="Validation failed", code=code,
+            data=None, errors=exc.detail, request=request,
+            status_code=status_code
         )
 
     # DRF/Django built-in errors: Http404, PermissionDenied, Subclasses of APIException other than ValidationError
     response = exception_handler(exc, context)
 
+    # Unknown error
     if response is None:
-        # Unknown error
+        logger.exception("Unknown exception")
+
         return format_api_response(
-            success=False,
-            message="Internal server error",
-            code='internal_server_error',
-            data=None,
-            errors=None,
-            request=request,
+            success=False, message="Internal server error", code='internal_server_error',
+            data=None, errors=None, request=request,
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
     # Wrap DRF exception_handler response into the standard format
     return format_api_response(
         success=False,
-        message="Request failed.",
+        message="Request failed",
         code=getattr(exc, "default_code", "error") if isinstance(exc, APIException) else "error",
         data=None,
         errors=response.data,

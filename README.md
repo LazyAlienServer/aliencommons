@@ -1,6 +1,6 @@
 # AlienCommons
 
-The website under LazyAlienServer Technical Mincraft Translation Team.
+A website for every Technical Minecraft player.
 
 ## Developer Documentation
 

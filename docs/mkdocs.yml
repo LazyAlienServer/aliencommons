@@ -1,0 +1,34 @@
+site_name: AlienCommons Docs
+site_url: https://lazyalienserver.github.io/alien-commons-docs/
+
+nav:
+  - Home: index.md
+  - Overview: overview.md
+  - Architecture: architecture.md
+  - Development:
+    - development/setup.md
+
+theme:
+  name: material
+  language: en
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: zh
+          name: 中文
+          build: true
+          nav_translations:
+            Home: 首页
+            Overview: 概览
+            Architecture: 架构
+            Development: 开发

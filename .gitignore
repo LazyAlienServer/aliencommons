@@ -1,49 +1,61 @@
-# OS & IDE
+# OS files
 .DS_Store
+
+# Editor and IDE
 .idea/
 .vscode/
 
-# Docker
+# Logs and runtime files
+*.log
+*.pid
+*.sock
+
+# Docker local overrides
 docker-compose.override.yml
 __docker_volume_cache__/
 
-# Backend
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-db.sqlite3
 .venv/
 venv/
-*.log
-*.pid
-*.sock
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# Local databases and scheduler state
+db.sqlite3
+test_db.sqlite3
 celerybeat-schedule*
+
+# Backend generated files
 media/
 staticfiles/
-test_db.sqlite3
 
-backend/runtime_logs/
-!backend/runtime_logs/.gitkeep
-
-# Frontend
+# Frontend generated files
 node_modules/
 dist/
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
+# Docs generated files
+docs/site/
+
 # Environment files
-env/.env.pro
-env/.env.stg
+infra/env/.env.pro
+infra/env/.env.stg
+apps/backend/.env.pro
+apps/backend/.env.stg
+apps/frontend/.env.local
+apps/frontend/.env.*.local
+!apps/frontend/.env.example
 
-backend/.env.pro
-backend/.env.stg
-
-frontend/.env.local
-frontend/.env.*.local
-!frontend/.env.example
-
-# Grafana, Alloy and Loki
+# Observability runtime data
 observability/grafana/data/
 observability/loki/data/

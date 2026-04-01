@@ -7,7 +7,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-    - ./env/.env.dev
+    - ../env/.env.dev
 
   redis:
     ports:
@@ -15,7 +15,7 @@ services:
 
   backend-api:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -26,11 +26,11 @@ services:
     environment:
       DJANGO_ENV: devfull
     volumes:
-      - ./backend:/code
+      - ../../apps/backend:/code
 
   backend-task-scheduler:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -42,11 +42,11 @@ services:
       - redis
       - postgres
     volumes:
-      - ./backend:/code
+      - ../../apps/backend:/code
   
   backend-task-worker:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -58,15 +58,12 @@ services:
       - redis
       - postgres
     volumes:
-      - ./backend:/code:ro
+      - ../../apps/backend:/code:ro
 
   frontend:
     image: node:20
     restart: unless-stopped
     working_dir: /code
-    volumes:
-      - ./frontend:/code:ro
-      - /code/node_modules
     command: >
       sh -c "
         npm install &&
@@ -74,6 +71,9 @@ services:
       "
     ports:
       - "8080:5173"
+    volumes:
+      - ../../apps/frontend:/code:ro
+      - /code/node_modules
   
   alloy:
     image: grafana/alloy:latest
@@ -82,7 +82,7 @@ services:
       - run
       - /etc/alloy/alloy.config.dev
     volumes:
-      - ./observability/alloy/alloy.config.dev:/etc/alloy/alloy.config.dev:ro
+      - ../../observability/alloy/alloy.config.dev:/etc/alloy/alloy.config.dev:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
@@ -95,8 +95,8 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./observability/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
-      - ./observability/loki/data:/loki
+      - ../../observability/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
+      - ../../observability/loki/data:/var/lib/loki/data
   
   grafana:
     image: grafana/grafana:latest
@@ -107,8 +107,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ./observability/grafana/provisioning/datasources/loki-data.dev.yml:/etc/grafana/provisioning/datasources/loki-data.dev.yml:ro
-      - ./observability/grafana/data:/var/lib/grafana
+      - ../../observability/grafana/provisioning/datasources/loki-data.dev.yml:/etc/grafana/provisioning/datasources/loki-data.dev.yml:ro
+      - ../../observability/grafana/data:/var/lib/grafana/data
     depends_on:
       - loki
 

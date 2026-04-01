@@ -3,17 +3,17 @@ services:
     volumes:
       - postgres_data_pro:/var/lib/postgresql
     env_file:
-    - ./env/.env.pro
+    - ../env/.env.pro
   
   redis:
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     env_file:
-    - ./env/.env.pro
+    - ../env/.env.pro
 
   backend-api:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -33,7 +33,7 @@ services:
 
   backend-task-scheduler:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -42,11 +42,11 @@ services:
     environment:
       DJANGO_ENV: pro
     volumes:
-      - ./backend:/code
+      - ../../apps/backend:/code
   
   backend-task-worker:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -55,7 +55,7 @@ services:
     environment:
       DJANGO_ENV: pro
     volumes:
-      - ./backend:/code
+      - ../../apps/backend:/code
 
   alloy:
     image: grafana/alloy:latest
@@ -64,7 +64,7 @@ services:
       - run
       - /etc/alloy/alloy.config.pro
     volumes:
-      - ./observability/alloy/alloy.config.pro:/etc/alloy/alloy.config.pro:ro
+      - ../../observability/alloy/alloy.config.pro:/etc/alloy/alloy.config.pro:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
@@ -75,8 +75,8 @@ services:
     command:
       - -config.file=/etc/loki/loki.pro.yml
     volumes:
-      - ./observability/loki/loki.pro.yml:/etc/loki/loki.pro.yml:ro
-      - /srv/alien-commons/pro/loki:/loki
+      - ../../observability/loki/loki.pro.yml:/etc/loki/loki.pro.yml:ro
+      - /srv/alien-commons/pro/loki:/var/lib/loki/data
 
   grafana:
     image: grafana/grafana:latest
@@ -87,16 +87,17 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ./observability/grafana/provisioning/datasources/loki-data.pro.yml:/etc/grafana/provisioning/datasources/loki-data.pro.yml:ro
-      - ./observability/grafana/data:/var/lib/grafana
+      - ../../observability/grafana/provisioning/datasources/loki-data.pro.yml:/etc/grafana/provisioning/datasources/loki-data.pro.yml:ro
+      - ../../observability/grafana/data:/var/lib/grafana/data
     depends_on:
       - loki
 
   frontend:
     build: 
-      context: ./frontend
+      context: ../../apps/frontend
       dockerfile: Dockerfile
-      VITE_MODE: production
+      args:
+        VITE_MODE: production
     working_dir: /code
     restart: unless-stopped
     labels:

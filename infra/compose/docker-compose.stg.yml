@@ -3,17 +3,17 @@ services:
     volumes:
       - postgres_data_stg:/var/lib/postgresql
     env_file:
-    - ./env/.env.stg
+    - ../env/.env.stg
 
   redis:
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     env_file:
-    - ./env/.env.stg
+    - ../env/.env.stg
 
   backend-api:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -33,7 +33,7 @@ services:
     
   backend-task-scheduler:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -42,11 +42,11 @@ services:
     environment:
       DJANGO_ENV: stg
     volumes:
-      - ./backend:/code
+      - ../../apps/backend:/code
   
   backend-task-worker:
     build:
-      context: ./backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     restart: unless-stopped
@@ -55,7 +55,7 @@ services:
     environment:
       DJANGO_ENV: stg
     volumes:
-      - ./backend:/code
+      - ../../apps/backend:/code
 
   alloy:
     image: grafana/alloy:latest
@@ -64,7 +64,7 @@ services:
       - run
       - /etc/alloy/alloy.config.stg
     volumes:
-      - ./observability/alloy/alloy.config.stg:/etc/alloy/alloy.config.stg:ro
+      - ../../observability/alloy/alloy.config.stg:/etc/alloy/alloy.config.stg:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
@@ -75,7 +75,7 @@ services:
     command:
       - -config.file=/etc/loki/loki.stg.yml
     volumes:
-      - ./observability/loki/loki.stg.yml:/etc/loki/loki.stg.yml:ro
+      - ../../observability/loki/loki.stg.yml:/etc/loki/loki.stg.yml:ro
       - /srv/alien-commons/stg/loki:/loki
 
   grafana:
@@ -91,14 +91,14 @@ services:
       - "traefik.http.routers.grafana-stg.tls.certresolver=le"
       - "traefik.http.services.grafana-stg.loadbalancer.server.port=3000"
     volumes:
-      - ./observability/grafana/provisioning/datasources/loki-data.stg.yml:/etc/grafana/provisioning/datasources/loki-data.stg.yml:ro
+      - ../../observability/grafana/provisioning/datasources/loki-data.stg.yml:/etc/grafana/provisioning/datasources/loki-data.stg.yml:ro
       - /srv/alien-commons/stg/grafana:/var/lib/grafana
     depends_on:
       - loki
 
   frontend:
     build: 
-      context: ./frontend
+      context: ../../apps/frontend
       dockerfile: Dockerfile
       args:
         VITE_MODE: stg

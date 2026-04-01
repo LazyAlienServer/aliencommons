@@ -1,3 +1,5 @@
+devdb:
+	docker compose -f docker-compose.base.yml -f docker-compose.dev.yml up postgres redis
 dev:
 	docker compose -f docker-compose.base.yml -f docker-compose.dev.yml up
 dev-down:

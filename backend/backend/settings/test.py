@@ -153,6 +153,9 @@ CACHES = {
 TASKS = {
     "default": {
         "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+        "QUEUES": [
+            "default", "email", "maintenance"
+        ],
     }
 }
 

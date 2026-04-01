@@ -172,7 +172,7 @@ INSTALLED_APPS = [
 
 INTERNAL_IPS = []
 
-LANGUAGE_CODE = "en-us"
+# LANGUAGE_CODE = "en-us"
 LANGUAGE_COOKIE_AGE = None
 LANGUAGE_COOKIE_DOMAIN = None
 LANGUAGE_COOKIE_HTTPONLY = False
@@ -180,10 +180,10 @@ LANGUAGE_COOKIE_NAME = "django_language"
 LANGUAGE_COOKIE_PATH = "/"
 LANGUAGE_COOKIE_SAMESITE = None
 LANGUAGE_COOKIE_SECURE = False
-LANGUAGES = [
-    ("en_us", _("English")),
-    ("zh-hans", _("Chinese Simplified"))
-]
+# LANGUAGES = [
+#     ("en_us", _("English")),
+#     ("zh-hans", _("Chinese Simplified"))
+# ]
 
 LOCALE_PATHS = []
 

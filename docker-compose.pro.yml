@@ -87,7 +87,7 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/provisioning/datasources/loki-data.pro.yml:/etc/grafana/provisioning/datasources/loki-data.pro.yml:ro
       - ./observability/grafana/data:/var/lib/grafana
     depends_on:
       - loki

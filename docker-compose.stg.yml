@@ -91,7 +91,7 @@ services:
       - "traefik.http.routers.grafana-stg.tls.certresolver=le"
       - "traefik.http.services.grafana-stg.loadbalancer.server.port=3000"
     volumes:
-      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/provisioning/datasources/loki-data.stg.yml:/etc/grafana/provisioning/datasources/loki-data.stg.yml:ro
       - /srv/alien-commons/stg/grafana:/var/lib/grafana
     depends_on:
       - loki

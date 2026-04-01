@@ -43,3 +43,7 @@ backend/.env.stg
 frontend/.env.local
 frontend/.env.*.local
 !frontend/.env.example
+
+# Grafana, Alloy and Loki
+observability/grafana/data/
+observability/loki/data/

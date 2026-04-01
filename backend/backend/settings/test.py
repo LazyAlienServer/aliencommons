@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
+    "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
     "django_filters",

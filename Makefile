@@ -1,29 +1,20 @@
 COMPOSE_BASE = -f infra/compose/docker-compose.base.yml
 COMPOSE_DEV = -f infra/compose/docker-compose.dev.yml
-COMPOSE_DEVFULL = -f infra/compose/docker-compose.devfull.yml
 COMPOSE_STG = -f infra/compose/docker-compose.stg.yml
 COMPOSE_PRO = -f infra/compose/docker-compose.pro.yml
 COMPOSE_PROXY = -f infra/compose/docker-compose.proxy.yml
 
 # DEV
-devdb-up:
+dev-db-up:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up postgres redis
-dev-up:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up
+dev-infra-up:
+	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up alloy loki grafana
+dev-full-up:
+	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up --build
 dev-down:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) down
 dev-down-v:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) down -v
-
-# DEVFULL
-devfull-up:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEVFULL) up --build
-devfull-down:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEVFULL) down
-devfull-down-v:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEVFULL) down -v
-devfull-backend-api-bash:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEVFULL) exec backend-api bash
 
 # STG
 stg-up:

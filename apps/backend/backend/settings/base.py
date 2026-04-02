@@ -1,15 +1,25 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
+import os
 from datetime import timedelta
 from pathlib import Path
 from environs import Env
 from corsheaders.defaults import default_headers
 
-env = Env()
-env.read_env()
-
 BASE_DIR = Path(__file__).resolve().parents[2]
+
+ENV_FILE_MAPPING = {
+    "dev": BASE_DIR / ".env.dev",
+    "devfull": BASE_DIR / ".env.devfull",
+    "stg": BASE_DIR / ".env.stg",
+    "pro": BASE_DIR / ".env.pro",
+    "test": BASE_DIR / ".env.test",
+}
+
+env_name = os.getenv("DJANGO_ENV", "dev")
+env = Env()
+env.read_env(ENV_FILE_MAPPING[env_name])
 
 """Core Settings"""
 ABSOLUTE_URL_OVERRIDES = {}

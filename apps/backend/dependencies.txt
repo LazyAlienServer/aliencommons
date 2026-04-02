@@ -1,0 +1,20 @@
+This file records all the packages installed using 'pip install'.
+For a more comprehensive and detailed list, please refer to 'requirements.txt'.
+
+Note: always use pip with 'requirements.txt', not this file.
+
+Django
+environs
+django-cors-headers
+djangorestframework
+djangorestframework-simplejwt
+django-filter
+django-redis
+django-rq
+django-tasks
+django-tasks-rq
+drf-spectacular
+psycopg2-binary
+Pillow
+requests
+gunicorn

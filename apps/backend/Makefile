@@ -11,7 +11,7 @@ runworker:
 	DJANGO_ENV=dev python manage.py runworker
 
 runrqworker:
-	DJANGO_ENV=dev python manage.py rqworker default emails maintenance
+	DJANGO_ENV=dev python manage.py rqworker default email maintenance
 
 apidoc:
 	python manage.py spectacular --file openapi.yaml

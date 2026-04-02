@@ -6,15 +6,16 @@ from pathlib import Path
 env_name = os.getenv("DJANGO_ENV", "dev")
 BASE_DIR = Path(__file__).resolve().parent
 
-env_file_map = {
+ENV_FILE_MAPPING = {
     "dev": BASE_DIR / ".env.dev",
+    "devfull": BASE_DIR / ".env.devfull",
     "stg": BASE_DIR / ".env.stg",
     "pro": BASE_DIR / ".env.pro",
     "test": BASE_DIR / ".env.test",
 }
 
 env = Env()
-env.read_env(env_file_map[env_name])
+env.read_env(ENV_FILE_MAPPING[env_name])
 
 
 def main():

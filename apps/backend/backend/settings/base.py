@@ -1,7 +1,6 @@
-from django.utils.translation import gettext_lazy as _
+# from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
-import os
 from datetime import timedelta
 from pathlib import Path
 from environs import Env

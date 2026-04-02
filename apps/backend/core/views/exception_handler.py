@@ -40,7 +40,7 @@ def custom_exception_handler(exc, context):
         code = str(getattr(exc, 'code', 'validation_error'))
         status_code = getattr(exc, 'status_code', status.HTTP_400_BAD_REQUEST)
 
-        logger.warning(f"Validation Error")
+        logger.warning("Validation Error")
 
         return format_api_response(
             success=False, message="Validation failed", code=code,

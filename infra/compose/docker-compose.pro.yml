@@ -12,6 +12,19 @@ services:
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     env_file:
       - ../env/.env.pro
+  
+  backend-init:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile
+    working_dir: /code
+    command: >
+      sh -c "python manage.py migrate && python manage.py init_tasks"
+    environment:
+      DJANGO_ENV: pro
+    depends_on:
+      - postgres
+      - redis
 
   backend-api:
     build:

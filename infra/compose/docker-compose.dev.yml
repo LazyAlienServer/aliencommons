@@ -16,6 +16,21 @@ services:
       - ../env/.env.dev
     ports:
       - "6379:6379"
+  
+  backend-init:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile
+    working_dir: /code
+    command: >
+      sh -c "python manage.py migrate && python manage.py init_tasks"
+    environment:
+      DJANGO_ENV: dev
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ../../apps/backend:/code
 
   backend-api:
     build:

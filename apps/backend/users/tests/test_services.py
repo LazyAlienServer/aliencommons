@@ -21,20 +21,21 @@ class UserServiceTests(BaseTestCase):
             is_primary=True,
         )
 
-    @patch("users.services.users._send_verification_email")
+    @patch("users.services.users.send_verification_email_task")
     @patch("users.services.users._generate_6_digit_code", return_value="123456")
     @patch("users.services.users.random.choice", return_value="default_avatar/Axe.webp")
     def test_register_creates_user_email_and_verification_state(
         self,
         random_choice_mock,
         generate_code_mock,
-        send_email_mock,
+        send_task_mock,
     ):
-        result = register(
-            username="new-user",
-            email="new-user@example.com",
-            password="secret123",
-        )
+        with self.captureOnCommitCallbacks(execute=True) as callbacks:
+            result = register(
+                username="new-user",
+                email="new-user@example.com",
+                password="secret123",
+            )
 
         user = EmailAddress.objects.select_related("user").get(email="new-user@example.com").user
         stored_hash = get_cache(
@@ -56,7 +57,8 @@ class UserServiceTests(BaseTestCase):
         )
         random_choice_mock.assert_called_once()
         generate_code_mock.assert_called_once()
-        send_email_mock.assert_called_once_with(
+        self.assertEqual(len(callbacks), 1)
+        send_task_mock.enqueue.assert_called_once_with(
             to_email="new-user@example.com",
             code="123456",
         )

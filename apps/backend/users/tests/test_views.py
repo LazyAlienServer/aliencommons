@@ -23,24 +23,25 @@ class UserViewTests(BaseAPITestCase):
         )
         self.other_user = create_user(username="navigator")
 
-    @patch("users.services.users._send_verification_email")
+    @patch("users.services.users.send_verification_email_task")
     @patch("users.services.users._generate_6_digit_code", return_value="123456")
     @patch("users.services.users.random.choice", return_value="default_avatar/Axe.webp")
     def test_register_endpoint_returns_standard_success_response(
         self,
         random_choice_mock,
         generate_code_mock,
-        send_email_mock,
+        send_task_mock,
     ):
-        response = self.post_json(
-            reverse("profile-list"),
-            {
-                "username": "new-user",
-                "email": "new-user@example.com",
-                "password": "secret123",
-                "confirm_password": "secret123",
-            },
-        )
+        with self.captureOnCommitCallbacks(execute=True) as callbacks:
+            response = self.post_json(
+                reverse("profile-list"),
+                {
+                    "username": "new-user",
+                    "email": "new-user@example.com",
+                    "password": "secret123",
+                    "confirm_password": "secret123",
+                },
+            )
 
         self.assert_success_response(
             response,
@@ -51,7 +52,8 @@ class UserViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["username"], "new-user")
         self.assertEqual(response.data["data"]["email"], "new-user@example.com")
         self.assertEqual(User.objects.filter(username="new-user").count(), 1)
-        send_email_mock.assert_called_once()
+        self.assertEqual(len(callbacks), 1)
+        send_task_mock.enqueue.assert_called_once()
         random_choice_mock.assert_called_once()
         generate_code_mock.assert_called_once()
 
@@ -86,7 +88,7 @@ class UserViewTests(BaseAPITestCase):
             response,
             status_code=status.HTTP_401_UNAUTHORIZED,
             code="not_authenticated",
-            message="Request failed.",
+            message="Request failed",
         )
 
     def test_me_returns_current_user_profile(self):

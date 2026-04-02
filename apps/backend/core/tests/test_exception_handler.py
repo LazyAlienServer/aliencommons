@@ -44,7 +44,7 @@ class CustomExceptionHandlerTests(BaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertFalse(response.data["success"])
-        self.assertEqual(response.data["message"], "Request failed.")
+        self.assertEqual(response.data["message"], "Request failed")
         self.assertEqual(response.data["code"], "not_authenticated")
 
     def test_django_permission_denied_is_wrapped(self):

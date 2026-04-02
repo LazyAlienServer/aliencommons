@@ -24,25 +24,20 @@ class UserModelTests(BaseTestCase):
 
         self.assertEqual(str(exc.exception), "Password must be set")
 
-    def test_create_superuser_creates_primary_email_address(self):
+    def test_create_superuser_sets_required_flags(self):
         user = User.objects.create_superuser(
             username="admin",
-            email="ADMIN@EXAMPLE.COM",
             password="secret123",
         )
-        email_address = EmailAddress.objects.get(user=user)
 
         self.assertTrue(user.is_staff)
         self.assertTrue(user.is_superuser)
-        self.assertEqual(email_address.email, "ADMIN@example.com")
-        self.assertTrue(email_address.is_primary)
-        self.assertFalse(email_address.is_verified)
+        self.assertFalse(EmailAddress.objects.filter(user=user).exists())
 
     def test_create_superuser_requires_staff_flag(self):
         with self.assertRaises(ValueError) as exc:
             User.objects.create_superuser(
                 username="admin",
-                email="admin@example.com",
                 password="secret123",
                 is_staff=False,
             )

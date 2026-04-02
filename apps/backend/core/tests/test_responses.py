@@ -37,7 +37,12 @@ class FormatAPIResponseTests(BaseTestCase):
         )
 
     def test_format_api_response_defaults_meta_fields_when_request_missing(self):
-        response = format_api_response(data={"ok": True})
+        response = format_api_response(
+            success=True,
+            message="ok",
+            code="ok",
+            data={"ok": True},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["meta"]["request_id"], None)

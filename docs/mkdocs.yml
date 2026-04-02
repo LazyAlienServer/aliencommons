@@ -1,5 +1,5 @@
 site_name: AlienCommons Docs
-site_url: https://lazyalienserver.github.io/alien-commons-docs/
+site_url: https://lazyalienserver.github.io/alien-commons/
 
 nav:
   - Home: index.md

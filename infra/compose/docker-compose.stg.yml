@@ -2,16 +2,16 @@ name: alien-commons-stg
 
 services:
   postgres:
+    env_file:
+      - ../env/.env.stg
     volumes:
       - postgres_data_stg:/var/lib/postgresql
-    env_file:
-    - ../env/.env.stg
 
   redis:
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     env_file:
-    - ../env/.env.stg
+      - ../env/.env.stg
 
   backend-api:
     build:
@@ -43,8 +43,6 @@ services:
       sh -c "python manage.py runscheduler"
     environment:
       DJANGO_ENV: stg
-    volumes:
-      - ../../apps/backend:/code
   
   backend-task-worker:
     build:
@@ -56,8 +54,6 @@ services:
       sh -c "python manage.py rqworker default email maintenance"
     environment:
       DJANGO_ENV: stg
-    volumes:
-      - ../../apps/backend:/code
 
   alloy:
     image: grafana/alloy:latest

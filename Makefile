@@ -36,9 +36,9 @@ pro-up:
 pro-down:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) down
 pro-backend-api-bash:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) exec backend bash
+	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) exec backend-api bash
 pro-backend-api-log:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) logs backend
+	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) logs backend-api
 pro-frontend-log:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) logs frontend
 

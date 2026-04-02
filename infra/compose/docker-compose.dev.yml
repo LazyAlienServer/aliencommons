@@ -2,16 +2,18 @@ name: alien-commons-dev
 
 services:
   postgres:
+    env_file:
+      - ../env/.env.dev
     volumes:
       - postgres_data_dev:/var/lib/postgresql
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - "5432:5432"
-    env_file:
-    - ../env/.env.dev
 
   redis:
+    command: >
+      sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
+    env_file:
+      - ../env/.env.dev
     ports:
       - "6379:6379"
 
@@ -23,12 +25,12 @@ services:
     restart: unless-stopped
     command: >
       sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
-    ports:
-      - "8000:8000"
     environment:
-      DJANGO_ENV: devfull
+      DJANGO_ENV: dev
     volumes:
       - ../../apps/backend:/code
+    ports:
+      - "8000:8000"
 
   backend-task-scheduler:
     build:
@@ -39,7 +41,7 @@ services:
     command: >
       sh -c "python manage.py runscheduler"
     environment:
-      DJANGO_ENV: devfull
+      DJANGO_ENV: dev
     depends_on:
       - redis
       - postgres
@@ -55,12 +57,12 @@ services:
     command: >
       sh -c "python manage.py rqworker default email maintenance"
     environment:
-      DJANGO_ENV: devfull
+      DJANGO_ENV: dev
     depends_on:
       - redis
       - postgres
     volumes:
-      - ../../apps/backend:/code:ro
+      - ../../apps/backend:/code
 
   frontend:
     image: node:20
@@ -94,17 +96,15 @@ services:
     restart: unless-stopped
     command:
       - -config.file=/etc/loki/loki.dev.yml
-    ports:
-      - "3100:3100"
     volumes:
       - ../../observability/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
       - ../../observability/loki/data:/var/lib/loki/data
+    ports:
+      - "3100:3100"
   
   grafana:
     image: grafana/grafana:latest
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
@@ -113,6 +113,8 @@ services:
       - ../../observability/grafana/data:/var/lib/grafana/data
     depends_on:
       - loki
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres_data_dev:

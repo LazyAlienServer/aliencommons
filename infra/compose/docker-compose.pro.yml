@@ -2,16 +2,16 @@ name: alien-commons-pro
 
 services:
   postgres:
+    env_file:
+      - ../env/.env.pro
     volumes:
       - postgres_data_pro:/var/lib/postgresql
-    env_file:
-    - ../env/.env.pro
   
   redis:
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     env_file:
-    - ../env/.env.pro
+      - ../env/.env.pro
 
   backend-api:
     build:
@@ -43,8 +43,6 @@ services:
       sh -c "python manage.py runscheduler"
     environment:
       DJANGO_ENV: pro
-    volumes:
-      - ../../apps/backend:/code
   
   backend-task-worker:
     build:
@@ -56,8 +54,6 @@ services:
       sh -c "python manage.py rqworker default email maintenance"
     environment:
       DJANGO_ENV: pro
-    volumes:
-      - ../../apps/backend:/code
 
   alloy:
     image: grafana/alloy:latest

@@ -50,8 +50,10 @@ docs/site/
 # Environment files
 infra/env/.env.pro
 infra/env/.env.stg
-apps/backend/.env.pro
-apps/backend/.env.stg
+
+apps/backend/env/.env.pro
+apps/backend/env/.env.stg
+
 apps/frontend/.env.local
 apps/frontend/.env.*.local
 !apps/frontend/.env.example

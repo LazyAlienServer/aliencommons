@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "docs/**"
+      - ".github/workflows/docs-validate.yml"
       - ".github/workflows/docs-pages.yml"
   workflow_dispatch:
 
@@ -29,7 +30,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           cache: pip
           cache-dependency-path: docs/requirements.txt
 

@@ -1,0 +1,45 @@
+name: Backend Lint
+
+on:
+  pull_request:
+    paths:
+      - "apps/backend/**"
+      - ".github/workflows/backend-lint.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: apps/backend/requirements.txt
+
+      - name: Install lint dependencies
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: >
+          ruff check
+          articles
+          backend
+          core
+          logs
+          pages
+          tasks
+          users
+          manage.py
+          env_bootstrap.py

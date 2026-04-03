@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { retrieveMyProfile, loginUser, refreshUserLoginToken } from "@/features/user/api";
-import { setRefreshToken, getRefreshToken, removeRefreshToken } from "@/utils";
+import { setRefreshToken, getRefreshToken, removeRefreshToken } from "@/core/utils";
 
 export const useUserStore = defineStore('user', () => {
     /* states */

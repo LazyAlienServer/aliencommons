@@ -15,9 +15,9 @@ Observability: **Grafana + Loki + Alloy**
 Proxy: **Treafik**  
 Deployment: **Docker**
 
-[![My Skills](https://skillicons.dev/icons?i=py,html,css,tailwind,ts,js,vue,postgres,redis,docker)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=py,django,html,css,tailwind,ts,js,vue,postgres,redis,grafana,docker)](https://skillicons.dev)
 
-## Structure
+## Project Structure
 `app/`: Web Applications
 - **Django** backend
 - **Vue** frontend

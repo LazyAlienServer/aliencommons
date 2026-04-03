@@ -1,12 +1,12 @@
 import { createApp } from 'vue';
 import { createPinia } from "pinia";
 import App from './App.vue';
-import router from "@/router";
-import "@/assets/css/app.css";
-import "@/assets/css/article.css";
-import "@/assets/css/modal.css";
-import "@/assets/css/katex.css"
-import { setupGlobalErrorHandler } from "@/utils";
+import router from "src/app/router";
+import "@/core/styles/css/app.css";
+import "@/core/styles/css/article.css";
+import "@/core/styles/css/modal.css";
+import "@/core/styles/css/katex.css"
+import { setupGlobalErrorHandler } from "@/core/utils";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import { useThemeStore, useUserStore } from "@/features/user/stores";

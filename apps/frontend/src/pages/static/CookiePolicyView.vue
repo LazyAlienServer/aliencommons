@@ -1,5 +1,5 @@
 <script setup>
-import { CookiePolicy } from "@/components/static";
+import { CookiePolicy } from "@/core/components";
 </script>
 
 <template>

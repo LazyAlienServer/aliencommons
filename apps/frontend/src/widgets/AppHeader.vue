@@ -16,8 +16,8 @@ import {
   XIcon,
   PlusIcon,
   TriangleDownIcon,
-} from "@/assets/icons";
-import { WebsiteIcon, LasLogo } from "@/assets";
+} from "@/core/assets/icons";
+import { WebsiteIcon, LasLogo } from "@/core/assets";
 import { createSourceArticle } from '@/features/articles/api';
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";

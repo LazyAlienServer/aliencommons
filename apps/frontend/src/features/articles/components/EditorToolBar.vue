@@ -37,7 +37,7 @@ import {
   FlameKindling,
 } from 'lucide-vue-next'
 import { RouterLink } from "vue-router";
-import { BaseModal } from '@/components/base';
+import { BaseModal } from '@/core/components';
 import { uploadArticleImage } from "@/features/articles/api";
 import { useToast } from "vue-toastification";
 

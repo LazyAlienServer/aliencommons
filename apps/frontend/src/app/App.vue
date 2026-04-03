@@ -1,5 +1,5 @@
 <script setup>
-import { AppHeader, AppFooter, PageHeader } from "@/components/layout";
+import { AppHeader, AppFooter, PageHeader } from "@/widgets";
 import { computed } from 'vue'
 import { useRoute } from "vue-router";
 

@@ -1,5 +1,5 @@
 <script setup>
-import { HeroSection } from "@/components/static";
+import { HeroSection } from "@/core/components";
 </script>
 
 <template>

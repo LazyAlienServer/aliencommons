@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { createProfile } from '@/features/user/api'
 import { useToast } from "vue-toastification";
-import { MailIcon, KeyIcon } from "@/assets/icons"
+import { MailIcon, KeyIcon } from "@/core/assets/icons"
 
 const router = useRouter();
 const toast = useToast();

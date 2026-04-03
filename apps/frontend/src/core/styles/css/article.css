@@ -1,6 +1,6 @@
 /*  Custom editor styles  */
-@import 'tailwindcss';
-@import 'katex/dist/katex.min.css';
+@import '../../../../node_modules/tailwindcss/dist/lib.d.mts';
+@import 'katex.min.css';
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 

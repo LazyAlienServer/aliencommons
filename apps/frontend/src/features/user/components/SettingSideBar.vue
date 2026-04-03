@@ -1,6 +1,6 @@
 <script setup>
 import { useUserStore } from "@/features/user/stores";
-import { PaintBrushIcon } from "@/assets/icons"
+import { PaintBrushIcon } from "@/core/assets/icons"
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 

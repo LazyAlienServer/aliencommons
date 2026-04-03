@@ -1,5 +1,5 @@
 /*  Custom tailwind themes, utilities, components, variants and base styles  */
-@import 'tailwindcss';
+@import '../../../../node_modules/tailwindcss/dist/lib.d.mts';
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 

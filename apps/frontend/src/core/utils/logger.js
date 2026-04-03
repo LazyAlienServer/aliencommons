@@ -1,4 +1,4 @@
-import { sendLogToServer } from '@/api';
+import { sendLogToServer } from '@/core/api';
 import { useUserStore } from "@/features/user/stores";
 
 

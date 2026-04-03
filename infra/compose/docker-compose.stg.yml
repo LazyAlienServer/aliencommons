@@ -75,7 +75,7 @@ services:
       - run
       - /etc/alloy/alloy.config.stg
     volumes:
-      - ../../observability/alloy/alloy.config.stg:/etc/alloy/alloy.config.stg:ro
+      - ../../o11y/alloy/alloy.config.stg:/etc/alloy/alloy.config.stg:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
@@ -86,7 +86,7 @@ services:
     command:
       - -config.file=/etc/loki/loki.stg.yml
     volumes:
-      - ../../observability/loki/loki.stg.yml:/etc/loki/loki.stg.yml:ro
+      - ../../o11y/loki/loki.stg.yml:/etc/loki/loki.stg.yml:ro
       - /srv/alien-commons/stg/loki:/loki
 
   grafana:
@@ -102,7 +102,7 @@ services:
       - "traefik.http.routers.grafana-stg.tls.certresolver=le"
       - "traefik.http.services.grafana-stg.loadbalancer.server.port=3000"
     volumes:
-      - ../../observability/grafana/provisioning/datasources/loki-data.stg.yml:/etc/grafana/provisioning/datasources/loki-data.stg.yml:ro
+      - ../../o11y/grafana/provisioning/datasources/loki-data.stg.yml:/etc/grafana/provisioning/datasources/loki-data.stg.yml:ro
       - /srv/alien-commons/stg/grafana:/var/lib/grafana
     depends_on:
       - loki

@@ -75,7 +75,7 @@ services:
       - run
       - /etc/alloy/alloy.config.pro
     volumes:
-      - ../../observability/alloy/alloy.config.pro:/etc/alloy/alloy.config.pro:ro
+      - ../../o11y/alloy/alloy.config.pro:/etc/alloy/alloy.config.pro:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
@@ -86,7 +86,7 @@ services:
     command:
       - -config.file=/etc/loki/loki.pro.yml
     volumes:
-      - ../../observability/loki/loki.pro.yml:/etc/loki/loki.pro.yml:ro
+      - ../../o11y/loki/loki.pro.yml:/etc/loki/loki.pro.yml:ro
       - /srv/alien-commons/pro/loki:/var/lib/loki/data
 
   grafana:
@@ -98,8 +98,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ../../observability/grafana/provisioning/datasources/loki-data.pro.yml:/etc/grafana/provisioning/datasources/loki-data.pro.yml:ro
-      - ../../observability/grafana/data:/var/lib/grafana/data
+      - ../../o11y/grafana/provisioning/datasources/loki-data.pro.yml:/etc/grafana/provisioning/datasources/loki-data.pro.yml:ro
+      - ../../o11y/grafana/data:/var/lib/grafana/data
     depends_on:
       - loki
 

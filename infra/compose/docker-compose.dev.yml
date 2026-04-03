@@ -101,7 +101,7 @@ services:
       - run
       - /etc/alloy/alloy.config.dev
     volumes:
-      - ../../observability/alloy/alloy.config.dev:/etc/alloy/alloy.config.dev:ro
+      - ../../o11y/alloy/alloy.config.dev:/etc/alloy/alloy.config.dev:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
@@ -112,8 +112,8 @@ services:
     command:
       - -config.file=/etc/loki/loki.dev.yml
     volumes:
-      - ../../observability/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
-      - ../../observability/loki/data:/var/lib/loki/data
+      - ../../o11y/loki/loki.dev.yml:/etc/loki/loki.dev.yml:ro
+      - ../../o11y/loki/data:/var/lib/loki/data
     ports:
       - "3100:3100"
   
@@ -124,8 +124,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
-      - ../../observability/grafana/provisioning/datasources/loki-data.dev.yml:/etc/grafana/provisioning/datasources/loki-data.dev.yml:ro
-      - ../../observability/grafana/data:/var/lib/grafana/data
+      - ../../o11y/grafana/provisioning/datasources/loki-data.dev.yml:/etc/grafana/provisioning/datasources/loki-data.dev.yml:ro
+      - ../../o11y/grafana/data:/var/lib/grafana/data
     depends_on:
       - loki
     ports:

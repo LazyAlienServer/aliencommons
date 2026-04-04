@@ -4,6 +4,13 @@ __pycache__/
 *.pid
 *.sock
 *.sqlite3
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.idea/
 media/
 staticfiles/
 .venv/

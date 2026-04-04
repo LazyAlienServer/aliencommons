@@ -1,0 +1,13 @@
+@import '@tailwindcss';
+
+@layer components {
+    .modal {
+        @apply fixed inset-0 z-[1000] flex items-center justify-center
+    }
+    .modal-mask {
+        @apply absolute inset-0 bg-black/40;
+    }
+    .modal-content {
+        @apply relative z-[1001] mb-45 bg-white rounded-lg shadow-xl max-w-[90vw] max-h-[90vh] overflow-auto;
+    }
+}

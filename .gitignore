@@ -40,9 +40,25 @@ staticfiles/
 # Frontend generated files
 node_modules/
 dist/
+dist-ssr/
+coverage/
+.output/
+.data/
+.nuxt/
+.nitro/
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
+logs
+*.local
+*.tsbuildinfo
+.eslintcache
+__screenshots__/
+*.timestamp-*-*.mjs
+/cypress/videos/
+/cypress/screenshots/
 
 # Docs generated files
 docs/site/
@@ -54,6 +70,8 @@ infra/env/.env.stg
 apps/backend/env/.env.pro
 apps/backend/env/.env.stg
 
+apps/frontend/.env
+apps/frontend/.env.*
 apps/frontend/.env.local
 apps/frontend/.env.*.local
 !apps/frontend/.env.example

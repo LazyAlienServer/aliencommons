@@ -13,6 +13,15 @@ periodic_tasks = [
                 },
             },
             {
+                "name": "clear expired sessions",
+                "task": "users.tasks.clear_expired_sessions",
+                "queue_name": "maintenance",
+                "schedule": {
+                    "every": 1,
+                    "period": "day",
+                },
+            },
+            {
                 "name": "cleanup unreferenced article images",
                 "task": "articles.tasks.cleanup_unreferenced_article_images",
                 "queue_name": "maintenance",

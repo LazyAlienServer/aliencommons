@@ -29,4 +29,4 @@ def clean_expired_sessions():
     Delete expired sessions.
     """
     call_command('clearsessions')
-    logger.info(f"Expired sessions cleared")
+    logger.info("Expired sessions cleared")

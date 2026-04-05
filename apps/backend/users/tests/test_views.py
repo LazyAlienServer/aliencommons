@@ -86,7 +86,7 @@ class UserViewTests(BaseAPITestCase):
 
         self.assert_error_response(
             response,
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             code="not_authenticated",
             message="Request failed",
         )
@@ -162,7 +162,7 @@ class SessionViewTests(BaseAPITestCase):
 
     def test_login_creates_user_session_and_persists_auth_session(self):
         response = self.post_json(
-            reverse("auth-login"),
+            reverse("session-login"),
             {
                 "email": self.email_address.email,
                 "password": "secret123",
@@ -196,7 +196,7 @@ class SessionViewTests(BaseAPITestCase):
         self.email_address.save(update_fields=["is_verified"])
 
         response = self.post_json(
-            reverse("auth-login"),
+            reverse("session-login"),
             {
                 "email": self.email_address.email,
                 "password": "secret123",
@@ -213,7 +213,7 @@ class SessionViewTests(BaseAPITestCase):
 
     def test_logout_deletes_user_session_and_clears_authentication(self):
         self.post_json(
-            reverse("auth-login"),
+            reverse("session-login"),
             {
                 "email": self.email_address.email,
                 "password": "secret123",
@@ -221,7 +221,7 @@ class SessionViewTests(BaseAPITestCase):
         )
         self.assertEqual(UserSession.objects.count(), 1)
 
-        response = self.post_json(reverse("auth-logout"))
+        response = self.post_json(reverse("session-logout"))
 
         self.assert_success_response(
             response,
@@ -234,7 +234,7 @@ class SessionViewTests(BaseAPITestCase):
         me_response = self.get_json(reverse("profile-me"))
         self.assert_error_response(
             me_response,
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             code="not_authenticated",
             message="Request failed",
         )

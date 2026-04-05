@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.core.files.base import ContentFile
-from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from rest_framework.exceptions import AuthenticationFailed
 import io
 from PIL import Image
 

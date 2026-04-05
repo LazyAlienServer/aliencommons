@@ -26,7 +26,7 @@ class EmailBackend(BaseBackend):
             return user
 
     @staticmethod
-    def user_can_authenticate(self, user):
+    def user_can_authenticate(user):
         """
         Reject users with is_active=False.
         """

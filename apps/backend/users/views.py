@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate, login, logout
+from django.utils import timezone
+from django.conf import settings
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -121,6 +123,7 @@ class SessionViewSet(FormattedResponseMixin, viewsets.ViewSet):
             raise AuthenticationFailed("Invalid credentials")
 
         login(request, user)
+        request.session[settings.SESSION_EXPIRY_REFRESH_FIELD] = timezone.now().isoformat()
         create_user_session(request, user)
 
         return self.format_success_response(

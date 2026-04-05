@@ -9,7 +9,7 @@ from .services.sessions import update_last_accessed_at
 logger = get_logger(__name__)
 
 
-class UserSessionTrackingMiddleware():
+class SessionTrackingMiddleware():
     def __init__(self, get_response):
         self.get_response = get_response
 

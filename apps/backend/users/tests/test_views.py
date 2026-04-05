@@ -207,7 +207,7 @@ class SessionViewTests(BaseAPITestCase):
             response,
             status_code=status.HTTP_403_FORBIDDEN,
             code="authentication_failed",
-            message="Invalid credentials",
+            message="Request failed",
         )
         self.assertFalse(UserSession.objects.exists())
 

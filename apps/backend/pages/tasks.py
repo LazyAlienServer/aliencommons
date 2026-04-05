@@ -1,7 +1,7 @@
 from django.tasks import task
 
 from core.utils.youtube import fetch_youtube_data
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 
 logger = get_logger(__name__)
 

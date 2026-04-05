@@ -7,7 +7,7 @@ from django.utils.module_loading import import_string
 from dataclasses import dataclass
 
 from core.utils.cache import get_key
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 from .models import PeriodicTask
 from .utils import compute_next_enqueue_at
 

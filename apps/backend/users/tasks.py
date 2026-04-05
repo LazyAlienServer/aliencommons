@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.tasks import task
 
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 
 logger = get_logger(__name__)
 

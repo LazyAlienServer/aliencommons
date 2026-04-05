@@ -14,7 +14,6 @@ django-stubs-ext==6.0.2
 django-tasks==0.12.0
 django-tasks-rq==0.12.0
 djangorestframework==3.17.1
-djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.29.0
 environs==15.0.0
 freezegun==1.5.5
@@ -27,7 +26,6 @@ marshmallow==4.2.3
 packaging==26.0
 pillow==12.2.0
 psycopg2-binary==2.9.11
-PyJWT==2.12.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 PyYAML==6.0.3
@@ -40,5 +38,8 @@ rq-scheduler==0.14.0
 six==1.17.0
 sqlparse==0.5.5
 typing_extensions==4.15.0
+ua-parser==1.0.1
+ua-parser-builtins==202603
 uritemplate==4.2.0
 urllib3==2.6.3
+user-agents==2.2.0

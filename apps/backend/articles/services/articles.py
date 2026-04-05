@@ -7,7 +7,7 @@ import hashlib
 
 from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 from core.exceptions import ServiceError
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 
 logger = get_logger(__name__)
 

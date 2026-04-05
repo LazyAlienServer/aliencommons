@@ -4,17 +4,33 @@ from django.utils.translation import gettext_lazy as _
 import uuid
 
 
+class CreatedAtMixin(models.Model):
+    """
+    Provide 'created_at' fields for models.
+    """
+    created_at = models.DateTimeField(
+        auto_now_add=True, db_index=True, editable=False,
+        verbose_name=_("created at"),
+        help_text=_("The created DateTime of the object"),
+    )
+
+    class Meta:
+        abstract = True
+
+
 class TimeStampedMixin(models.Model):
     """
     Provide 'created_at' and 'updated_at' fields for models.
     """
     created_at = models.DateTimeField(
+        auto_now_add=True, db_index=True, editable=False,
         verbose_name=_("created at"),
-        auto_now_add=True, db_index=True, editable=False
+        help_text=_("The created DateTime of the object"),
     )
     updated_at = models.DateTimeField(
+        auto_now=True, db_index=True,
         verbose_name=_("updated at"),
-        auto_now=True, db_index=True
+        help_text=_("The updated DateTime of the object"),
     )
 
     class Meta:
@@ -26,8 +42,9 @@ class UUIDPrimaryKeyMixin(models.Model):
     Provide UUID as the primary key for models.
     """
     id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False,
         verbose_name=_("ID"),
-        primary_key=True, default=uuid.uuid4, editable=False
+        help_text=_("The UUID of the object"),
     )
 
     class Meta:
@@ -64,8 +81,9 @@ class SoftDeleteMixin(models.Model):
     """
     # Corresponds to 'self.filter(is_deleted=True)'
     is_deleted = models.BooleanField(
+        default=False, db_index=True,
         verbose_name=_("deleted"),
-        default=False, db_index=True
+        help_text=_("Whether the object is deleted"),
     )
 
     objects = SoftDeleteManager()

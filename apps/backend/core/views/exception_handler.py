@@ -4,7 +4,7 @@ from rest_framework.exceptions import APIException, ValidationError
 
 from core.responses import format_api_response
 from core.exceptions import ServiceError
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 
 logger = get_logger(__name__)
 

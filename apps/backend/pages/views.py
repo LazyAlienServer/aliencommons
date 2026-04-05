@@ -8,7 +8,7 @@ from datetime import datetime
 
 from core.utils.cache import get_cache
 from core.views.mixins import FormattedResponseMixin
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 
 logger = get_logger(__name__)
 

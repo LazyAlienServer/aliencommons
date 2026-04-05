@@ -10,7 +10,7 @@ from core.exceptions import ServiceError
 from core.utils.cache import add_cache, set_cache, get_cache, delete_cache, incr_cache
 from users.models import EmailAddress
 from users.tasks import send_verification_email_task
-from logs.logging.logger import get_logger
+from logs.logging import get_logger
 
 logger = get_logger(__name__)
 User = get_user_model()

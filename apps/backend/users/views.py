@@ -1,21 +1,23 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.exceptions import AuthenticationFailed
 
 from core.views.mixins import (
     FormattedResponseMixin, MyListModelMixin, MyRetrieveModelMixin
 )
 from .services.users import register, verify_email
+from .services.sessions import create_user_session, delete_user_session
 from .serializers import (
     UserRegisterInputSerializer,
     UserRegisterOutputSerializer,
     UserListSerializer,
     UserRetrieveSerializer,
     UserUpdateSerializer,
-    CustomLoginSerializer,
-    CustomLoginRefreshSerializer,
+    UserLoginSerializer,
     EmailVerifyInputSerializer,
     EmailVerifyOutputSerializer
 )
@@ -29,9 +31,7 @@ class UserViewSet(MyListModelMixin,
                   FormattedResponseMixin,
                   viewsets.GenericViewSet):
     """
-    A viewset that collects 4 API endpoints which relates to user module.
-
-    Register, User List, User Info, Update (username, signature, avatar)
+    A viewset that collects API endpoints which relates to User.
     """
     queryset = User.objects.order_by("-date_joined")
     parser_classes = (MultiPartParser, FormParser, JSONParser)
@@ -100,33 +100,45 @@ class UserViewSet(MyListModelMixin,
         )
 
 
-class AuthViewSet(FormattedResponseMixin, viewsets.ViewSet):
+class SessionViewSet(FormattedResponseMixin, viewsets.ViewSet):
     """
-    A viewset that collects 2 API endpoints which relates to user module.
+    A viewset that collects API endpoints which relates to UserSession.
 
-    Login, Refresh Login Token
+    Note that login() and logout(), provided by django.contrib.auth,
+    manages Django built-in Session object;
+    Meanwhile, create_user_session() and delete_user_session(), provided by services,
+    manages UserSession object.
     """
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def login(self, request):
-        serializer = CustomLoginSerializer(data=request.data)
+        serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        user = authenticate(
+            request, email=serializer.validated_data['email'], password=serializer.validated_data['password']
+        )
+        if user is None:
+            raise AuthenticationFailed("Invalid credentials")
+
+        login(request, user)
+        create_user_session(request, user)
 
         return self.format_success_response(
             message="user login successfully",
             code="user_login",
-            data=serializer.validated_data,
+            data=None,
             status_code=status.HTTP_200_OK
         )
 
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
-    def refresh_login_token(self, request):
-        serializer = CustomLoginRefreshSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def logout(self, request):
+        logout(request)
+        delete_user_session(request)
 
         return self.format_success_response(
-            message="login token refreshed successfully",
-            code="token_refreshed",
-            data=serializer.validated_data,
+            message="user logout successfully",
+            code="user_logout",
+            data=None,
             status_code=status.HTTP_200_OK
         )
 

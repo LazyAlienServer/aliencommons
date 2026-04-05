@@ -7,14 +7,13 @@ Django
 environs
 django-cors-headers
 djangorestframework
-djangorestframework-simplejwt
 django-filter
 django-redis
 django-rq
 django-tasks
 django-tasks-rq
 drf-spectacular
-psycopg2-binary
 Pillow
 requests
 gunicorn
+user-agents

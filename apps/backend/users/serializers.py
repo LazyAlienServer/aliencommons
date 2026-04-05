@@ -6,9 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from rest_framework_simplejwt.settings import api_settings
-
 import io
 from PIL import Image
 
@@ -32,7 +29,7 @@ class UserRegisterInputSerializer(serializers.Serializer):
         error_messages={
             'required': "A username is required",
         },
-        validators = [
+        validators=[
             UniqueValidator(queryset=User.objects.all(), message="This username has already existed")
         ],
     )
@@ -189,32 +186,26 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class CustomLoginSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        required=True,
+        error_messages={
+            'required': "An email is required",
+        },
+    )
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        error_messages={
+            'required': "A password is required",
+        },
+    )
 
-        access_lifetime = api_settings.ACCESS_TOKEN_LIFETIME
-        refresh_lifetime = api_settings.REFRESH_TOKEN_LIFETIME
-        data['access_token_lifetime'] = str(access_lifetime.total_seconds())
-        data['refresh_token_lifetime'] = str(refresh_lifetime.days)
-
-        return data
-
-
-class CustomLoginRefreshSerializer(TokenRefreshSerializer):
-    def validate(self, attrs):
-        try:
-            data = super().validate(attrs)
-        except ObjectDoesNotExist:
-            raise AuthenticationFailed(
-                self.error_messages.get("no_active_account", "No active account"),
-                code="no_active_account",
-            )
-
-        access_lifetime = api_settings.ACCESS_TOKEN_LIFETIME
-        data["access_token_lifetime"] = str(access_lifetime.total_seconds())
-
-        return data
+    def validate_email(self, value):
+        """
+        Return a normalized email.
+        """
+        return normalize_email(value)
 
 
 class EmailVerifyInputSerializer(serializers.Serializer):

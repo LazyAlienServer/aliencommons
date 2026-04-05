@@ -73,6 +73,17 @@ class User(UUIDPrimaryKeyMixin,
     The User model, inherits from AbstractUser.
     'email' field, 'first_name' field and 'last_name' field are set to None.
     Emails are separately managed by 'EmailAddress' Model.
+
+    Hidden Fields declared in AbstractUser and AbstractBaseUser:
+    - password
+    - last_login
+    - is_active
+    - is_anonymous (@property)
+    - is_authenticated (@property)
+    - is_staff
+    - date_joined
+
+    Always select set 'is_active' to False instead of deleting a user directly.
     """
     default_signature = "This player is somewhat mysterious..."
 
@@ -117,51 +128,3 @@ class User(UUIDPrimaryKeyMixin,
 
     def __str__(self):
         return self.username
-
-
-class EmailAddress(UUIDPrimaryKeyMixin,
-                   models.Model):
-    """
-    This model extracts email information from the user model, Profile.
-    """
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="related_emails",
-        verbose_name=_("user"),
-        help_text=_("The user of the email address"),
-    )
-    email = models.EmailField(
-        unique=True,
-        verbose_name=_("email"),
-        help_text=_("The email of the email address"),
-    )
-    is_verified = models.BooleanField(
-        default=False,
-        verbose_name=_("verified"),
-        help_text=_("Whether the email is verified"),
-    )
-    is_primary = models.BooleanField(
-        default=False,
-        verbose_name=_("primary"),
-        help_text=_("Whether the email is the primary email of the user"),
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True, db_index=True, editable=False,
-        verbose_name=_("created at"),
-        help_text=_("The created DateTime of the email address"),
-    )
-
-    class Meta:
-        verbose_name = _("email")
-        verbose_name_plural = _("emails")
-
-        # One user can only have one primary email
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user'],
-                condition=models.Q(is_primary=True),
-                name='unique_user_primary_emails'
-            ),
-        ]
-
-    def __str__(self):
-        return self.email

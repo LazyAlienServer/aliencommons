@@ -205,7 +205,7 @@ class SessionViewTests(BaseAPITestCase):
 
         self.assert_error_response(
             response,
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             code="authentication_failed",
             message="Invalid credentials",
         )

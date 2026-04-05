@@ -111,6 +111,15 @@ class SessionViewSet(FormattedResponseMixin, viewsets.ViewSet):
     Meanwhile, create_user_session() and delete_user_session(), provided by services,
     manages UserSession object.
     """
+    def get_permissions(self):
+        self.action: str
+        if self.action in ("login",):
+            self.permission_classes = [AllowAny]
+        else:
+            self.permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in self.permission_classes]
+
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def login(self, request):
         serializer = UserLoginSerializer(data=request.data)

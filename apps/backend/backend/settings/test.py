@@ -1,4 +1,7 @@
-# This settings file is independent and not included in the base->dev/pro/staging structure.
+"""
+This settings file is independent and not included in the base->dev/pro/staging structure.
+"""
+
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
@@ -32,6 +35,7 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = "users.User"
+AUTHENTICATION_BACKENDS = ["users.backends.EmailBackend"]
 
 DEFAULT_AVATARS = [
     "default_avatar/Axe.webp",
@@ -40,6 +44,10 @@ DEFAULT_AVATARS = [
     "default_avatar/Shovel.webp",
     "default_avatar/Sword.webp",
 ]
+
+SESSION_COOKIE_AGE = 1209600
+SESSION_EXPIRY_REFRESH_INTERVAL = 600
+SESSION_EXPIRY_REFRESH_FIELD = "last_expiry_refresh_at"
 
 VERIFICATION_CODE_RESEND_COOLDOWN = 60
 VERIFICATION_CODE_TTL = 600

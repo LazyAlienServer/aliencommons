@@ -14,17 +14,26 @@ class UserSessionTrackingMiddleware():
         self.get_response = get_response
 
     def __call__(self, request):
+        response = self.get_response(request)
+
+        if not request.user.is_authenticated:
+            return response
+
+        session_key = request.session.session_key
+        if session_key is None:
+            return response
+
         update_last_accessed_at(request)
 
         now = timezone.now()
         should_refresh = False
-        raw_last_refresh_at = request.session[settings.SESSION_EXPIRY_REFRESH_FIELD]
+        raw_last_refresh_at = request.session.get(settings.SESSION_EXPIRY_REFRESH_FIELD)
         if raw_last_refresh_at is None:
             should_refresh = True
             logger.warning(
                 f"{settings.SESSION_EXPIRY_REFRESH_FIELD} doesn't exist in request.session",
                 extra={
-                    'session_key': request.session.session_key,
+                    'session_key': session_key,
                 }
             )
         else:
@@ -35,8 +44,7 @@ class UserSessionTrackingMiddleware():
                 should_refresh = True
 
         if should_refresh:
-            request.session.set_expiry(1209600)
+            request.session.set_expiry(settings.SESSION_COOKIE_AGE)
             request.session[settings.SESSION_EXPIRY_REFRESH_FIELD] = now.isoformat()
 
-        response = self.get_response(request)
         return response

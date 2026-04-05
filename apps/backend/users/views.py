@@ -135,8 +135,8 @@ class SessionViewSet(FormattedResponseMixin, viewsets.ViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def logout(self, request):
-        logout(request)
         delete_user_session(request)
+        logout(request)
 
         return self.format_success_response(
             message="user logout successfully",

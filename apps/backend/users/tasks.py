@@ -20,3 +20,8 @@ def send_verification_email_task(*, to_email, code):
         fail_silently=False,
     )
     logger.info(f"Email sent to {to_email}")
+
+
+@task
+def clean_expired_sessions():
+    pass

@@ -8,7 +8,7 @@ from rest_framework import status
 from core.tests.factories import create_user
 from core.tests.testcases import BaseAPITestCase
 from core.utils.cache import set_cache
-from users.models import EmailAddress, User
+from users.models import EmailAddress, User, UserSession
 from users.services.users import _hash_code
 
 
@@ -148,3 +148,93 @@ class UserViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["email"], self.email_address.email)
         self.assertTrue(self.email_address.is_verified)
         self.assertTrue(self.user.is_email_verified)
+
+
+class SessionViewTests(BaseAPITestCase):
+    def setUp(self):
+        self.user = create_user(username="captain", password="secret123")
+        self.email_address = EmailAddress.objects.create(
+            user=self.user,
+            email="captain@example.com",
+            is_primary=True,
+            is_verified=True,
+        )
+
+    def test_login_creates_user_session_and_persists_auth_session(self):
+        response = self.post_json(
+            reverse("auth-login"),
+            {
+                "email": self.email_address.email,
+                "password": "secret123",
+            },
+            HTTP_USER_AGENT=(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/135.0.0.0 Safari/537.36"
+            ),
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="user_login",
+            message="user login successfully",
+        )
+
+        session = self.client.session
+        self.assertEqual(str(session["_auth_user_id"]), str(self.user.id))
+        self.assertIn(settings.SESSION_EXPIRY_REFRESH_FIELD, session)
+
+        user_session = UserSession.objects.get(user=self.user)
+        self.assertEqual(user_session.session_key, session.session_key)
+        self.assertEqual(user_session.browser, "Chrome")
+        self.assertEqual(user_session.os, "Mac OS X")
+        self.assertEqual(user_session.last_accessed_at, response.wsgi_request.timestamp.date())
+
+    def test_login_rejects_unverified_email(self):
+        self.email_address.is_verified = False
+        self.email_address.save(update_fields=["is_verified"])
+
+        response = self.post_json(
+            reverse("auth-login"),
+            {
+                "email": self.email_address.email,
+                "password": "secret123",
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            code="authentication_failed",
+            message="Invalid credentials",
+        )
+        self.assertFalse(UserSession.objects.exists())
+
+    def test_logout_deletes_user_session_and_clears_authentication(self):
+        self.post_json(
+            reverse("auth-login"),
+            {
+                "email": self.email_address.email,
+                "password": "secret123",
+            },
+        )
+        self.assertEqual(UserSession.objects.count(), 1)
+
+        response = self.post_json(reverse("auth-logout"))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="user_logout",
+            message="user logout successfully",
+        )
+        self.assertEqual(UserSession.objects.count(), 0)
+
+        me_response = self.get_json(reverse("profile-me"))
+        self.assert_error_response(
+            me_response,
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            code="not_authenticated",
+            message="Request failed",
+        )

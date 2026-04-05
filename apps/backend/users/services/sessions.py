@@ -16,25 +16,24 @@ def create_user_session(request, user: User):
     """
     session_key = request.session.session_key
 
-    ip = request.META.get('REMOTE_ADDR', None)
-    if ip is None:
-        ip = "UNKNOWN"
+    ip = request.META.get("REMOTE_ADDR")
 
-    user_agent_raw = request.META.get('HTTP_USER_AGENT', None)
+    user_agent_raw = request.META.get("HTTP_USER_AGENT")
     if user_agent_raw is None:
-        user_agent = "UNKNOWN"
-        browser = "UNKNOWN"
-        os = "UNKNOWN"
-        device = "UNKNOWN"
+        user_agent = None
+        browser = None
+        os = None
+        device = None
     else:
-        user_agent = user_agents.parse(user_agent_raw)
-        browser = user_agent.browser.family
-        os = user_agent.os.family
-        device = user_agent.device.family
+        ua = user_agents.parse(user_agent_raw)
+        user_agent = str(ua)
+        browser = ua.browser.family
+        os = ua.os.family
+        device = ua.device.family
 
     user_session = UserSession.objects.create(
         user=user, session_key=session_key, user_agent=str(user_agent),
-        broswer=browser, os=os, device=device,
+        browser=browser, os=os, device=device,
         ip_address=ip, last_accessed_at=timezone.now().date()
     )
 
@@ -49,19 +48,27 @@ def delete_user_session(request):
     """
     user = request.user
     session_key = request.session.session_key
-    user_session = UserSession.objects.get(session_key=session_key)
+    user_session = UserSession.objects.filter(session_key=session_key).first()
 
     if user_session:
         user_session_id = user_session.id
         user_session.delete()
+        extra = {}
+        if user is not None:
+            extra["user_id"] = user.id
+
         logger.info(
             f"Deleted UserSession {user_session_id} for session {session_key}",
-            extra={"user_id": user.id}
+            extra=extra
         )
     else:
+        extra = {}
+        if user is not None:
+            extra["user_id"] = user.id
+
         logger.warning(
             f"(Found at logout) UserSession does not exist for session {session_key}",
-            extra={"user_id": user.id}
+            extra=extra
         )
 
 

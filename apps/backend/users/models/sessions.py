@@ -30,22 +30,22 @@ class UserSession(UUIDPrimaryKeyMixin,
         help_text=_("The session's session key"),
     )
     user_agent = models.TextField(
-        blank=True,
+        null=True, blank=True,
         verbose_name=_("user agent"),
         help_text=_("The session's user agent"),
     )
     browser = models.CharField(
-        blank=True, max_length=100,
+        null=True, blank=True, max_length=100,
         verbose_name=_("browser"),
         help_text=_("The session's browser"),
     )
     os = models.CharField(
-        blank=True, max_length=100,
+        null=True, blank=True, max_length=100,
         verbose_name=_("operating system"),
         help_text=_("The session's operating system"),
     )
     device = models.CharField(
-        blank=True, max_length=100,
+        null=True, blank=True, max_length=100,
         verbose_name=_("device"),
         help_text=_("The session's device"),
     )

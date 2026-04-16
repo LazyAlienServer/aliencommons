@@ -4,9 +4,9 @@ A website for every Technical Minecraft player.
 
 ## Tech Stacks
 
-This is a 'monorepo-based' web project with frontend-backend separation architecture.  
+This is a monorepo-based web project with frontend-backend separation architecture.  
 
-Frontend: **Vue3 + Vite**  
+Frontend: **Nuxt (Vue/Vite)**  
 Backend: **Django + Django Rest Framework**  
 Database: **PostgreSQL**  
 Cache: **Redis**  
@@ -15,7 +15,8 @@ Observability: **Grafana + Loki + Alloy**
 Proxy: **Treafik**  
 Deployment: **Docker**
 
-[![My Skills](https://skillicons.dev/icons?i=py,django,html,css,tailwind,ts,js,vue,postgres,redis,grafana,docker)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=py,django,postgres,redis,grafana,docker)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 
 ## Project Structure
 `app/`: Web Applications
@@ -44,4 +45,4 @@ Deployment: **Docker**
 > [!Important]
 > This documentation is not yet up-to-date.
 
-Developer Documentation: [AlienCommons Docs](https://lazyalienserver.github.io/alien-commons/)
+Developer Documentation: [AlienCommons Dev Docs](https://lazyalienserver.github.io/alien-commons/)

@@ -41,10 +41,10 @@ class SourceArticle(UUIDPrimaryKeyMixin,
         verbose_name=_("title"),
         help_text=_("The title of the article"),
     )
-    content = models.JSONField(
-        blank=True, default=dict,
-        verbose_name=_("content"),
-        help_text=_("The content of the article"),
+    article = models.FileField(
+        blank=True,
+        verbose_name=_("article"),
+        help_text=_("The article markdown file"),
     )
     status = models.IntegerField(
         choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True,

@@ -15,7 +15,7 @@ Observability: **Grafana + Loki + Alloy**
 Proxy: **Treafik**  
 Deployment: **Docker**
 
-[![My Skills](https://skillicons.dev/icons?i=py,django,postgres,redis,grafana,docker)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=py,django,postgres,redis,grafana,docker)](https://skillicons.dev)  
 [![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 
 ## Project Structure

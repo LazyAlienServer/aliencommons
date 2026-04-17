@@ -1,0 +1,40 @@
+README:
+- changed-files:
+  - any-glob-to-any-file: 'README.md'
+
+SECURITY:
+- changed-files:
+  - any-glob-to-any-file: 'SECURITY.md'
+
+.github:
+- changed-files:
+  - any-glob-to-any-file: '.github/**'
+
+backend:
+- changed-files:
+  - any-glob-to-any-file: 'app/backend/**'
+
+frontend:
+- changed-files:
+  - any-glob-to-any-file: 'app/frontend/**'
+
+docs:
+- changed-files:
+  - any-glob-to-any-file: 'docs/**'
+
+infra:
+- changed-files:
+  - any-glob-to-any-file: 'infra/**'
+
+o11y:
+- changed-files:
+  - any-glob-to-any-file: 'o11y/**'
+
+feature:
+ - head-branch: ['^feature', 'feature']
+
+feature:
+ - head-branch: ['^refactor', 'refactor']
+
+release:
+ - base-branch: 'main'

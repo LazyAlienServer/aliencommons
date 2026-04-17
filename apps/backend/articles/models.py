@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from core.model_mixins import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin
+from core.model_mixins import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteMixin, CreatedAtMixin
 
 
 User = get_user_model()
@@ -21,6 +21,8 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     - id
     - is_deleted
     """
+    default_title = _("Untitled")
+    default_markdown = _("# Untitled")
 
     class ArticleStatus(models.IntegerChoices):
         """
@@ -37,19 +39,29 @@ class SourceArticle(UUIDPrimaryKeyMixin,
         help_text=_("The author of the article"),
     )
     title = models.CharField(
-        max_length=60, db_index=True, default="",
+        max_length=100, db_index=True, blank=True, default=default_title,
         verbose_name=_("title"),
         help_text=_("The title of the article"),
     )
-    article = models.FileField(
-        blank=True,
-        verbose_name=_("article"),
-        help_text=_("The article markdown file"),
+    markdown = models.TextField(
+        blank=True, default=default_markdown,
+        verbose_name=_("content in markdown"),
+        help_text=_("The content of the article (in Markdown format)"),
+    )
+    version = models.PositiveIntegerField(
+        default=1,
+        verbose_name=_("version"),
+        help_text=_("The current draft version of the article"),
     )
     status = models.IntegerField(
         choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True,
         verbose_name=_("status"),
         help_text=_("The status of the article"),
+    )
+    last_saved_at = models.DateTimeField(
+        blank=True, null=True,
+        verbose_name=_("last saved at"),
+        help_text=_("The last saved DateTime of the Markdown content"),
     )
     last_moderation_at = models.DateTimeField(
         blank=True, null=True,
@@ -65,6 +77,7 @@ class SourceArticle(UUIDPrimaryKeyMixin,
         indexes = [
             models.Index(fields=['author', 'created_at']),
             models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['author', 'status', 'updated_at'])
         ]
 
     def __str__(self):
@@ -87,14 +100,18 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
         help_text=_("The source article of the published version"),
     )
     title = models.CharField(
-        max_length=60, db_index=True, default="",
+        max_length=100, db_index=True,
         verbose_name=_("title"),
         help_text=_("The title of the published article"),
     )
-    content = models.JSONField(
-        blank=True, default=dict,
-        verbose_name=_("content"),
-        help_text=_("The content of the published article"),
+    html = models.TextField(
+        verbose_name=_("content in html"),
+        help_text=_("The content of the article (in HTML format)"),
+    )
+    publication_at = models.DateTimeField(
+        db_index=True,
+        verbose_name=_("published at"),
+        help_text=_("Th DateTime of publication of the article"),
     )
 
     class Meta:
@@ -107,12 +124,15 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
         return f"Published version of article {self.source_article}"
 
 
-class ArticleSnapshot(UUIDPrimaryKeyMixin, models.Model):
+class ArticleSnapshot(UUIDPrimaryKeyMixin,
+                      CreatedAtMixin,
+                      models.Model):
     """
     Freeze the current version of the article for review and retrospection.
 
     Mixin fields:
         - id
+        - created_at
     """
 
     class SnapshotStatus(models.IntegerChoices):
@@ -127,17 +147,16 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin, models.Model):
         help_text=_("The source article of the article snapshot"),
     )
     title = models.CharField(
-        max_length=60, db_index=True, default="",
+        max_length=100, db_index=True,
         verbose_name=_("title"),
         help_text=_("The title of the article snapshot"),
     )
-    content = models.JSONField(
-        blank=True, default=dict,
-        verbose_name=_("content"),
-        help_text=_("The content of the article snapshot"),
+    markdown = models.TextField(
+        verbose_name=_("content in markdown"),
+        help_text=_("The content of the article (in Markdown format)"),
     )
     content_hash = models.CharField(
-        max_length=64, blank=True, default="", db_index=True,
+        max_length=64, default="", db_index=True,
         verbose_name=_("content hash"),
         help_text=_("The content hash of the article snapshot"),
     )
@@ -145,11 +164,6 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin, models.Model):
         choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True,
         verbose_name=_("moderation status"),
         help_text=_("The moderation status of the article snapshot"),
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True, db_index=True, editable=False,
-        verbose_name=_("created at"),
-        help_text=_("The created DateTime of the article snapshot"),
     )
 
     class Meta:
@@ -167,12 +181,15 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin, models.Model):
         return f"Snapshot of article {self.source_article_id}"
 
 
-class ArticleEvent(UUIDPrimaryKeyMixin, models.Model):
+class ArticleEvent(UUIDPrimaryKeyMixin,
+                   CreatedAtMixin,
+                   models.Model):
     """
     Record events related to articles
 
     Mixin fields:
         - id
+        - created_at
     """
 
     class EventType(models.IntegerChoices):
@@ -207,11 +224,6 @@ class ArticleEvent(UUIDPrimaryKeyMixin, models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="article_events",
         verbose_name=_("actor"),
         help_text=_("The actor of the article event"),
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True, db_index=True, editable=False,
-        verbose_name=_("created at"),
-        help_text=_("The created DateTime of the article event"),
     )
 
     class Meta:

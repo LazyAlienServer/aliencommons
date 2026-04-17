@@ -2,6 +2,8 @@
 
 A website for every Technical Minecraft player.
 
+> *This project starts on Jun 29, 2025.*
+
 ## Tech Stacks
 
 This is a monorepo-based web project with frontend-backend separation architecture.  

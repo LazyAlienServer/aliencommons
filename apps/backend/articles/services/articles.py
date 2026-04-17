@@ -89,7 +89,7 @@ class ArticleWorkflow:
         )
 
     @staticmethod
-    def _hash_and_normalize(title, content):
+    def _hash_and_normalize(title, markdown):
         """
         Make a stable representation of the article and calculate its hash value.
         It strips the spaces before and after the title and the summary.
@@ -97,14 +97,14 @@ class ArticleWorkflow:
         """
         items_to_hash = {
             'title': title.strip(),
-            'content': content,
+            'markdown': markdown,
         }
         items_json = json.dumps(items_to_hash, sort_keys=True)
         hash_value = hashlib.blake2b(items_json.encode("utf-8")).hexdigest()
 
         return hash_value
 
-    def _get_the_published_article(self):
+    def _get_the_published_article(self) -> PublishedArticle:
         """
         Return the published version of the article
         """
@@ -132,7 +132,7 @@ class ArticleWorkflow:
 
         return is_within
 
-    def _create_or_update_published_article(self):
+    def _create_or_update_published_article(self) -> PublishedArticle:
         """
         Create or update the source article's published version.
         Return the published_article.
@@ -141,15 +141,17 @@ class ArticleWorkflow:
 
         if published_article:
             published_article.title = self.article_snapshot.title
-            published_article.content = self.article_snapshot.content
-            published_article.save(update_fields=['title', 'content'])
+
+            # TODO: Markdown content needs to be rendered into html
+            published_article.html = self.article_snapshot.markdown
+            published_article.save(update_fields=['title', 'markdown'])
 
             return published_article
 
         published_article = PublishedArticle.objects.create(
             source_article=self.source_article,
             title=self.article_snapshot.title,
-            content=self.article_snapshot.content,
+            html=self.article_snapshot.mardkwon,  # TODO: Markdown content needs to be rendered into html
         )
 
         return published_article
@@ -212,7 +214,7 @@ class ArticleWorkflow:
 
         current_hash = self._hash_and_normalize(
             self.source_article.title,
-            self.source_article.content
+            self.source_article.markdown
         )
 
         if self.article_snapshot and self.article_snapshot.content_hash == current_hash:
@@ -224,7 +226,7 @@ class ArticleWorkflow:
         new_snapshot = ArticleSnapshot.objects.create(
             source_article=self.source_article,
             title=self.source_article.title,
-            content=self.source_article.content,
+            markdown=self.source_article.markdown,
             content_hash=current_hash,
             moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
         )

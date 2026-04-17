@@ -51,7 +51,7 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     version = models.PositiveIntegerField(
         default=1,
         verbose_name=_("version"),
-        help_text=_("The current draft version of the article"),
+        help_text=_("The current draft version of the source article"),
     )
     status = models.IntegerField(
         choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True,
@@ -66,7 +66,7 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     last_moderation_at = models.DateTimeField(
         blank=True, null=True,
         verbose_name=_("last moderation at"),
-        help_text=_("The last moderation DateTime of the article"),
+        help_text=_("The last moderation DateTime of the source article"),
     )
 
     class Meta:
@@ -111,7 +111,7 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
     publication_at = models.DateTimeField(
         db_index=True,
         verbose_name=_("published at"),
-        help_text=_("Th DateTime of publication of the article"),
+        help_text=_("Th DateTime of publication of the published article"),
     )
 
     class Meta:
@@ -159,6 +159,10 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
         max_length=64, default="", db_index=True,
         verbose_name=_("content hash"),
         help_text=_("The content hash of the article snapshot"),
+    )
+    source_version = models.PositiveIntegerField(
+        verbose_name=_("source version"),
+        help_text=_("The source version of the article snapshot"),
     )
     moderation_status = models.IntegerField(
         choices=SnapshotStatus.choices, default=SnapshotStatus.PENDING, db_index=True,

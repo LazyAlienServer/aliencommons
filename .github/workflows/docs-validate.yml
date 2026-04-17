@@ -5,7 +5,7 @@ on:
     paths:
       - "docs/**"
       - ".github/workflows/docs-validate.yml"
-      - ".github/workflows/docs-pages.yml"
+      - ".github/workflows/docs-deploy.yml"
 
 permissions:
   contents: read

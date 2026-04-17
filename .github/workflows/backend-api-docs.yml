@@ -1,0 +1,48 @@
+name: Backend API Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/backend/**"
+      - ".github/workflows/backend-api-docs.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-openapi:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install backend dependencies
+        run: uv sync --locked --dev
+
+      - name: Generate OpenAPI schema
+        env:
+          DJANGO_ENV: test
+        run: uv run python manage.py spectacular --file openapi.yaml --validate
+
+      - name: Upload OpenAPI schema artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-openapi-schema
+          path: apps/backend/openapi.yaml

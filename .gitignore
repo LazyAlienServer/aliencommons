@@ -61,7 +61,7 @@ __screenshots__/
 /cypress/screenshots/
 
 # Docs generated files
-docs/site/
+docs/*/site/
 
 # Environment files
 infra/env/.env.pro

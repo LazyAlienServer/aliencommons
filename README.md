@@ -37,10 +37,10 @@ Deployment: **Docker**
 `docs/`: Documentation
 - contributor documentation
 - user guide
-- alienmark documentation
+- AlienMark documentation
 
 `packages/`: Packages
-- alienmark
+- AlienMark
 
 `.github/`: GitHub Configs
 - workflows

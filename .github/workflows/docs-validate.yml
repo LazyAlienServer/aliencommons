@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "docs/contributors/**"
+      - "docs/alienmark/**"
       - ".github/workflows/docs-validate.yml"
       - ".github/workflows/docs-deploy.yml"
 
@@ -11,12 +12,39 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  validate-contributors:
     runs-on: ubuntu-latest
 
     defaults:
       run:
         working-directory: docs/contributors
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install documentation dependencies
+        run: uv sync --locked
+
+      - name: Build and validate MkDocs site
+        run: uv run mkdocs build --strict
+
+  validate-alienmark:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: docs/alienmark
 
     steps:
       - name: Checkout repository

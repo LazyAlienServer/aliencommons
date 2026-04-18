@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "docs/developers/**"
+      - "docs/contributors/**"
       - ".github/workflows/docs-validate.yml"
       - ".github/workflows/docs-deploy.yml"
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: docs
+        working-directory: docs/contributors
 
     steps:
       - name: Checkout repository
@@ -53,7 +53,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/site
+          path: docs/contributors/site
 
   deploy:
     environment:

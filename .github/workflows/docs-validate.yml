@@ -3,7 +3,7 @@ name: Docs Validate
 on:
   pull_request:
     paths:
-      - "docs/developers/**"
+      - "docs/contributors/**"
       - ".github/workflows/docs-validate.yml"
       - ".github/workflows/docs-deploy.yml"
 
@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: docs
+        working-directory: docs/contributors
 
     steps:
       - name: Checkout repository

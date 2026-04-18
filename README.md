@@ -35,7 +35,9 @@ Deployment: **Docker**
 - **alloy** config files
 
 `docs/`: Documentation
-- developer documentation
+- contributor documentation
+- user guide
+- alienmark documentation
 
 `packages/`: Packages
 - alienmark

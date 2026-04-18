@@ -1,4 +1,11 @@
-import type {EmphasisNode, InlineCodeNode, InlineNode, LinkNode, StrongNode, TextNode,} from "../ast/nodes.js";
+import type {
+  EmphasisNode,
+  InlineCodeNode,
+  InlineNode,
+  LinkNode,
+  StrongNode,
+  TextNode
+} from "../ast/nodes.js";
 
 export function parseInline(input: string): InlineNode[] {
   const nodes: InlineNode[] = [];

@@ -21,11 +21,11 @@ Deployment: **Docker**
 [![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 
 ## Project Structure
-`app/`: Web Applications
+`app/`: Applications
 - **Django** backend
 - **Vue** frontend
 
-`infra/`: Infrastructure
+`infra/`: Project infrastructure
 - docker compose files
 - environment files
 
@@ -34,11 +34,17 @@ Deployment: **Docker**
 - **loki** config files
 - **alloy** config files
 
-`docs/`: Developer Documentation  
-- **mkdocs**
+`docs/`: Documentation
+- developer documentation
+
+`packages/`: Packages
+- alienmark
 
 `.github/`: GitHub Configs
-- **GitHub** Workflows
+- workflows
+- issue templates
+- pull request templates
+- CODEOWNERS file
 
 `Makefile`: Command Shortcuts
 
@@ -48,3 +54,7 @@ Deployment: **Docker**
 > This documentation is not yet up-to-date.
 
 Developer Documentation: [AlienCommons Dev Docs](https://lazyalienserver.github.io/alien-commons/)
+
+## License
+
+This project is licensed under the [MIT](https://github.com/LazyAlienServer/alien-commons/blob/main/LICENSE) License.

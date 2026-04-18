@@ -3,7 +3,7 @@ name: Docs Validate
 on:
   pull_request:
     paths:
-      - "docs/**"
+      - "docs/developers/**"
       - ".github/workflows/docs-validate.yml"
       - ".github/workflows/docs-deploy.yml"
 

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "docs/**"
+      - "docs/developers/**"
       - ".github/workflows/docs-validate.yml"
       - ".github/workflows/docs-deploy.yml"
   workflow_dispatch:

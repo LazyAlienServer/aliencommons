@@ -45,6 +45,7 @@ Deployment: **Docker**
 - issue templates
 - pull request templates
 - CODEOWNERS file
+- pull request labeler
 
 `Makefile`: Command Shortcuts
 

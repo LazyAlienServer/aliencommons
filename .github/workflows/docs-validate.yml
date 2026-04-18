@@ -6,7 +6,6 @@ on:
       - "docs/contributors/**"
       - "docs/alienmark/**"
       - ".github/workflows/docs-validate.yml"
-      - ".github/workflows/docs-deploy.yml"
 
 permissions:
   contents: read

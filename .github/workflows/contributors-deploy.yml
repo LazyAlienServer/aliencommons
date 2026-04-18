@@ -1,4 +1,4 @@
-name: Deploy Docs to GitHub Pages
+name: Deploy Contributor Docs to GitHub Pages
 
 on:
   push:
@@ -6,9 +6,7 @@ on:
       - main
     paths:
       - "docs/contributors/**"
-      - ".github/workflows/docs-validate.yml"
-      - ".github/workflows/docs-deploy.yml"
-  workflow_dispatch:
+      - ".github/workflows/contributors-deploy.yml"
 
 permissions:
   contents: read

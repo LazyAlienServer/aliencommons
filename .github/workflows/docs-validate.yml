@@ -5,14 +5,41 @@ on:
     paths:
       - "docs/contributors/**"
       - "docs/alienmark/**"
+      - "docs/users/**"
       - ".github/workflows/docs-validate.yml"
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      contributors: ${{ steps.filter.outputs.contributors }}
+      alienmark: ${{ steps.filter.outputs.alienmark }}
+      users: ${{ steps.filter.outputs.users }}
+      workflow: ${{ steps.filter.outputs.workflow }}
+
+    steps:
+      - name: Detect changed docs projects
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            contributors:
+              - 'docs/contributors/**'
+            alienmark:
+              - 'docs/alienmark/**'
+            users:
+              - 'docs/users/**'
+            workflow:
+              - '.github/workflows/docs-validate.yml'
+
   validate-contributors:
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.contributors == 'true' || needs.detect-changes.outputs.workflow == 'true'
 
     defaults:
       run:
@@ -40,10 +67,41 @@ jobs:
 
   validate-alienmark:
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.alienmark == 'true' || needs.detect-changes.outputs.workflow == 'true'
 
     defaults:
       run:
         working-directory: docs/alienmark
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install documentation dependencies
+        run: uv sync --locked
+
+      - name: Build and validate MkDocs site
+        run: uv run mkdocs build --strict
+
+  validate-users:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.users == 'true' || needs.detect-changes.outputs.workflow == 'true'
+
+    defaults:
+      run:
+        working-directory: docs/users
 
     steps:
       - name: Checkout repository

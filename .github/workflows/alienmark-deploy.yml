@@ -1,0 +1,51 @@
+name: Deploy Alienmark Docs to S3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/alienmark/**"
+      - ".github/workflows/alienmark-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: docs/alienmark
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install docs dependencies
+        run: uv sync --locked
+
+      - name: Build MkDocs site
+        run: uv run mkdocs build --strict
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+
+      - name: Deploy site to S3
+        run: aws s3 sync site/ s3://${{ vars.AWS_S3_BUCKET }}/ --delete

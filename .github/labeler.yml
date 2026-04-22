@@ -33,7 +33,7 @@ o11y:
 feature:
  - head-branch: ['^feature', 'feature']
 
-feature:
+refactor:
  - head-branch: ['^refactor', 'refactor']
 
 release:

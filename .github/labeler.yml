@@ -12,11 +12,11 @@ SECURITY:
 
 backend:
 - changed-files:
-  - any-glob-to-any-file: 'app/backend/**'
+  - any-glob-to-any-file: 'apps/backend/**'
 
 frontend:
 - changed-files:
-  - any-glob-to-any-file: 'app/frontend/**'
+  - any-glob-to-any-file: 'apps/frontend/**'
 
 docs:
 - changed-files:

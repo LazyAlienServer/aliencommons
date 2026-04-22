@@ -21,7 +21,7 @@ Deployment: **Docker**
 [![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 
 ## Project Structure
-`app/`: Applications
+`apps/`: Applications
 - **Django** backend
 - **Vue** frontend
 

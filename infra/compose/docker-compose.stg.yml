@@ -1,32 +1,34 @@
+x-stack-env: &stack-env
+  env_file:
+    - ../../env/.env.stg
+
 name: alien-commons-stg
 
 services:
   postgres:
-    env_file:
-      - ../env/.env.stg
+    <<: *stack-env
     volumes:
       - postgres_data_stg:/var/lib/postgresql
 
   redis:
+    <<: *stack-env
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
-    env_file:
-      - ../env/.env.stg
   
   backend-init:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     command: >
       sh -c "python manage.py migrate && python manage.py init_tasks"
-    environment:
-      DJANGO_ENV: stg
     depends_on:
       - postgres
       - redis
 
   backend-api:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
@@ -34,8 +36,6 @@ services:
     restart: unless-stopped
     command: >
       sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
-    environment:
-      - DJANGO_ENV: stg
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend-api-stg.rule=Host(`api-stg.aliencommons.com`)"
@@ -47,6 +47,7 @@ services:
       - /srv/alien-commons/stg/static:/code/staticfiles
     
   backend-task-scheduler:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
@@ -54,10 +55,9 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py runscheduler"
-    environment:
-      DJANGO_ENV: stg
   
   backend-task-worker:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
@@ -65,8 +65,6 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py rqworker default email maintenance"
-    environment:
-      DJANGO_ENV: stg
 
   alloy:
     image: grafana/alloy:latest

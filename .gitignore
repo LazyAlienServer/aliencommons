@@ -64,17 +64,8 @@ __screenshots__/
 docs/*/site/
 
 # Environment files
-infra/env/.env.pro
-infra/env/.env.stg
-
-apps/backend/env/.env.pro
-apps/backend/env/.env.stg
-
-apps/frontend/.env
-apps/frontend/.env.*
-apps/frontend/.env.local
-apps/frontend/.env.*.local
-!apps/frontend/.env.example
+env/.env.pro
+env/.env.stg
 
 # Observability runtime data
 o11y/grafana/data/

@@ -1,31 +1,32 @@
+x-stack-env: &stack-env
+  env_file:
+    - ../../env/.env.dev
+
 name: alien-commons-dev
 
 services:
   postgres:
-    env_file:
-      - ../env/.env.dev
+    <<: *stack-env
     volumes:
       - postgres_data_dev:/var/lib/postgresql
     ports:
       - "5432:5432"
 
   redis:
+    <<: *stack-env
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
-    env_file:
-      - ../env/.env.dev
     ports:
       - "6379:6379"
   
   backend-init:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
     working_dir: /code
     command: >
       sh -c "python manage.py migrate && python manage.py init_tasks"
-    environment:
-      DJANGO_ENV: dev
     depends_on:
       - postgres
       - redis
@@ -33,6 +34,7 @@ services:
       - ../../apps/backend:/code
 
   backend-api:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
@@ -40,14 +42,13 @@ services:
     restart: unless-stopped
     command: >
       sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
-    environment:
-      DJANGO_ENV: dev
     volumes:
       - ../../apps/backend:/code
     ports:
       - "8000:8000"
 
   backend-task-scheduler:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
@@ -55,8 +56,6 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py runscheduler"
-    environment:
-      DJANGO_ENV: dev
     depends_on:
       - redis
       - postgres
@@ -64,6 +63,7 @@ services:
       - ../../apps/backend:/code
   
   backend-task-worker:
+    <<: *stack-env
     build:
       context: ../../apps/backend
       dockerfile: Dockerfile
@@ -71,8 +71,6 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py rqworker default email maintenance"
-    environment:
-      DJANGO_ENV: dev
     depends_on:
       - redis
       - postgres

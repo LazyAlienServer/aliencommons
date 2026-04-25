@@ -4,26 +4,55 @@ COMPOSE_STG = -f infra/compose/docker-compose.stg.yml
 COMPOSE_PRO = -f infra/compose/docker-compose.pro.yml
 COMPOSE_PROXY = -f infra/compose/docker-compose.proxy.yml
 
+DEV_COMPOSE = docker compose $(COMPOSE_BASE) $(COMPOSE_DEV)
+DEV_MANAGE = $(DEV_COMPOSE) run --rm backend-api python manage.py
+DEV_MANAGE_NO_DEPS = $(DEV_COMPOSE) run --rm --no-deps backend-api python manage.py
+DEV_MANAGE_TEST = $(DEV_COMPOSE) run --rm --no-deps -e DJANGO_SETTINGS_MODULE=backend.settings.test backend-api python manage.py
+
 DB = postgres redis
 OBSERVE = alloy loki grafana
 APP = backend-api backend-task-scheduler backend-task-worker frontend
 
-# DEV
+# DEVELOPMENT
 dev-db-up:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up $(DB)
+	$(DEV_COMPOSE) up $(DB)
 dev-observe-up:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up $(OBSERVE)
+	$(DEV_COMPOSE) up $(OBSERVE)
 dev-up:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d $(DB)
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) run --rm backend-init
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d $(OBSERVE)
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up --build $(APP)
+	$(DEV_COMPOSE) up -d $(DB)
+	$(DEV_COMPOSE) run --rm backend-init
+	$(DEV_COMPOSE) up -d $(OBSERVE)
+	$(DEV_COMPOSE) up --build $(APP)
 dev-down:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) down
+	$(DEV_COMPOSE) down
 dev-down-v:
-	docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) down -v
+	$(DEV_COMPOSE) down -v
+dev-backend-bash:
+	$(DEV_COMPOSE) run --rm backend-api bash
+dev-backend-shell:
+	$(DEV_MANAGE) shell
+dev-backend-runserver:
+	$(DEV_COMPOSE) run --rm --service-ports backend-api python manage.py runserver 0.0.0.0:8000
+dev-backend-makemigrations:
+	$(DEV_MANAGE_NO_DEPS) makemigrations
+dev-backend-migrate:
+	$(DEV_MANAGE) migrate
+dev-backend-createsuperuser:
+	$(DEV_MANAGE) createsuperuser
+dev-backend-test:
+	$(DEV_MANAGE_TEST) test
+dev-backend-check:
+	$(DEV_MANAGE_NO_DEPS) check
+dev-backend-apidoc:
+	$(DEV_COMPOSE) run --rm --no-deps -e DJANGO_SETTINGS_MODULE=backend.settings.test backend-api python manage.py spectacular --file openapi.yaml --validate
+dev-backend-init-tasks:
+	$(DEV_MANAGE) init_tasks
+dev-backend-runscheduler:
+	$(DEV_MANAGE) runscheduler
+dev-backend-runrqworker:
+	$(DEV_MANAGE) rqworker default email maintenance
 
-# STG
+# STAGING
 stg-up:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_STG) up -d $(DB)
 	docker compose $(COMPOSE_BASE) $(COMPOSE_STG) run --rm backend-init
@@ -40,7 +69,7 @@ stg-backend-api-log:
 stg-frontend-log:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_STG) logs frontend
 
-# PRO
+# PRODUCTION
 pro-up:
 	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) up -d $(DB)
 	docker compose $(COMPOSE_BASE) $(COMPOSE_PRO) run --rm backend-init

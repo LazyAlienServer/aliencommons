@@ -39,6 +39,7 @@ staticfiles/
 
 # Frontend generated files
 node_modules/
+.pnpm-store/
 dist/
 dist-ssr/
 coverage/

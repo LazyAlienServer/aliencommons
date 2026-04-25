@@ -20,37 +20,6 @@ Deployment: **Docker**
 [![My Skills](https://skillicons.dev/icons?i=py,django,postgres,redis,grafana,docker)](https://skillicons.dev)  
 [![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 
-## Project Structure
-`apps/`: Applications
-- **Django** backend
-- **Vue** frontend
-
-`infra/`: Project infrastructure
-- docker compose files
-- environment files
-
-`o11y/`: Observability
-- **grafana** config files
-- **loki** config files
-- **alloy** config files
-
-`docs/`: Documentation
-- contributor documentation
-- user guide
-- AlienMark documentation
-
-`packages/`: Packages
-- AlienMark
-
-`.github/`: GitHub Configs
-- workflows
-- issue templates
-- pull request templates
-- CODEOWNERS file
-- pull request labeler
-
-`Makefile`: Command Shortcuts
-
 ## Developer Documentation
 
 > [!Important]

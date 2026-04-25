@@ -1,4 +1,4 @@
-name: Deploy Alienmark Docs to S3
+name: "AlienMark Docs: Deploy"
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "docs/alienmark/**"
-      - ".github/workflows/alienmark-deploy.yml"
+      - ".github/workflows/alienmark-docs-deploy.yml"
 
 permissions:
   contents: read

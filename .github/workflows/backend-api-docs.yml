@@ -1,4 +1,4 @@
-name: Backend API Docs
+name: "Backend: API Docs"
 
 on:
   push:

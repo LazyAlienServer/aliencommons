@@ -1,0 +1,45 @@
+name: "AlienMark: CI"
+
+on:
+  pull_request:
+    paths:
+      - "packages/alienmark/**"
+      - "apps/frontend/package.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "make/node.mk"
+      - ".github/workflows/alienmark-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  alienmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Alienmark type check
+        run: pnpm --filter alienmark check
+
+      - name: Run Alienmark tests
+        run: pnpm --filter alienmark test
+
+      - name: Build Alienmark
+        run: pnpm --filter alienmark build

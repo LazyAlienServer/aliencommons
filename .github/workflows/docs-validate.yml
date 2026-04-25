@@ -1,4 +1,4 @@
-name: Docs Validate
+name: "Docs: Validate"
 
 on:
   pull_request:

@@ -165,7 +165,6 @@ INSTALLED_APPS = [
     "django_filters",
     "django_rq",
     "django_tasks_rq",
-    'drf_spectacular',
 ]
 
 INTERNAL_IPS = []

@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     "django_filters",
     "django_rq",
     "django_tasks_rq",
-    "drf_spectacular",
 ]
 
 AUTH_USER_MODEL = "users.User"

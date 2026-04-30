@@ -15,7 +15,7 @@ DEV_MANAGE_TEST = $(DEV_COMPOSE) run --rm --no-deps -e DJANGO_SETTINGS_MODULE=ba
 
 DB = postgres redis
 OBSERVE = alloy loki grafana
-APP = backend-api backend-task-scheduler backend-task-worker frontend
+APP = backend-api backend-task-scheduler backend-task-worker frontend alienmark
 
 .PHONY: dev-db-up dev-observe-up dev-up dev-down dev-down-v \
 	dev-backend-bash dev-backend-shell dev-backend-runserver \

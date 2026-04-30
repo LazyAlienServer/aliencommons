@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     command: >
       sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
+    depends_on:
+      - alienmark
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend-production.rule=Host(`api.aliencommons.com`)"
@@ -115,6 +117,15 @@ services:
       - "traefik.http.routers.frontend-production.entrypoints=websecure"
       - "traefik.http.routers.frontend-production.tls.certresolver=le"
       - "traefik.http.services.frontend-production.loadbalancer.server.port=80"
+
+  alienmark:
+    build:
+      context: ../..
+      dockerfile: apps/alienmark/Dockerfile
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8787
 
   media:
     image: nginx:alpine

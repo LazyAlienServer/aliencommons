@@ -10,6 +10,10 @@
     "alienmark:build": "pnpm --filter alienmark build",
     "alienmark:test": "pnpm --filter alienmark test",
     "alienmark:check": "pnpm --filter alienmark check",
+    "alienmark-service:dev": "pnpm --filter alienmark-service dev",
+    "alienmark-service:build": "pnpm --filter alienmark-service build",
+    "alienmark-service:start": "pnpm --filter alienmark-service start",
+    "alienmark-service:check": "pnpm --filter alienmark-service check",
     "node:build": "pnpm -r --if-present build",
     "node:test": "pnpm -r --if-present test",
     "node:check": "pnpm -r --if-present check"

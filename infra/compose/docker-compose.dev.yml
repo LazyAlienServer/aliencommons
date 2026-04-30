@@ -42,6 +42,8 @@ services:
     restart: unless-stopped
     command: >
       sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
+    depends_on:
+      - alienmark
     volumes:
       - ../../apps/backend:/code
     ports:
@@ -91,6 +93,15 @@ services:
     volumes:
       - ../../apps/frontend:/code
       - /code/node_modules
+
+  alienmark:
+    build:
+      context: ../..
+      dockerfile: apps/alienmark/Dockerfile
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8787
   
   alloy:
     image: grafana/alloy:latest

@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
     "tasks.apps.TasksConfig",
@@ -64,12 +63,6 @@ SERVER_EMAIL = "server@test.local"
 
 ALIENMARK_SERVICE_URL: str = "http://alienmark:8787"
 ALIENMARK_TIMEOUT_SECONDS: float = 3.0
-
-YOUTUBE_CHANNEL_ID = "test-channel-id"
-YOUTUBE_CHANNEL_HANDLE = "@test-channel"
-YOUTUBE_REQUEST_HEADERS = {"Referer": "http://testserver"}
-YOUTUBE_API_KEY = "test-api-key"
-YOUTUBE_API_URL = "https://example.com/youtube"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [

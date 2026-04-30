@@ -156,7 +156,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core.apps.CoreConfig",
     "users.apps.UsersConfig",
-    "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
     "tasks.apps.TasksConfig",
@@ -478,11 +477,3 @@ MAX_VERIFICATION_ATTEMPTS = 10
 
 ALIENMARK_SERVICE_URL: str = "http://alienmark:8787"
 ALIENMARK_TIMEOUT_SECONDS: float = 3.0
-
-YOUTUBE_CHANNEL_ID = env.str("YOUTUBE_CHANNEL_ID")
-YOUTUBE_CHANNEL_HANDLE = env.str("YOUTUBE_CHANNEL_HANDLE")
-YOUTUBE_REQUEST_HEADERS = {
-    "Referer": "http://localhost:8000",
-}
-YOUTUBE_API_KEY = env.str("YOUTUBE_API_KEY")
-YOUTUBE_API_URL = f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet,statistics&id={YOUTUBE_CHANNEL_ID}&key={YOUTUBE_API_KEY}"

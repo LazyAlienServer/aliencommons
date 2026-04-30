@@ -8,15 +8,6 @@ A website for every Technical Minecraft player.
 
 This is a monorepo-based web project with frontend-backend separation architecture.  
 
-Frontend: **Nuxt (Vue/Vite)**  
-Backend: **Django + Django Rest Framework**  
-Database: **PostgreSQL**  
-Cache: **Redis**  
-Documentation: **MkDocs**  
-Observability: **Grafana + Loki + Alloy**  
-Proxy: **Treafik**  
-Deployment: **Docker**
-
 [![My Skills](https://skillicons.dev/icons?i=py,django,postgres,redis,grafana,docker)](https://skillicons.dev)  
 [![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 

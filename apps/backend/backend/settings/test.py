@@ -62,6 +62,9 @@ EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = "AlienCommons Test <noreply@test.local>"
 SERVER_EMAIL = "server@test.local"
 
+ALIENMARK_SERVICE_URL: str = "http://alienmark:8787"
+ALIENMARK_TIMEOUT_SECONDS: float = 3.0
+
 YOUTUBE_CHANNEL_ID = "test-channel-id"
 YOUTUBE_CHANNEL_HANDLE = "@test-channel"
 YOUTUBE_REQUEST_HEADERS = {"Referer": "http://testserver"}

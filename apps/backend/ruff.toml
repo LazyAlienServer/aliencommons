@@ -1,4 +1,4 @@
 [lint.per-file-ignores]
 "backend/settings/dev.py" = ["F403", "F405"]
 "backend/settings/pro.py" = ["F403", "F405"]
-"backend/settings/staging.py" = ["F403", "F405"]
+"backend/settings/stg.py" = ["F403", "F405"]

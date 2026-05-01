@@ -28,53 +28,52 @@ def _get_locked_source_article(source_article_id):
 
 
 @transaction.atomic
-def submit(*, source_article_id, actor, annotation=None):
+def submit(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.submit()
 
 
 @transaction.atomic
-def withdraw(*, source_article_id, actor, annotation=None):
+def withdraw(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.withdraw()
 
 
 @transaction.atomic
-def approve(*, source_article_id, actor, annotation=None):
+def approve(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.approve()
 
 
 @transaction.atomic
-def reject(*, source_article_id, actor, annotation=None):
+def reject(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.reject()
 
 
 @transaction.atomic
-def unpublish(*, source_article_id, actor, annotation=None):
+def unpublish(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.unpublish()
 
 
 @transaction.atomic
-def soft_delete(*, source_article_id, actor, annotation=None):
+def soft_delete(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.soft_delete()
 
 
 class ArticleWorkflow:
-    def __init__(self, *, source_article, actor, annotation=None):
+    def __init__(self, *, source_article, actor):
         self.source_article = source_article
         self.article_snapshot = self._get_last_snapshot()
         self.actor = actor
-        self.annotation = annotation
 
     def _get_last_snapshot(self):
         """
@@ -163,7 +162,6 @@ class ArticleWorkflow:
         return ArticleEvent.objects.create(
             source_article=self.source_article,
             article_snapshot=self.article_snapshot,
-            annotation=self.annotation,
             event_type=event_type,
             actor=self.actor,
         )

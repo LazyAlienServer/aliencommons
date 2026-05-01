@@ -20,7 +20,6 @@ from .serializers import (
     PublishedArticleSerializer,
     ArticleSnapshotSerializer,
     ArticleEventSerializer,
-    ArticleActionInputSerializer,
     ArticleActionOutputSerializer,
 )
 from .services.articles import (
@@ -121,15 +120,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def submit(self, request, pk=None):
-        input_serializer = ArticleActionInputSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        result = submit(
-            source_article_id=pk,
-            actor=request.user,
-            annotation=input_serializer.validated_data.get("annotation", None)
-        )
-
+        result = submit(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
@@ -141,15 +132,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def withdraw(self, request, pk=None):
-        input_serializer = ArticleActionInputSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        result = withdraw(
-            source_article_id=pk,
-            actor=request.user,
-            annotation=input_serializer.validated_data.get("annotation", None)
-        )
-
+        result = withdraw(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
@@ -161,15 +144,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
-        input_serializer = ArticleActionInputSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        result = approve(
-            source_article_id=pk,
-            actor=request.user,
-            annotation=input_serializer.validated_data.get("annotation", None)
-        )
-
+        result = approve(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
@@ -181,15 +156,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def reject(self, request, pk=None):
-        input_serializer = ArticleActionInputSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        result = reject(
-            source_article_id=pk,
-            actor=request.user,
-            annotation=input_serializer.validated_data.get("annotation", None)
-        )
-
+        result = reject(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
@@ -201,15 +168,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def unpublish(self, request, pk=None):
-        input_serializer = ArticleActionInputSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        result = unpublish(
-            source_article_id=pk,
-            actor=request.user,
-            annotation=input_serializer.validated_data.get("annotation", None)
-        )
-
+        result = unpublish(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(
@@ -221,15 +180,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def trash(self, request, pk=None):
-        input_serializer = ArticleActionInputSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        result = soft_delete(
-            source_article_id=pk,
-            actor=request.user,
-            annotation=input_serializer.validated_data.get("annotation", None)
-        )
-
+        result = soft_delete(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 
         return self.format_success_response(

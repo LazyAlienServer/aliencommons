@@ -7,6 +7,7 @@ import hashlib
 
 from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 from core.exceptions import ServiceError
+from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
 
 logger = get_logger(__name__)
@@ -137,20 +138,19 @@ class ArticleWorkflow:
         Return the published_article.
         """
         published_article = self._get_the_published_article()
+        html = render_md_to_html(self.article_snapshot.markdown)
 
         if published_article:
             published_article.title = self.article_snapshot.title
-
-            # TODO: Markdown content needs to be rendered into html
-            published_article.html = self.article_snapshot.markdown
-            published_article.save(update_fields=['title', 'markdown'])
+            published_article.html = html
+            published_article.save(update_fields=['title', 'html'])
 
             return published_article
 
         published_article = PublishedArticle.objects.create(
             source_article=self.source_article,
             title=self.article_snapshot.title,
-            html=self.article_snapshot.mardkwon,  # TODO: Markdown content needs to be rendered into html
+            html=html
         )
 
         return published_article

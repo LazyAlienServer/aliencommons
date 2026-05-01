@@ -4,7 +4,7 @@ from django.conf import settings
 from core.exceptions import ServiceError
 
 
-def render_markdown_to_html(markdown: str) -> str:
+def render_md_to_html(markdown: str) -> str:
     """
     Render Markdown by calling the internal alienmark service.
     """

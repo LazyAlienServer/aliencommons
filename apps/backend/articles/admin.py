@@ -29,7 +29,7 @@ class SourceArticleAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "created_at", "updated_at", "last_moderation_at")
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "title", "content")}),
+        ("Basic", {"fields": ("id", "title", "markdown")}),
         ("Ownership & Status", {"fields": ("author", "status", "is_deleted")}),
         ("Timestamps", {"fields": ("created_at", "updated_at")}),
     ]
@@ -75,10 +75,10 @@ class PublishedArticleAdmin(admin.ModelAdmin):
     list_per_page = 25
     date_hierarchy = "created_at"
 
-    readonly_fields = ("id", "created_at", "source_article", "title", "content")
+    readonly_fields = ("id", "created_at", "source_article", "title", "html")
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "title", "content")}),
+        ("Basic", {"fields": ("id", "title", "html")}),
         ("Key Info", {"fields": ("source_article", )}),
         ("Timestamps", {"fields": ("created_at",)}),
     ]
@@ -103,12 +103,12 @@ class ArticleSnapshotAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
     readonly_fields = (
-        "id", "created_at", "source_article", "title", "content", "content_hash",
+        "id", "created_at", "source_article", "title", "markdown", "hash",
         "moderation_status", "moderation_status_display",
     )
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "title", "content", "content_hash")}),
+        ("Basic", {"fields": ("id", "title", "markdown", "hash")}),
         ("Key Info", {"fields": ("source_article", "moderation_status", "moderation_status_display")}),
         ("Timestamps", {"fields": ("created_at",)}),
     ]

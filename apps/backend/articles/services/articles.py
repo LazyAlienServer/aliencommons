@@ -95,10 +95,7 @@ class ArticleWorkflow:
         It strips the spaces before and after the title and the summary.
         Return: hash_value
         """
-        items_to_hash = {
-            'title': title.strip(),
-            'markdown': markdown,
-        }
+        items_to_hash = {'title': title.strip(), 'markdown': markdown}
         items_json = json.dumps(items_to_hash, sort_keys=True)
         hash_value = hashlib.blake2b(items_json.encode("utf-8")).hexdigest()
 
@@ -268,7 +265,7 @@ class ArticleWorkflow:
         if not self.article_snapshot:
             raise ServiceError(
                 detail="There are no snapshots for this article!",
-                code='no_change_error'
+                code='no_snapshot_error'
             )
 
         self._create_or_update_published_article()

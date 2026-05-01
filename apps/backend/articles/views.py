@@ -178,8 +178,9 @@ class SourceArticleViewSet(MyModelViewSet):
             status_code=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], url_path="delete")
     def trash(self, request, pk=None):
+        """Soft delete the article"""
         result = soft_delete(source_article_id=pk, actor=request.user)
         output_serializer = ArticleActionOutputSerializer(instance=result)
 

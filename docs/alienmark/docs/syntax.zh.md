@@ -4,7 +4,7 @@
 
 ## 标题
 
-AlienMark 支持 1 到 6 级 ATX 标题。
+AlienMark 支持 1 到 4 级 ATX 标题。
 
 输入：
 
@@ -12,13 +12,16 @@ AlienMark 支持 1 到 6 级 ATX 标题。
 # 一级标题
 ## 二级标题
 ### 三级标题
+#### 四级标题
 ```
 
 输出：
 
 ```html
-<h1>一级标题</h1><h2>二级标题</h2><h3>三级标题</h3>
+<h1>一级标题</h1><h2>二级标题</h2><h3>三级标题</h3><h4>四级标题</h4>
 ```
+
+以五个或更多 `#` 开头的行会被当作普通段落处理。
 
 ## 段落
 
@@ -39,18 +42,18 @@ AlienMark 支持 1 到 6 级 ATX 标题。
 
 ## 粗体
 
-双星号用于表示粗体。
+双星号或双下划线用于表示粗体。
 
 输入：
 
 ```md
-使用 **粗体** 文本。
+使用 **粗体** 和 __也是粗体__ 文本。
 ```
 
 输出：
 
 ```html
-<p>使用 <strong>粗体</strong> 文本。</p>
+<p>使用 <strong>粗体</strong> 和 <strong>也是粗体</strong> 文本。</p>
 ```
 
 ## 斜体
@@ -99,6 +102,22 @@ AlienMark 当前支持 Markdown 的内联链接写法。
 
 ```html
 <p><a href="https://example.com">AlienCommons</a></p>
+```
+
+## 图片
+
+AlienMark 当前支持 Markdown 的内联图片写法。图片描述会被输出为 `alt` 属性。
+
+输入：
+
+```md
+![AlienCommons logo](https://example.com/logo.png)
+```
+
+输出：
+
+```html
+<p><img src="https://example.com/logo.png" alt="AlienCommons logo" /></p>
 ```
 
 ## 围栏代码块

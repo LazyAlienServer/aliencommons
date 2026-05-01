@@ -4,7 +4,7 @@ This page documents the Markdown syntax that AlienMark currently supports.
 
 ## Headings
 
-AlienMark supports ATX headings from level 1 to level 6.
+AlienMark supports ATX headings from level 1 to level 4.
 
 Input:
 
@@ -12,13 +12,16 @@ Input:
 # Heading 1
 ## Heading 2
 ### Heading 3
+#### Heading 4
 ```
 
 Output:
 
 ```html
-<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>
+<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4>
 ```
+
+Lines that start with five or more `#` markers are treated as normal paragraphs.
 
 ## Paragraphs
 
@@ -39,18 +42,18 @@ Output:
 
 ## Strong Emphasis
 
-Double asterisks create strong emphasis.
+Double asterisks or double underscores create strong emphasis.
 
 Input:
 
 ```md
-Use **bold** text.
+Use **bold** and __also bold__ text.
 ```
 
 Output:
 
 ```html
-<p>Use <strong>bold</strong> text.</p>
+<p>Use <strong>bold</strong> and <strong>also bold</strong> text.</p>
 ```
 
 ## Emphasis
@@ -99,6 +102,22 @@ Output:
 
 ```html
 <p><a href="https://example.com">AlienCommons</a></p>
+```
+
+## Images
+
+AlienMark supports inline image syntax. The alt text is emitted as the `alt` attribute.
+
+Input:
+
+```md
+![AlienCommons logo](https://example.com/logo.png)
+```
+
+Output:
+
+```html
+<p><img src="https://example.com/logo.png" alt="AlienCommons logo" /></p>
 ```
 
 ## Fenced Code Blocks

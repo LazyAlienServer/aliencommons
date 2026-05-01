@@ -1,10 +1,11 @@
 import type {
   EmphasisNode,
+  ImageNode,
   InlineCodeNode,
   InlineNode,
   LinkNode,
   StrongNode,
-  TextNode
+  TextNode,
 } from "../ast/nodes.js";
 
 export function parseInline(input: string): InlineNode[] {
@@ -31,8 +32,9 @@ export function parseInline(input: string): InlineNode[] {
       break;
     }
 
-    if (input.startsWith("**", index)) {
-      const closeIndex = input.indexOf("**", index + 2);
+    if (input.startsWith("**", index) || input.startsWith("__", index)) {
+      const marker = input.slice(index, index + 2);
+      const closeIndex = input.indexOf(marker, index + 2);
 
       if (closeIndex !== -1) {
         flushText();
@@ -43,6 +45,26 @@ export function parseInline(input: string): InlineNode[] {
         nodes.push(strongNode);
         index = closeIndex + 2;
         continue;
+      }
+    }
+
+    if (input.startsWith("![", index)) {
+      const labelEnd = input.indexOf("]", index + 2);
+
+      if (labelEnd !== -1 && input[labelEnd + 1] === "(") {
+        const urlEnd = input.indexOf(")", labelEnd + 2);
+
+        if (urlEnd !== -1) {
+          flushText();
+          const imageNode: ImageNode = {
+            type: "image",
+            alt: input.slice(index + 2, labelEnd),
+            url: input.slice(labelEnd + 2, urlEnd),
+          };
+          nodes.push(imageNode);
+          index = urlEnd + 1;
+          continue;
+        }
       }
     }
 

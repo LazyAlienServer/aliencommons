@@ -12,7 +12,8 @@ export type InlineNode =
   | StrongNode
   | EmphasisNode
   | InlineCodeNode
-  | LinkNode;
+  | LinkNode
+  | ImageNode;
 
 export interface DocumentNode {
   type: "document";
@@ -81,6 +82,12 @@ export interface LinkNode {
   type: "link";
   url: string;
   children: InlineNode[];
+}
+
+export interface ImageNode {
+  type: "image";
+  url: string;
+  alt: string;
 }
 
 export interface ParseOptions {

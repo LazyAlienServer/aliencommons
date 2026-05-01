@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
+    "storages",
     "django_filters",
     "django_rq",
     "django_tasks_rq",

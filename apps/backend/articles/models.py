@@ -22,7 +22,7 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     - is_deleted
     """
     default_title = _("Untitled")
-    default_markdown = _("# Untitled")
+    default_markdown = ""
 
     class ArticleStatus(models.IntegerChoices):
         """
@@ -45,8 +45,8 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     )
     markdown = models.TextField(
         blank=True, default=default_markdown,
-        verbose_name=_("content in markdown"),
-        help_text=_("The content of the article (in Markdown format)"),
+        verbose_name=_("article in markdown"),
+        help_text=_("The article in Markdown format"),
     )
     version = models.PositiveIntegerField(
         default=1,
@@ -61,7 +61,7 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     last_saved_at = models.DateTimeField(
         blank=True, null=True,
         verbose_name=_("last saved at"),
-        help_text=_("The last saved DateTime of the Markdown content"),
+        help_text=_("The last saved DateTime of the article"),
     )
     last_moderation_at = models.DateTimeField(
         blank=True, null=True,
@@ -105,8 +105,8 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
         help_text=_("The title of the published article"),
     )
     html = models.TextField(
-        verbose_name=_("content in html"),
-        help_text=_("The content of the article (in HTML format)"),
+        verbose_name=_("article in html"),
+        help_text=_("The article in HTML format"),
     )
     publication_at = models.DateTimeField(
         db_index=True,
@@ -152,13 +152,13 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
         help_text=_("The title of the article snapshot"),
     )
     markdown = models.TextField(
-        verbose_name=_("content in markdown"),
-        help_text=_("The content of the article (in Markdown format)"),
+        verbose_name=_("article in markdown"),
+        help_text=_("The article in Markdown format"),
     )
-    content_hash = models.CharField(
+    hash = models.CharField(
         max_length=64, default="", db_index=True,
-        verbose_name=_("content hash"),
-        help_text=_("The content hash of the article snapshot"),
+        verbose_name=_("hash"),
+        help_text=_("The hash value of the article snapshot"),
     )
     source_version = models.PositiveIntegerField(
         verbose_name=_("source version"),
@@ -178,7 +178,7 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
         indexes = [
             models.Index(fields=['source_article', 'created_at']),
             models.Index(fields=['moderation_status', 'created_at']),
-            models.Index(fields=['source_article', 'content_hash']),
+            models.Index(fields=['source_article', 'hash']),
         ]
 
     def __str__(self):

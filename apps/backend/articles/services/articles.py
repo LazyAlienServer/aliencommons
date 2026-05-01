@@ -215,7 +215,7 @@ class ArticleWorkflow:
             self.source_article.markdown
         )
 
-        if self.article_snapshot and self.article_snapshot.content_hash == current_hash:
+        if self.article_snapshot and self.article_snapshot.hash == current_hash:
             raise ServiceError(
                 detail="Please modify before submission.",
                 code='no_change_error'
@@ -225,7 +225,7 @@ class ArticleWorkflow:
             source_article=self.source_article,
             title=self.source_article.title,
             markdown=self.source_article.markdown,
-            content_hash=current_hash,
+            hash=current_hash,
             moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
         )
         self.article_snapshot = new_snapshot

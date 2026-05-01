@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from articles.models import SourceArticle
 
 
+# TODO: 重写!
 def _extract_media_relpaths_from_tiptap(doc):
     """
     Extract relative storage paths from TipTap JSON doc.

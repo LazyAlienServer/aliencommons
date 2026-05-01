@@ -94,12 +94,10 @@ class SourceArticleWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SourceArticle
-        fields = ['title', 'content']
+        fields = ['title', 'markdown']
 
     def create(self, validated_data):
         validated_data.setdefault("title", "Untitled")
-        validated_data.setdefault("content", {"type": "doc", "content": [{"type": "paragraph"}]})
-
         return super().create(validated_data)
 
     def validate_title(self, value):
@@ -152,7 +150,7 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
             'id',
             'source_article',
             'title',
-            'content',
+            'html',
             'created_at',
             'updated_at',
         )
@@ -172,8 +170,8 @@ class ArticleSnapshotSerializer(serializers.ModelSerializer):
             'id',
             'source_article',
             'title',
-            'content',
-            'content_hash',
+            'markdown',
+            'hash',
             'created_at',
             'moderation_status',
             'moderation_status_display',

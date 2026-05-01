@@ -141,9 +141,11 @@ class ArticleEventAdmin(admin.ModelAdmin):
 
     fieldsets = [
         ("Key Info", {
-            "fields": ("id", "event_type", "actor", "source_article", "article_snapshot", "annotation")
+            "fields": ("id", "event_type", "actor", "source_article", "article_snapshot")
         }),
-        ("Timestamps", {"fields": ("created_at",)}),
+        ("Timestamps", {
+            "fields": ("created_at",)
+        }),
     ]
 
     def type_display(self, obj):

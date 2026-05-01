@@ -214,11 +214,6 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
         verbose_name=_("snapshot"),
         help_text=_("The article snapshot of the article event"),
     )
-    annotation = models.TextField(
-        null=True, blank=True,
-        verbose_name=_("annotation"),
-        help_text=_("The annotation of the article event"),
-    )
     event_type = models.IntegerField(
         choices=EventType.choices,
         verbose_name=_("event type"),

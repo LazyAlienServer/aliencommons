@@ -93,7 +93,6 @@ class ArticleViewTests(BaseAPITestCase):
         self.authenticate(self.author)
         response = self.post_json(
             reverse("source_article-approve", args=[article.id]),
-            {"annotation": "looks good"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -110,7 +109,6 @@ class ArticleViewTests(BaseAPITestCase):
         self.authenticate(self.moderator)
         response = self.post_json(
             reverse("source_article-approve", args=[article.id]),
-            {"annotation": "approved"},
         )
 
         article.refresh_from_db()

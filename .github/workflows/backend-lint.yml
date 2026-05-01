@@ -41,8 +41,6 @@ jobs:
           backend
           core
           logs
-          pages
           tasks
           users
           manage.py
-          env_bootstrap.py

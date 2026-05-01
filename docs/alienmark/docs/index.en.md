@@ -19,12 +19,13 @@ The current implementation focuses on a solid core Markdown subset instead of fu
 
 Supported today:
 
-- headings
+- headings from level 1 to level 4
 - paragraphs
 - strong emphasis
 - emphasis
 - inline code
 - links
+- images
 - fenced code blocks
 - blockquotes
 - ordered and unordered lists

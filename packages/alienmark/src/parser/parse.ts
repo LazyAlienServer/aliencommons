@@ -43,7 +43,7 @@ export function parse(markdown: string, options: ParseOptions = {}): DocumentNod
       continue;
     }
 
-    const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+    const headingMatch = line.match(/^(#{1,4})\s+(.*)$/);
     if (headingMatch) {
       const markers = headingMatch[1] ?? "";
       const text = headingMatch[2] ?? "";
@@ -210,7 +210,7 @@ function parseParagraph(
         isHorizontalRule(line) ||
         line.startsWith(">") ||
         isListLine(line) ||
-        /^(#{1,6})\s+/.test(line))
+        /^(#{1,4})\s+/.test(line))
     ) {
       break;
     }

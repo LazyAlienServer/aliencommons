@@ -53,6 +53,8 @@ function renderInlineNode(node: InlineNode): string {
       return `<code>${escapeHtml(node.value)}</code>`;
     case "link":
       return `<a href="${escapeHtmlAttribute(node.url)}">${renderInlineNodes(node.children)}</a>`;
+    case "image":
+      return `<img src="${escapeHtmlAttribute(node.url)}" alt="${escapeHtmlAttribute(node.alt)}" />`;
   }
 }
 

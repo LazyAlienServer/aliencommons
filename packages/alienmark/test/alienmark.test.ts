@@ -9,11 +9,25 @@ describe("alienmark", () => {
     expect(html).toBe("<h1>Hello</h1><p>This is a paragraph.</p>");
   });
 
+  it("only supports headings from h1 to h4", () => {
+    const html = renderMarkdown("#### Supported\n\n##### Not supported");
+
+    expect(html).toBe("<h4>Supported</h4><p>##### Not supported</p>");
+  });
+
   it("renders inline markdown", () => {
-    const html = renderMarkdown("Use **bold**, *italic*, `code`, and [links](https://example.com).");
+    const html = renderMarkdown("Use **bold**, __bold too__, *italic*, `code`, and [links](https://example.com).");
 
     expect(html).toBe(
-      '<p>Use <strong>bold</strong>, <em>italic</em>, <code>code</code>, and <a href="https://example.com">links</a>.</p>',
+      '<p>Use <strong>bold</strong>, <strong>bold too</strong>, <em>italic</em>, <code>code</code>, and <a href="https://example.com">links</a>.</p>',
+    );
+  });
+
+  it("renders images", () => {
+    const html = renderMarkdown('Logo: ![Alien "logo"](https://example.com/logo.png?x=<tag>)');
+
+    expect(html).toBe(
+      '<p>Logo: <img src="https://example.com/logo.png?x=&lt;tag&gt;" alt="Alien &quot;logo&quot;" /></p>',
     );
   });
 

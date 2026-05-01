@@ -13,6 +13,16 @@ This is a monorepo. The main areas are:
 
 Prefer the conventions already present in the area you are editing.
 
+## Environments
+
+The project uses three environments:
+
+- `dev` is local development.
+- `stg` is hosted on AWS and should mirror production as closely as practical.
+- `pro` is the production environment and is hosted on AWS.
+
+DNS is managed in Cloudflare for `aliencommons.com`.
+
 ## Working Rules
 
 - Read the nearby code before changing it.

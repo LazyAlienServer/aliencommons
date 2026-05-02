@@ -24,7 +24,7 @@ npm config set @lazyalienserver:registry https://npm.pkg.github.com
 import { parseMarkdown, renderMarkdown } from "@lazyalienserver/alienmark";
 
 const html = renderMarkdown("# Hello");
-const ast = parseMarkdown("Use **bold** text.");
+const ast = parseMarkdown("Use **bold** text");
 ```
 
 ## API

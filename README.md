@@ -2,46 +2,22 @@
 
 A website for every Technical Minecraft player.
 
+> *This project starts on Jun 29, 2025.*
+
 ## Tech Stacks
 
-This is a 'monorepo-based' web project with frontend-backend separation architecture.  
+This is a monorepo-based web project with frontend-backend separation architecture.  
 
-Frontend: **Vue3 + Vite**  
-Backend: **Django + Django Rest Framework**  
-Database: **PostgreSQL**  
-Cache: **Redis**  
-Documentation: **MkDocs**  
-Observability: **Grafana + Loki + Alloy**  
-Proxy: **Treafik**  
-Deployment: **Docker**
-
-[![My Skills](https://skillicons.dev/icons?i=py,django,html,css,tailwind,ts,js,vue,postgres,redis,grafana,docker)](https://skillicons.dev)
-
-## Project Structure
-`app/`: Web Applications
-- **Django** backend
-- **Vue** frontend
-
-`infra/`: Infrastructure
-- docker compose files
-- environment files
-
-`o11y/`: Observability
-- **grafana** config files
-- **loki** config files
-- **alloy** config files
-
-`docs/`: Developer Documentation  
-- **mkdocs**
-
-`.github/`: GitHub Configs
-- **GitHub** Workflows
-
-`Makefile`: Command Shortcuts
+[![My Skills](https://skillicons.dev/icons?i=py,django,postgres,redis,grafana,docker)](https://skillicons.dev)  
+[![My Skills](https://skillicons.dev/icons?i=html,css,tailwind,ts,nuxt,)](https://skillicons.dev)
 
 ## Developer Documentation
 
 > [!Important]
 > This documentation is not yet up-to-date.
 
-Developer Documentation: [AlienCommons Docs](https://lazyalienserver.github.io/alien-commons/)
+Developer Documentation: [AlienCommons Dev Docs](https://lazyalienserver.github.io/alien-commons/)
+
+## License
+
+This project is licensed under the [MIT](https://github.com/LazyAlienServer/alien-commons/blob/main/LICENSE) License.

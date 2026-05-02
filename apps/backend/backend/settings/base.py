@@ -156,16 +156,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core.apps.CoreConfig",
     "users.apps.UsersConfig",
-    "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
+    "storages",
     "django_filters",
     "django_rq",
     "django_tasks_rq",
-    'drf_spectacular',
 ]
 
 INTERNAL_IPS = []
@@ -428,8 +427,6 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_CLASSES": [],
     "DEFAULT_CONTENT_NEGOTIATION_CLASS": "rest_framework.negotiation.DefaultContentNegotiation",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-
     "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardPagination",
     "PAGE_SIZE": 20,
 
@@ -440,11 +437,6 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_CREDENTIALS = True
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'AlienCommons',
-    'VERSION': '1.0.0',
-}
 
 RQ_QUEUES = {
     "default": {
@@ -470,17 +462,12 @@ DEFAULT_AVATARS = [
     'default_avatar/Sword.webp',
 ]
 
-SESSION_EXPIRY_REFRESH_INTERVAL = 600
-SESSION_EXPIRY_REFRESH_FIELD = 'last_expiry_refresh_at'
+SESSION_EXPIRY_REFRESH_INTERVAL: int = 600
+SESSION_EXPIRY_REFRESH_FIELD: str = 'last_expiry_refresh_at'
 
-VERIFICATION_CODE_RESEND_COOLDOWN = 60
-VERIFICATION_CODE_TTL = 600
-MAX_VERIFICATION_ATTEMPTS = 10
+VERIFICATION_CODE_RESEND_COOLDOWN: int = 60
+VERIFICATION_CODE_TTL: int = 600
+MAX_VERIFICATION_ATTEMPTS: int = 10
 
-YOUTUBE_CHANNEL_ID = env.str("YOUTUBE_CHANNEL_ID")
-YOUTUBE_CHANNEL_HANDLE = env.str("YOUTUBE_CHANNEL_HANDLE")
-YOUTUBE_REQUEST_HEADERS = {
-    "Referer": "http://localhost:8000",
-}
-YOUTUBE_API_KEY = env.str("YOUTUBE_API_KEY")
-YOUTUBE_API_URL = f"https://youtube.googleapis.com/youtube/v3/channels?part=snippet,statistics&id={YOUTUBE_CHANNEL_ID}&key={YOUTUBE_API_KEY}"
+ALIENMARK_SERVICE_URL: str = "http://alienmark:8787"
+ALIENMARK_TIMEOUT_SECONDS: float = 3.0

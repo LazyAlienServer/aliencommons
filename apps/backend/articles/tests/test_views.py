@@ -1,6 +1,7 @@
 from django.urls import reverse
 
 from rest_framework import status
+from unittest.mock import patch
 
 from core.tests.factories import (
     create_article_snapshot,
@@ -30,7 +31,7 @@ class ArticleViewTests(BaseAPITestCase):
             reverse("source_article-list"),
             {
                 "title": "Draft title",
-                "content": {"type": "doc", "content": [{"type": "paragraph"}]},
+                "markdown": "Hello from Markdown",
             },
         )
 
@@ -41,6 +42,7 @@ class ArticleViewTests(BaseAPITestCase):
             message="created",
         )
         self.assertEqual(response.data["data"]["title"], "Draft title")
+        self.assertEqual(response.data["data"]["markdown"], "Hello from Markdown")
         self.assert_uuid_equal(response.data["data"]["author"], self.author.id)
         self.assertEqual(SourceArticle.objects.count(), 1)
 
@@ -93,14 +95,14 @@ class ArticleViewTests(BaseAPITestCase):
         self.authenticate(self.author)
         response = self.post_json(
             reverse("source_article-approve", args=[article.id]),
-            {"annotation": "looks good"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertFalse(PublishedArticle.objects.filter(source_article=article).exists())
         self.assertEqual(ArticleEvent.objects.filter(source_article=article).count(), 0)
 
-    def test_moderator_can_approve_pending_article(self):
+    @patch("articles.services.articles.render_md_to_html", return_value="<p>Hello</p>")
+    def test_moderator_can_approve_pending_article(self, render_mock):
         article = create_source_article(
             author=self.author,
             status=SourceArticle.ArticleStatus.PENDING,
@@ -110,7 +112,6 @@ class ArticleViewTests(BaseAPITestCase):
         self.authenticate(self.moderator)
         response = self.post_json(
             reverse("source_article-approve", args=[article.id]),
-            {"annotation": "approved"},
         )
 
         article.refresh_from_db()
@@ -129,6 +130,7 @@ class ArticleViewTests(BaseAPITestCase):
             ArticleSnapshot.SnapshotStatus.APPROVED,
         )
         self.assertTrue(PublishedArticle.objects.filter(source_article=article).exists())
+        render_mock.assert_called_once_with(snapshot.markdown)
 
     def test_pending_snapshots_endpoint_only_lists_pending_ones_for_moderator(self):
         pending_article = create_source_article(

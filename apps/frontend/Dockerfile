@@ -1,4 +1,4 @@
-FROM node:23 AS build-stage
+FROM node:24 AS build-stage
 
 ENV NODE_OPTIONS="--max-old-space-size=512"
 

@@ -4,12 +4,10 @@ from django.core.files.storage import default_storage
 from django.utils import timezone
 
 from rest_framework import serializers
-from rest_framework.request import Request
 
 from core.validators import (
     FileTypeValidator, FileSizeValidator
 )
-from core.utils.permissions import is_moderator
 from .models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 
 import uuid
@@ -24,7 +22,6 @@ class SourceArticleReadSerializer(serializers.ModelSerializer):
     """
     Serializer for moderators
     """
-
     author_username = serializers.CharField(source='author.username')
     status_display = serializers.SerializerMethodField()
     last_snapshot_id = serializers.SerializerMethodField()
@@ -37,8 +34,10 @@ class SourceArticleReadSerializer(serializers.ModelSerializer):
             'id',
             'author',
             'title',
-            'content',
+            'markdown',
+            'version',
             'status',
+            'last_saved_at',
             'last_moderation_at',
             'created_at',
             'updated_at',
@@ -82,7 +81,6 @@ class SourceArticleWriteSerializer(serializers.ModelSerializer):
     """
     Serializer for the author, can be used to create/update
     """
-
     title = serializers.CharField(
         required=False,
         allow_blank=True,
@@ -96,12 +94,10 @@ class SourceArticleWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SourceArticle
-        fields = ['title', 'content']
+        fields = ['title', 'markdown']
 
     def create(self, validated_data):
         validated_data.setdefault("title", "Untitled")
-        validated_data.setdefault("content", {"type": "doc", "content": [{"type": "paragraph"}]})
-
         return super().create(validated_data)
 
     def validate_title(self, value):
@@ -147,7 +143,6 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
     """
     Serializer for published articles. All fields are ready-only.
     """
-
     class Meta:
         model = PublishedArticle
         fields = '__all__'
@@ -155,7 +150,7 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
             'id',
             'source_article',
             'title',
-            'content',
+            'html',
             'created_at',
             'updated_at',
         )
@@ -175,8 +170,8 @@ class ArticleSnapshotSerializer(serializers.ModelSerializer):
             'id',
             'source_article',
             'title',
-            'content',
-            'content_hash',
+            'markdown',
+            'hash',
             'created_at',
             'moderation_status',
             'moderation_status_display',
@@ -192,7 +187,8 @@ class ArticleSnapshotSerializer(serializers.ModelSerializer):
 
 class ArticleEventSerializer(serializers.ModelSerializer):
     """
-    Serializer for article moderation events. All fields are ready-only except annotation.
+    Serializer for article moderation events.
+    All fields are read-only.
     """
     class Meta:
         model = ArticleEvent
@@ -201,39 +197,13 @@ class ArticleEventSerializer(serializers.ModelSerializer):
             'id',
             'source_article',
             'article_snapshot',
-            'annotation',
             'event_type',
             'actor',
             'created_at'
         ]
 
-    def _get_request(self):
-        req = self.context.get("request")
-        return req if isinstance(req, Request) else None
-
-    def _get_user(self):
-        req = self._get_request()
-        return getattr(req, "user", None)
-
-    def get_fields(self):
-        fields = super().get_fields()
-        user = self._get_user()
-
-        if is_moderator(user):
-            fields['annotation'].read_only = False
-
-        return fields
-
     def create(self, validated_data):
         return ArticleEvent.objects.create(**validated_data)
-
-
-class ArticleActionInputSerializer(serializers.Serializer):
-    """
-    The input serializer for all article actions,
-    which include submit, approve, reject, unpublish and delete
-    """
-    annotation = serializers.CharField(required=False, allow_blank=True)
 
 
 class ArticleActionOutputSerializer(serializers.Serializer):

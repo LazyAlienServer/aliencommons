@@ -48,7 +48,7 @@ class MyListModelMixinTests(BaseTestCase):
             SourceArticle.objects.create(
                 author=self.user,
                 title=f"Article {index}",
-                content={"index": index},
+                markdown=f"Article {index}",
             )
 
     def test_paginated_list_response_is_wrapped_with_standard_api_shape(self):

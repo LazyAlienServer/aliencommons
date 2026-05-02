@@ -1,6 +1,6 @@
 {
   "name": "alienmark",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AlienMark markdown parser and HTML renderer.",
   "type": "module",
   "main": "./dist/index.mjs",
@@ -12,7 +12,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsdown",

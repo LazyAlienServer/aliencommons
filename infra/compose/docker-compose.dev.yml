@@ -32,6 +32,7 @@ services:
       - redis
     volumes:
       - ../../apps/backend:/code
+      - /code/.venv
 
   backend-api:
     <<: *stack-env
@@ -46,6 +47,7 @@ services:
       - alienmark
     volumes:
       - ../../apps/backend:/code
+      - /code/.venv
     ports:
       - "8000:8000"
 
@@ -63,6 +65,7 @@ services:
       - postgres
     volumes:
       - ../../apps/backend:/code
+      - /code/.venv
   
   backend-task-worker:
     <<: *stack-env
@@ -78,6 +81,7 @@ services:
       - postgres
     volumes:
       - ../../apps/backend:/code
+      - /code/.venv
 
   frontend:
     image: node:24

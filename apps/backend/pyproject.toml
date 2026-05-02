@@ -13,6 +13,7 @@ dependencies = [
     "environs>=15.0.1",
     "gunicorn>=25.3.0",
     "pillow>=12.2.0",
+    "psycopg[binary]>=3.3.2",
     "requests>=2.33.1",
     "user-agents>=2.2.0",
 ]

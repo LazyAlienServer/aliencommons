@@ -20,7 +20,7 @@ APP = backend-api backend-task-scheduler backend-task-worker frontend alienmark
 .PHONY: dev-db-up dev-observe-up dev-up dev-down dev-down-v \
 	dev-backend-bash dev-backend-shell dev-backend-runserver \
 	dev-backend-makemigrations dev-backend-migrate dev-backend-createsuperuser \
-	dev-backend-test dev-backend-check dev-backend-apidoc \
+	dev-backend-test dev-backend-check \
 	dev-backend-init-tasks dev-backend-runscheduler dev-backend-runrqworker \
 	stg-up stg-down stg-down-v stg-backend-api-bash stg-backend-api-log stg-frontend-log \
 	pro-up pro-down pro-backend-api-bash pro-backend-api-log pro-frontend-log \
@@ -68,9 +68,6 @@ dev-backend-test:
 
 dev-backend-check:
 	$(DEV_MANAGE_NO_DEPS) check
-
-dev-backend-apidoc:
-	$(DEV_COMPOSE) run --rm --no-deps -e DJANGO_SETTINGS_MODULE=backend.settings.test backend-api python manage.py spectacular --file openapi.yaml --validate
 
 dev-backend-init-tasks:
 	$(DEV_MANAGE) init_tasks

@@ -3,7 +3,6 @@ All periodic tasks should be registered here.
 """
 
 periodic_tasks = [
-
     {
         "name": "clear expired sessions",
         "task": "users.tasks.clean_expired_sessions",

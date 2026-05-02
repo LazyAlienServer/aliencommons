@@ -140,14 +140,16 @@ class ArticleWorkflow:
         if published_article:
             published_article.title = self.article_snapshot.title
             published_article.html = html
-            published_article.save(update_fields=['title', 'html'])
+            published_article.publication_at = timezone.now()
+            published_article.save(update_fields=['title', 'html', 'publication_at'])
 
             return published_article
 
         published_article = PublishedArticle.objects.create(
             source_article=self.source_article,
             title=self.article_snapshot.title,
-            html=html
+            html=html,
+            publication_at=timezone.now(),
         )
 
         return published_article
@@ -223,6 +225,7 @@ class ArticleWorkflow:
             title=self.source_article.title,
             markdown=self.source_article.markdown,
             hash=current_hash,
+            source_version=self.source_article.version,
             moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
         )
         self.article_snapshot = new_snapshot

@@ -3,15 +3,18 @@ from django.utils import timezone
 from django.tasks import task
 
 from pathlib import Path
+import re
 from urllib.parse import urlparse
 
 from articles.models import SourceArticle
 
 
-# TODO: 重写!
-def _extract_media_relpaths_from_tiptap(doc):
+MARKDOWN_IMAGE_RE = re.compile(r"!\[[^\]]*]\(\s*(<[^>]+>|[^)\s]+)")
+
+
+def _extract_media_relpaths_from_markdown(markdown):
     """
-    Extract relative storage paths from TipTap JSON doc.
+    Extract relative storage paths from Markdown image references.
     Example src:
       - "/media/article_images/2026/01/xx.webp"
       - "http://localhost:8000/media/article_images/2026/01/xx.webp"
@@ -25,6 +28,10 @@ def _extract_media_relpaths_from_tiptap(doc):
         if not src:
             return None
 
+        src = src.strip()
+        if src.startswith("<") and src.endswith(">"):
+            src = src[1:-1]
+
         # absolute url -> take path part
         if src.startswith("http://") or src.startswith("https://"):
             src = urlparse(src).path  # "/media/xxx"
@@ -35,23 +42,11 @@ def _extract_media_relpaths_from_tiptap(doc):
 
         return src[len(media_url):]  # strip "/media/" -> "article_images/..."
 
-    def walk(node):
-        if isinstance(node, dict):
-            if node.get("type") == "image":
-                attrs = node.get("attrs") or {}
-                src = attrs.get("src")
-                rel = normalize_src(src)
-                if rel:
-                    relpaths.add(rel)
+    for match in MARKDOWN_IMAGE_RE.finditer(markdown):
+        rel = normalize_src(match.group(1))
+        if rel:
+            relpaths.add(rel)
 
-            for v in node.values():
-                walk(v)
-
-        elif isinstance(node, list):
-            for item in node:
-                walk(item)
-
-    walk(doc)
     return relpaths
 
 
@@ -69,21 +64,20 @@ def _iter_article_image_files():
 @task
 def cleanup_unreferenced_article_images(grace_days=1):
     """
-    Delete article_images/* files that are not referenced by any SourceArticle.content.
+    Delete article_images/* files that are not referenced by any SourceArticle.markdown.
 
     grace_days:
       - Only delete files older than N days to avoid removing images uploaded
-        but not yet saved into content (or in-flight edits).
+        but not yet saved into markdown (or in-flight edits).
     """
     # 1) Build a set of all referenced storage-relative paths
     referenced = set()
 
-    qs = SourceArticle.objects.filter(is_deleted=False).values_list("content", flat=True)
-    for content in qs:
-        if not content:
+    qs = SourceArticle.objects.filter(is_deleted=False).values_list("markdown", flat=True)
+    for markdown in qs:
+        if not markdown:
             continue
-        # content is a JSONField dict
-        referenced |= _extract_media_relpaths_from_tiptap(content)
+        referenced |= _extract_media_relpaths_from_markdown(markdown)
 
     # 2) Walk media/article_images and delete unreferenced, older-than-grace files
     deleted = 0

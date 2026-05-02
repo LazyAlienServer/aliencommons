@@ -36,5 +36,5 @@ jobs:
 
       - name: Run Backend tests
         env:
-          DJANGO_ENV: test
+          DJANGO_SETTINGS_MODULE: backend.settings.test
         run: uv run python manage.py test

@@ -22,16 +22,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "pages.apps.PagesConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
+    "storages",
     "django_filters",
     "django_rq",
     "django_tasks_rq",
-    "drf_spectacular",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -63,11 +62,8 @@ EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = "AlienCommons Test <noreply@test.local>"
 SERVER_EMAIL = "server@test.local"
 
-YOUTUBE_CHANNEL_ID = "test-channel-id"
-YOUTUBE_CHANNEL_HANDLE = "@test-channel"
-YOUTUBE_REQUEST_HEADERS = {"Referer": "http://testserver"}
-YOUTUBE_API_KEY = "test-api-key"
-YOUTUBE_API_URL = "https://example.com/youtube"
+ALIENMARK_SERVICE_URL: str = "http://alienmark:8787"
+ALIENMARK_TIMEOUT_SECONDS: float = 3.0
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -81,12 +77,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
     "DATE_FORMAT": "%Y-%m-%d",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": "AlienCommons Test",
-    "VERSION": "1.0.0",
 }
 
 MIDDLEWARE = [

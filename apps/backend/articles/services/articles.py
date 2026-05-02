@@ -7,6 +7,7 @@ import hashlib
 
 from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 from core.exceptions import ServiceError
+from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
 
 logger = get_logger(__name__)
@@ -28,53 +29,52 @@ def _get_locked_source_article(source_article_id):
 
 
 @transaction.atomic
-def submit(*, source_article_id, actor, annotation=None):
+def submit(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.submit()
 
 
 @transaction.atomic
-def withdraw(*, source_article_id, actor, annotation=None):
+def withdraw(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.withdraw()
 
 
 @transaction.atomic
-def approve(*, source_article_id, actor, annotation=None):
+def approve(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.approve()
 
 
 @transaction.atomic
-def reject(*, source_article_id, actor, annotation=None):
+def reject(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.reject()
 
 
 @transaction.atomic
-def unpublish(*, source_article_id, actor, annotation=None):
+def unpublish(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.unpublish()
 
 
 @transaction.atomic
-def soft_delete(*, source_article_id, actor, annotation=None):
+def soft_delete(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor, annotation=annotation)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
     return workflow.soft_delete()
 
 
 class ArticleWorkflow:
-    def __init__(self, *, source_article, actor, annotation=None):
+    def __init__(self, *, source_article, actor):
         self.source_article = source_article
         self.article_snapshot = self._get_last_snapshot()
         self.actor = actor
-        self.annotation = annotation
 
     def _get_last_snapshot(self):
         """
@@ -89,22 +89,19 @@ class ArticleWorkflow:
         )
 
     @staticmethod
-    def _hash_and_normalize(title, content):
+    def _hash_and_normalize(title, markdown):
         """
         Make a stable representation of the article and calculate its hash value.
         It strips the spaces before and after the title and the summary.
         Return: hash_value
         """
-        items_to_hash = {
-            'title': title.strip(),
-            'content': content,
-        }
+        items_to_hash = {'title': title.strip(), 'markdown': markdown}
         items_json = json.dumps(items_to_hash, sort_keys=True)
         hash_value = hashlib.blake2b(items_json.encode("utf-8")).hexdigest()
 
         return hash_value
 
-    def _get_the_published_article(self):
+    def _get_the_published_article(self) -> PublishedArticle:
         """
         Return the published version of the article
         """
@@ -132,24 +129,27 @@ class ArticleWorkflow:
 
         return is_within
 
-    def _create_or_update_published_article(self):
+    def _create_or_update_published_article(self) -> PublishedArticle:
         """
         Create or update the source article's published version.
         Return the published_article.
         """
         published_article = self._get_the_published_article()
+        html = render_md_to_html(self.article_snapshot.markdown)
 
         if published_article:
             published_article.title = self.article_snapshot.title
-            published_article.content = self.article_snapshot.content
-            published_article.save(update_fields=['title', 'content'])
+            published_article.html = html
+            published_article.publication_at = timezone.now()
+            published_article.save(update_fields=['title', 'html', 'publication_at'])
 
             return published_article
 
         published_article = PublishedArticle.objects.create(
             source_article=self.source_article,
             title=self.article_snapshot.title,
-            content=self.article_snapshot.content,
+            html=html,
+            publication_at=timezone.now(),
         )
 
         return published_article
@@ -161,7 +161,6 @@ class ArticleWorkflow:
         return ArticleEvent.objects.create(
             source_article=self.source_article,
             article_snapshot=self.article_snapshot,
-            annotation=self.annotation,
             event_type=event_type,
             actor=self.actor,
         )
@@ -212,10 +211,10 @@ class ArticleWorkflow:
 
         current_hash = self._hash_and_normalize(
             self.source_article.title,
-            self.source_article.content
+            self.source_article.markdown
         )
 
-        if self.article_snapshot and self.article_snapshot.content_hash == current_hash:
+        if self.article_snapshot and self.article_snapshot.hash == current_hash:
             raise ServiceError(
                 detail="Please modify before submission.",
                 code='no_change_error'
@@ -224,8 +223,9 @@ class ArticleWorkflow:
         new_snapshot = ArticleSnapshot.objects.create(
             source_article=self.source_article,
             title=self.source_article.title,
-            content=self.source_article.content,
-            content_hash=current_hash,
+            markdown=self.source_article.markdown,
+            hash=current_hash,
+            source_version=self.source_article.version,
             moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
         )
         self.article_snapshot = new_snapshot
@@ -268,7 +268,7 @@ class ArticleWorkflow:
         if not self.article_snapshot:
             raise ServiceError(
                 detail="There are no snapshots for this article!",
-                code='no_change_error'
+                code='no_snapshot_error'
             )
 
         self._create_or_update_published_article()

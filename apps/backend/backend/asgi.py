@@ -2,10 +2,10 @@
 ASGI config for backend project.
 It exposes the ASGI callable as a module-level variable named ``application``.
 """
+import os
+
 from django.core.asgi import get_asgi_application
 
-from env_bootstrap import load_env
-
-load_env()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.dev")
 
 application = get_asgi_application()

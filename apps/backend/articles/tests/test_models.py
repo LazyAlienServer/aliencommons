@@ -4,6 +4,7 @@ from articles.models import (
     PublishedArticle,
     SourceArticle,
 )
+from articles.services.articles import ArticleWorkflow
 from core.tests.factories import create_source_article, create_user
 from core.tests.testcases import BaseTestCase
 
@@ -30,7 +31,8 @@ class ArticleModelTests(BaseTestCase):
         published = PublishedArticle.objects.create(
             source_article=article,
             title=article.title,
-            content=article.content,
+            html=article.markdown,
+            publication_at=article.created_at,
         )
 
         self.assertEqual(str(published), "Published version of article Ship log")
@@ -40,8 +42,9 @@ class ArticleModelTests(BaseTestCase):
         snapshot = ArticleSnapshot.objects.create(
             source_article=article,
             title=article.title,
-            content=article.content,
-            content_hash="hash-value",
+            markdown=article.markdown,
+            hash="hash-value",
+            source_version=article.version,
         )
 
         self.assertEqual(str(snapshot), f"Snapshot of article {article.id}")
@@ -51,8 +54,9 @@ class ArticleModelTests(BaseTestCase):
         snapshot = ArticleSnapshot.objects.create(
             source_article=article,
             title=article.title,
-            content=article.content,
-            content_hash="hash-value",
+            markdown=article.markdown,
+            hash=ArticleWorkflow._hash_and_normalize(article.title, article.markdown),
+            source_version=article.version,
         )
         event = ArticleEvent.objects.create(
             source_article=article,

@@ -1,0 +1,39 @@
+name: Feature Request
+description: Suggest an improvement or new feature
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: checkboxes
+    attributes:
+      label: Please confirm the following
+      options:
+        - label: I have checked that this feature request is not on our [roadmap](https://github.com/orgs/LazyAlienServer/projects/3)
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Briefly describe the feature or improvement you want.
+      placeholder: What would you like to add or improve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: Explain the problem this feature would solve.
+      placeholder: Why is this needed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe your preferred solution if you have one.
+      placeholder: How should this work?
+    validations:
+      required: false

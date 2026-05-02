@@ -1,6 +1,7 @@
 from django.utils import timezone
 
 from datetime import timedelta
+from unittest.mock import patch
 
 from articles.models import (
     ArticleEvent,
@@ -46,7 +47,8 @@ class ArticleServiceTests(BaseTestCase):
 
         self.assertEqual(article.status, SourceArticle.ArticleStatus.PENDING)
         self.assertEqual(snapshot.title, article.title)
-        self.assertEqual(snapshot.content, article.content)
+        self.assertEqual(snapshot.markdown, article.markdown)
+        self.assertEqual(snapshot.source_version, article.version)
         self.assertEqual(
             snapshot.moderation_status,
             ArticleSnapshot.SnapshotStatus.PENDING,
@@ -56,7 +58,7 @@ class ArticleServiceTests(BaseTestCase):
         self.assertEqual(result["event_id"], event.id)
         self.assertEqual(result["article_snapshot_id"], snapshot.id)
 
-    def test_submit_rejects_unchanged_content_after_previous_snapshot(self):
+    def test_submit_rejects_unchanged_markdown_after_previous_snapshot(self):
         article = create_source_article(author=self.author)
         create_article_snapshot(article)
 
@@ -99,7 +101,8 @@ class ArticleServiceTests(BaseTestCase):
         self.assertEqual(event.event_type, ArticleEvent.EventType.WITHDRAW)
         self.assertEqual(result["article_snapshot_id"], snapshot.id)
 
-    def test_approve_creates_published_article_and_marks_snapshot_approved(self):
+    @patch("articles.services.articles.render_md_to_html", return_value="<p>Hello</p>")
+    def test_approve_creates_published_article_and_marks_snapshot_approved(self, render_mock):
         article = create_source_article(
             author=self.author,
             status=SourceArticle.ArticleStatus.PENDING,
@@ -120,22 +123,25 @@ class ArticleServiceTests(BaseTestCase):
             ArticleSnapshot.SnapshotStatus.APPROVED,
         )
         self.assertEqual(published.title, snapshot.title)
-        self.assertEqual(published.content, snapshot.content)
+        self.assertEqual(published.html, "<p>Hello</p>")
+        self.assertIsNotNone(published.publication_at)
         self.assertEqual(event.event_type, ArticleEvent.EventType.APPROVE)
         self.assertEqual(result["event_id"], event.id)
+        render_mock.assert_called_once_with(snapshot.markdown)
 
-    def test_approve_updates_existing_published_article(self):
+    @patch("articles.services.articles.render_md_to_html", return_value="<p>Updated</p>")
+    def test_approve_updates_existing_published_article(self, render_mock):
         article = create_source_article(
             author=self.author,
             status=SourceArticle.ArticleStatus.PENDING,
             title="Updated title",
-            content={"blocks": [{"type": "paragraph", "text": "Updated"}]},
+            markdown="Updated",
         )
         snapshot = create_article_snapshot(article)
         published = create_published_article(
             article,
             title="Old title",
-            content={"blocks": [{"type": "paragraph", "text": "Old"}]},
+            html="<p>Old</p>",
         )
 
         approve(source_article_id=article.id, actor=self.moderator)
@@ -144,7 +150,8 @@ class ArticleServiceTests(BaseTestCase):
         self.assertEqual(PublishedArticle.objects.filter(source_article=article).count(), 1)
         self.assertEqual(published.id, PublishedArticle.objects.get(source_article=article).id)
         self.assertEqual(published.title, snapshot.title)
-        self.assertEqual(published.content, snapshot.content)
+        self.assertEqual(published.html, "<p>Updated</p>")
+        render_mock.assert_called_once_with(snapshot.markdown)
 
     def test_reject_restores_draft_and_marks_snapshot_rejected(self):
         article = create_source_article(
@@ -194,7 +201,7 @@ class ArticleServiceTests(BaseTestCase):
             status=SourceArticle.ArticleStatus.PUBLISHED,
         )
         snapshot = create_article_snapshot(article)
-        create_published_article(article, title=snapshot.title, content=snapshot.content)
+        create_published_article(article, title=snapshot.title, html=snapshot.markdown)
 
         result = soft_delete(source_article_id=article.id, actor=self.author)
 

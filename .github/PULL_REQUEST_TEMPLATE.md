@@ -7,5 +7,5 @@
 
 - [ ] `apps`
 - [ ] `docs`
-- [ ] `observability`
+- [ ] `o11y`
 - [ ] `infra`

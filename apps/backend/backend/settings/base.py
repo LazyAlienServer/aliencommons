@@ -148,6 +148,7 @@ FORMAT_MODULE_PATH = None
 IGNORABLE_404_URLS = []
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -330,7 +331,7 @@ USE_TZ = True
 USE_X_FORWARDED_HOST = False
 USE_X_FORWARDED_PORT = False
 
-WSGI_APPLICATION = "backend.wsgi.application"
+ASGI_APPLICATION = "backend.asgi.application"
 
 YEAR_MONTH_FORMAT = "F Y"
 

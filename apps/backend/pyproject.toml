@@ -1,9 +1,10 @@
 [project]
 name = "alien-commons-backend"
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">=3.14"
 dependencies = [
-    "django>=6.0.4",
+    "channels[daphne]>=4.3.2",
+    "django==6.0.5",
     "django-cors-headers>=4.9.0",
     "django-filter>=25.2",
     "django-redis>=6.0.0",
@@ -11,7 +12,6 @@ dependencies = [
     "django-tasks-rq>=0.12.0",
     "djangorestframework>=3.17.1",
     "environs>=15.0.1",
-    "gunicorn>=25.3.0",
     "pillow>=12.2.0",
     "psycopg[binary]>=3.3.2",
     "requests>=2.33.1",

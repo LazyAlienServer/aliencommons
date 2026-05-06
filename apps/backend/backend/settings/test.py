@@ -14,6 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
+    "daphne",
     "core.apps.CoreConfig",
     "users.apps.UsersConfig",
     "django.contrib.admin",

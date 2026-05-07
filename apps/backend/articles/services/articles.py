@@ -9,6 +9,7 @@ from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, Ar
 from core.exceptions import ServiceError
 from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
+from .markdown import extract_title_from_markdown, validate_article_markdown
 
 logger = get_logger(__name__)
 
@@ -220,12 +221,14 @@ class ArticleWorkflow:
         )
 
         has_changed = False
-        if title is not None and title != self.source_article.title:
-            self.source_article.title = title
-            has_changed = True
 
         if markdown is not None and markdown != self.source_article.markdown:
+            title = extract_title_from_markdown(
+                markdown,
+                max_length=SourceArticle._meta.get_field("title").max_length,
+            )
             self.source_article.markdown = markdown
+            self.source_article.title = title
             has_changed = True
 
         update_fields = []
@@ -244,6 +247,11 @@ class ArticleWorkflow:
         return self.source_article
 
     def submit(self):
+        validate_article_markdown(
+            self.source_article.markdown,
+            max_length=SourceArticle._meta.get_field("title").max_length,
+        )
+
         last_moderation_at = self.source_article.last_moderation_at
         if last_moderation_at and self._within_submit_cooldown(last_moderation_at, hours=6):
             raise ServiceError(

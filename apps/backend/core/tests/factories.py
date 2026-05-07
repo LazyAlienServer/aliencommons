@@ -31,7 +31,7 @@ def create_source_article(**kwargs):
     defaults = {
         "author": kwargs.pop("author", create_user()),
         "title": "First draft",
-        "markdown": "Hello",
+        "markdown": "# First draft\n\nHello",
         "status": SourceArticle.ArticleStatus.DRAFT,
     }
     defaults.update(kwargs)

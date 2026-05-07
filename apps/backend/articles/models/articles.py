@@ -83,6 +83,12 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.is_deleted:
+            PublishedArticle.objects.filter(source_article=self).delete()
+
 
 class PublishedArticle(UUIDPrimaryKeyMixin,
                        TimeStampedMixin,
@@ -93,7 +99,6 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
     - created_at
     - updated_at
     """
-
     source_article = models.OneToOneField(
         SourceArticle, on_delete=models.CASCADE, related_name="published_version",
         verbose_name=_("source article"),

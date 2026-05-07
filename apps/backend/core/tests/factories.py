@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from articles.models import ArticleSnapshot, PublishedArticle, SourceArticle
+from articles.models import ArticleSnapshot, Collection, CollectionItem, PublishedArticle, SourceArticle
 from articles.services.articles import ArticleWorkflow
 
 from .helpers import unique_suffix
@@ -63,3 +63,23 @@ def create_published_article(article, **kwargs):
     }
     defaults.update(kwargs)
     return PublishedArticle.objects.create(**defaults)
+
+
+def create_collection(**kwargs):
+    defaults = {
+        "author": kwargs.pop("author", create_user()),
+        "title": "Collection",
+        "description": "",
+    }
+    defaults.update(kwargs)
+    return Collection.objects.create(**defaults)
+
+
+def create_collection_item(collection, published_article, **kwargs):
+    defaults = {
+        "collection": collection,
+        "published_article": published_article,
+        "position": 1,
+    }
+    defaults.update(kwargs)
+    return CollectionItem.objects.create(**defaults)

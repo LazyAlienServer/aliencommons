@@ -60,25 +60,32 @@ class ArticleServiceTests(BaseTestCase):
         self.assertEqual(result["article_snapshot_id"], snapshot.id)
 
     def test_save_draft_updates_content_version_and_last_saved_at(self):
-        article = create_source_article(author=self.author, title="Old title", markdown="Old")
+        article = create_source_article(
+            author=self.author,
+            title="Old title",
+            markdown="# Old title\n\nOld",
+        )
 
         result = save_draft(
             source_article_id=article.id,
             actor=self.author,
-            title="New title",
-            markdown="New",
+            markdown="# New title\n\nNew",
         )
 
         article.refresh_from_db()
         self.assertEqual(result, article)
         self.assertEqual(article.title, "New title")
-        self.assertEqual(article.markdown, "New")
+        self.assertEqual(article.markdown, "# New title\n\nNew")
         self.assertEqual(article.version, 2)
         self.assertIsNotNone(article.last_saved_at)
         self.assertEqual(article.status, SourceArticle.ArticleStatus.DRAFT)
 
     def test_save_draft_does_not_increment_version_when_content_is_unchanged(self):
-        article = create_source_article(author=self.author, title="Same title", markdown="Same")
+        article = create_source_article(
+            author=self.author,
+            title="Same title",
+            markdown="# Same title\n\nSame",
+        )
 
         save_draft(
             source_article_id=article.id,
@@ -100,12 +107,13 @@ class ArticleServiceTests(BaseTestCase):
         save_draft(
             source_article_id=article.id,
             actor=self.author,
-            markdown="A new draft",
+            markdown="# A new draft\n\nBody",
         )
 
         article.refresh_from_db()
         self.assertEqual(article.status, SourceArticle.ArticleStatus.DRAFT)
-        self.assertEqual(article.markdown, "A new draft")
+        self.assertEqual(article.title, "A new draft")
+        self.assertEqual(article.markdown, "# A new draft\n\nBody")
         self.assertEqual(article.version, 2)
 
     def test_save_draft_rejects_pending_article(self):
@@ -122,6 +130,30 @@ class ArticleServiceTests(BaseTestCase):
             )
 
         self.assert_service_error(exc, code="state_transition_error")
+
+    def test_save_draft_rejects_markdown_without_first_line_h1(self):
+        article = create_source_article(author=self.author)
+
+        with self.assertRaises(ServiceError) as exc:
+            save_draft(
+                source_article_id=article.id,
+                actor=self.author,
+                markdown="Body first\n\n# Late title",
+            )
+
+        self.assert_service_error(exc, code="invalid_article_markdown")
+
+    def test_save_draft_rejects_markdown_with_multiple_h1_headings(self):
+        article = create_source_article(author=self.author)
+
+        with self.assertRaises(ServiceError) as exc:
+            save_draft(
+                source_article_id=article.id,
+                actor=self.author,
+                markdown="# Title\n\nBody\n\n# Another title",
+            )
+
+        self.assert_service_error(exc, code="invalid_article_markdown")
 
     def test_save_draft_rejects_published_article(self):
         article = create_source_article(
@@ -148,6 +180,14 @@ class ArticleServiceTests(BaseTestCase):
         self.assert_service_error(exc, code="no_change_error")
         self.assertEqual(ArticleSnapshot.objects.filter(source_article=article).count(), 1)
         self.assertEqual(ArticleEvent.objects.filter(source_article=article).count(), 0)
+
+    def test_submit_rejects_invalid_article_markdown(self):
+        article = create_source_article(author=self.author, markdown="Body without title")
+
+        with self.assertRaises(ServiceError) as exc:
+            submit(source_article_id=article.id, actor=self.author)
+
+        self.assert_service_error(exc, code="invalid_article_markdown")
 
     def test_submit_enforces_cooldown_after_moderation(self):
         article = create_source_article(

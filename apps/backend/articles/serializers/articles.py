@@ -12,7 +12,9 @@ from rest_framework import serializers
 from core.validators import (
     FileTypeValidator, FileSizeValidator
 )
+from core.exceptions import ServiceError
 from ..models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from ..services.markdown import extract_title_from_markdown
 
 
 User = get_user_model()
@@ -81,29 +83,26 @@ class SourceArticleWriteSerializer(serializers.ModelSerializer):
     """
     Serializer for the author, can be used to create/update
     """
-    title = serializers.CharField(
-        required=False,
-        allow_blank=True,
-        max_length=60,
-        min_length=5,
-        error_messages={
-            'max_length': 'Title cannot be more than 60 characters',
-            'min_length': 'Title cannot be less than 5 characters',
-        },
-    )
-
     class Meta:
         model = SourceArticle
-        fields = ['title', 'markdown']
+        fields = ['markdown']
 
     def create(self, validated_data):
-        validated_data.setdefault("title", "Untitled")
+        validated_data.setdefault("markdown", str(SourceArticle.default_markdown))
+        validated_data["title"] = extract_title_from_markdown(
+            validated_data["markdown"],
+            max_length=SourceArticle._meta.get_field("title").max_length,
+        )
         return super().create(validated_data)
 
-    def validate_title(self, value):
-        if value is not None and value.strip() == "":
-            return "Untitled"
-
+    def validate_markdown(self, value):
+        try:
+            extract_title_from_markdown(
+                value,
+                max_length=SourceArticle._meta.get_field("title").max_length,
+            )
+        except ServiceError as exc:
+            raise serializers.ValidationError(detail=exc.detail, code=exc.code)
         return value
 
 

@@ -34,8 +34,8 @@ class ArticleViewTests(BaseAPITestCase):
         response = self.post_json(
             reverse("source_article-list"),
             {
-                "title": "Draft title",
-                "markdown": "Hello from Markdown",
+                "title": "Ignored title",
+                "markdown": "# Draft title\n\nHello from Markdown",
             },
         )
 
@@ -46,9 +46,37 @@ class ArticleViewTests(BaseAPITestCase):
             message="created",
         )
         self.assertEqual(response.data["data"]["title"], "Draft title")
-        self.assertEqual(response.data["data"]["markdown"], "Hello from Markdown")
+        self.assertEqual(response.data["data"]["markdown"], "# Draft title\n\nHello from Markdown")
         self.assert_uuid_equal(response.data["data"]["author"], self.author.id)
         self.assertEqual(SourceArticle.objects.count(), 1)
+
+    def test_create_source_article_rejects_markdown_without_first_line_h1(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("source_article-list"),
+            {
+                "markdown": "Hello from Markdown\n\n# Draft title",
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def test_create_source_article_rejects_markdown_with_multiple_h1_headings(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("source_article-list"),
+            {
+                "markdown": "# Draft title\n\nHello\n\n# Another title",
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     def test_source_article_list_only_returns_articles_owned_by_authenticated_author(self):
         own_article = create_source_article(author=self.author, title="Mine")
@@ -93,7 +121,7 @@ class ArticleViewTests(BaseAPITestCase):
         article = create_source_article(
             author=self.author,
             title="Old title",
-            markdown="Old Markdown",
+            markdown="# Old title\n\nOld Markdown",
         )
 
         self.authenticate(self.author)
@@ -101,7 +129,7 @@ class ArticleViewTests(BaseAPITestCase):
             reverse("source_article-detail", args=[article.id]),
             {
                 "title": "New title",
-                "markdown": "New Markdown",
+                "markdown": "# New title\n\nNew Markdown",
             },
         )
 
@@ -113,7 +141,7 @@ class ArticleViewTests(BaseAPITestCase):
             message="saved",
         )
         self.assertEqual(response.data["data"]["title"], "New title")
-        self.assertEqual(response.data["data"]["markdown"], "New Markdown")
+        self.assertEqual(response.data["data"]["markdown"], "# New title\n\nNew Markdown")
         self.assertEqual(response.data["data"]["version"], 2)
         self.assertIsNotNone(response.data["data"]["last_saved_at"])
         self.assertEqual(article.version, 2)
@@ -130,7 +158,7 @@ class ArticleViewTests(BaseAPITestCase):
         response = self.patch_json(
             reverse("source_article-detail", args=[article.id]),
             {
-                "markdown": "Edited while pending",
+                "markdown": "# Edited while pending\n\nBody",
             },
         )
 
@@ -140,7 +168,7 @@ class ArticleViewTests(BaseAPITestCase):
             status_code=status.HTTP_400_BAD_REQUEST,
             code="state_transition_error",
         )
-        self.assertEqual(article.markdown, "Hello")
+        self.assertEqual(article.markdown, "# First draft\n\nHello")
         self.assertEqual(article.version, 1)
 
     def test_approve_endpoint_requires_moderator(self):

@@ -85,6 +85,60 @@ class ArticleViewTests(BaseAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_author_can_save_draft_source_article(self):
+        article = create_source_article(
+            author=self.author,
+            title="Old title",
+            markdown="Old Markdown",
+        )
+
+        self.authenticate(self.author)
+        response = self.patch_json(
+            reverse("source_article-detail", args=[article.id]),
+            {
+                "title": "New title",
+                "markdown": "New Markdown",
+            },
+        )
+
+        article.refresh_from_db()
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="saved",
+            message="saved",
+        )
+        self.assertEqual(response.data["data"]["title"], "New title")
+        self.assertEqual(response.data["data"]["markdown"], "New Markdown")
+        self.assertEqual(response.data["data"]["version"], 2)
+        self.assertIsNotNone(response.data["data"]["last_saved_at"])
+        self.assertEqual(article.version, 2)
+        self.assertIsNotNone(article.last_saved_at)
+
+    def test_author_cannot_save_pending_source_article(self):
+        article = create_source_article(
+            author=self.author,
+            status=SourceArticle.ArticleStatus.PENDING,
+        )
+        create_article_snapshot(article)
+
+        self.authenticate(self.author)
+        response = self.patch_json(
+            reverse("source_article-detail", args=[article.id]),
+            {
+                "markdown": "Edited while pending",
+            },
+        )
+
+        article.refresh_from_db()
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="state_transition_error",
+        )
+        self.assertEqual(article.markdown, "Hello")
+        self.assertEqual(article.version, 1)
+
     def test_approve_endpoint_requires_moderator(self):
         article = create_source_article(
             author=self.author,

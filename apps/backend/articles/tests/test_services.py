@@ -12,6 +12,7 @@ from articles.models import (
 from articles.services.articles import (
     approve,
     reject,
+    save_draft,
     soft_delete,
     submit,
     unpublish,
@@ -57,6 +58,85 @@ class ArticleServiceTests(BaseTestCase):
         self.assertEqual(event.actor, self.author)
         self.assertEqual(result["event_id"], event.id)
         self.assertEqual(result["article_snapshot_id"], snapshot.id)
+
+    def test_save_draft_updates_content_version_and_last_saved_at(self):
+        article = create_source_article(author=self.author, title="Old title", markdown="Old")
+
+        result = save_draft(
+            source_article_id=article.id,
+            actor=self.author,
+            title="New title",
+            markdown="New",
+        )
+
+        article.refresh_from_db()
+        self.assertEqual(result, article)
+        self.assertEqual(article.title, "New title")
+        self.assertEqual(article.markdown, "New")
+        self.assertEqual(article.version, 2)
+        self.assertIsNotNone(article.last_saved_at)
+        self.assertEqual(article.status, SourceArticle.ArticleStatus.DRAFT)
+
+    def test_save_draft_does_not_increment_version_when_content_is_unchanged(self):
+        article = create_source_article(author=self.author, title="Same title", markdown="Same")
+
+        save_draft(
+            source_article_id=article.id,
+            actor=self.author,
+            title=article.title,
+            markdown=article.markdown,
+        )
+
+        article.refresh_from_db()
+        self.assertEqual(article.version, 1)
+        self.assertIsNone(article.last_saved_at)
+
+    def test_save_draft_moves_unpublished_article_back_to_draft(self):
+        article = create_source_article(
+            author=self.author,
+            status=SourceArticle.ArticleStatus.UNPUBLISHED,
+        )
+
+        save_draft(
+            source_article_id=article.id,
+            actor=self.author,
+            markdown="A new draft",
+        )
+
+        article.refresh_from_db()
+        self.assertEqual(article.status, SourceArticle.ArticleStatus.DRAFT)
+        self.assertEqual(article.markdown, "A new draft")
+        self.assertEqual(article.version, 2)
+
+    def test_save_draft_rejects_pending_article(self):
+        article = create_source_article(
+            author=self.author,
+            status=SourceArticle.ArticleStatus.PENDING,
+        )
+
+        with self.assertRaises(ServiceError) as exc:
+            save_draft(
+                source_article_id=article.id,
+                actor=self.author,
+                markdown="Cannot edit pending",
+            )
+
+        self.assert_service_error(exc, code="state_transition_error")
+
+    def test_save_draft_rejects_published_article(self):
+        article = create_source_article(
+            author=self.author,
+            status=SourceArticle.ArticleStatus.PUBLISHED,
+        )
+
+        with self.assertRaises(ServiceError) as exc:
+            save_draft(
+                source_article_id=article.id,
+                actor=self.author,
+                markdown="Cannot edit published",
+            )
+
+        self.assert_service_error(exc, code="state_transition_error")
 
     def test_submit_rejects_unchanged_markdown_after_previous_snapshot(self):
         article = create_source_article(author=self.author)

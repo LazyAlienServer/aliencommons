@@ -38,6 +38,7 @@ DNS is managed in Cloudflare for `aliencommons.com`.
 ## Working Rules
 
 - Read the nearby code before changing it.
+- Check for nested `AGENTS.md` files and follow the closest applicable instructions.
 - Do not rewrite unrelated files or reformat broad areas without a reason.
 - Do not remove or revert user changes unless explicitly asked.
 - Keep secrets, credentials, and local environment files out of commits.

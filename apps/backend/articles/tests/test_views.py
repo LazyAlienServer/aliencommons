@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 from core.tests.factories import (
     create_article_snapshot,
+    create_collection,
+    create_collection_item,
     create_moderator,
     create_published_article,
     create_source_article,
@@ -14,6 +16,8 @@ from core.tests.testcases import BaseAPITestCase
 from articles.models import (
     ArticleEvent,
     ArticleSnapshot,
+    Collection,
+    CollectionItem,
     PublishedArticle,
     SourceArticle,
 )
@@ -212,3 +216,121 @@ class ArticleViewTests(BaseAPITestCase):
         )
         self.assertEqual(len(response.data["data"]), 1)
         self.assert_uuid_equal(response.data["data"][0]["id"], pending_snapshot.id)
+
+    def test_author_can_create_collection(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("collection-list"),
+            {
+                "title": "Redstone playlist",
+                "description": "A path through the basics",
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assertEqual(response.data["data"]["title"], "Redstone playlist")
+        self.assert_uuid_equal(response.data["data"]["author"], self.author.id)
+        self.assertEqual(Collection.objects.count(), 1)
+
+    def test_collections_are_readable_without_authentication(self):
+        first_collection = create_collection(
+            author=self.author,
+            title="First playlist",
+        )
+        second_collection = create_collection(
+            author=self.author,
+            title="Second playlist",
+        )
+
+        response = self.get_json(reverse("collection-list"))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="listed",
+        )
+        result_ids = {item["id"] for item in response.data["data"]["results"]}
+        self.assertIn(str(first_collection.id), result_ids)
+        self.assertIn(str(second_collection.id), result_ids)
+
+    def test_non_author_cannot_update_collection(self):
+        collection = create_collection(author=self.author)
+
+        self.authenticate(self.other_author)
+        response = self.patch_json(
+            reverse("collection-detail", args=[collection.id]),
+            {
+                "title": "Not allowed",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        collection.refresh_from_db()
+        self.assertNotEqual(collection.title, "Not allowed")
+
+    def test_author_can_add_owned_article_to_collection(self):
+        collection = create_collection(author=self.author)
+        article = create_source_article(author=self.author)
+        published = create_published_article(article)
+
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("collection_item-list"),
+            {
+                "collection": str(collection.id),
+                "published_article": str(published.id),
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assert_uuid_equal(response.data["data"]["collection"], collection.id)
+        self.assert_uuid_equal(response.data["data"]["published_article"], published.id)
+        self.assert_uuid_equal(response.data["data"]["source_article_id"], article.id)
+        self.assertEqual(response.data["data"]["position"], 1)
+        self.assertEqual(CollectionItem.objects.count(), 1)
+
+    def test_author_cannot_add_another_authors_article_to_collection(self):
+        collection = create_collection(author=self.author)
+        article = create_source_article(author=self.other_author)
+        published = create_published_article(article)
+
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("collection_item-list"),
+            {
+                "collection": str(collection.id),
+                "published_article": str(published.id),
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(CollectionItem.objects.count(), 0)
+
+    def test_author_can_delete_collection_and_its_items(self):
+        collection = create_collection(author=self.author)
+        article = create_source_article(author=self.author)
+        published = create_published_article(article)
+        create_collection_item(collection, published)
+        collection_id = collection.id
+
+        self.authenticate(self.author)
+        response = self.delete_json(reverse("collection-detail", args=[collection_id]))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="deleted",
+        )
+        self.assertFalse(Collection.objects.filter(id=collection_id).exists())
+        self.assertFalse(CollectionItem.objects.filter(collection_id=collection_id).exists())

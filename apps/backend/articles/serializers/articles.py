@@ -1,19 +1,19 @@
+from pathlib import Path
+import io
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils import timezone
-
+from PIL import Image
 from rest_framework import serializers
 
 from core.validators import (
     FileTypeValidator, FileSizeValidator
 )
-from .models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from ..models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 
-import uuid
-import io
-from PIL import Image
-from pathlib import Path
 
 User = get_user_model()
 

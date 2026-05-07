@@ -1,29 +1,29 @@
-from django_filters import rest_framework as filters
 from django.db.models import OuterRef, Subquery
+from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from core.utils.permissions import is_moderator
 from core.views.viewsets import MyModelViewSet, MyReadOnlyModelViewSet
-from .filters import SourceArticleFilter
-from .permissions import (
+from ..filters import SourceArticleFilter
+from ..models import ArticleEvent, ArticleSnapshot, PublishedArticle, SourceArticle
+from ..permissions import (
+    ArticleEventPermission,
     AuthorOnly,
     ModeratorOnly,
-    ArticleEventPermission,
 )
-from .models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
-from .serializers import (
-    SourceArticleReadSerializer,
-    SourceArticleWriteSerializer,
+from ..serializers import (
+    ArticleActionOutputSerializer,
+    ArticleEventSerializer,
+    ArticleSnapshotSerializer,
     ImageUploadSerializer,
     PublishedArticleSerializer,
-    ArticleSnapshotSerializer,
-    ArticleEventSerializer,
-    ArticleActionOutputSerializer,
+    SourceArticleReadSerializer,
+    SourceArticleWriteSerializer,
 )
-from .services.articles import (
-    save_draft, submit, withdraw, approve, reject, unpublish, soft_delete
+from ..services.articles import (
+    approve, reject, save_draft, soft_delete, submit, unpublish, withdraw
 )
 
 

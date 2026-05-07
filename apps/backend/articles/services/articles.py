@@ -29,6 +29,13 @@ def _get_locked_source_article(source_article_id):
 
 
 @transaction.atomic
+def save_draft(*, source_article_id, actor, title=None, markdown=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+    return workflow.save_draft(title=title, markdown=markdown)
+
+
+@transaction.atomic
 def submit(*, source_article_id, actor):
     source_article = _get_locked_source_article(source_article_id)
     workflow = ArticleWorkflow(source_article=source_article, actor=actor)
@@ -195,6 +202,46 @@ class ArticleWorkflow:
             "article_snapshot_id": article_snapshot_id,
             "event_id": event_id,
         }
+
+    def save_draft(self, *, title=None, markdown=None):
+        """
+        Save editable article content.
+
+        Only drafts and unpublished articles may be edited. A previously
+        unpublished article becomes a draft again when new source content is
+        saved, so it can enter the submission flow normally.
+        """
+        self._assert(
+            condition=self.source_article.status in (
+                SourceArticle.ArticleStatus.DRAFT,
+                SourceArticle.ArticleStatus.UNPUBLISHED,
+            ),
+            error_message="Only draft or unpublished articles can be edited."
+        )
+
+        has_changed = False
+        if title is not None and title != self.source_article.title:
+            self.source_article.title = title
+            has_changed = True
+
+        if markdown is not None and markdown != self.source_article.markdown:
+            self.source_article.markdown = markdown
+            has_changed = True
+
+        update_fields = []
+        if has_changed:
+            self.source_article.version += 1
+            self.source_article.last_saved_at = timezone.now()
+            update_fields.extend(["title", "markdown", "version", "last_saved_at"])
+
+        if self.source_article.status == SourceArticle.ArticleStatus.UNPUBLISHED:
+            self.source_article.status = SourceArticle.ArticleStatus.DRAFT
+            update_fields.append("status")
+
+        if update_fields:
+            self.source_article.save(update_fields=update_fields)
+
+        return self.source_article
 
     def submit(self):
         last_moderation_at = self.source_article.last_moderation_at

@@ -23,7 +23,7 @@ from .serializers import (
     ArticleActionOutputSerializer,
 )
 from .services.articles import (
-    submit, withdraw, approve, reject, unpublish, soft_delete
+    save_draft, submit, withdraw, approve, reject, unpublish, soft_delete
 )
 
 
@@ -103,6 +103,40 @@ class SourceArticleViewSet(MyModelViewSet):
             data=output_serializer.data,
             status_code=status.HTTP_201_CREATED,
         )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        article = self.get_object()
+        input_serializer = SourceArticleWriteSerializer(
+            article,
+            data=request.data,
+            partial=partial,
+            context=self.get_serializer_context(),
+        )
+        input_serializer.is_valid(raise_exception=True)
+
+        source_article = save_draft(
+            source_article_id=article.id,
+            actor=request.user,
+            title=input_serializer.validated_data.get("title"),
+            markdown=input_serializer.validated_data.get("markdown"),
+        )
+
+        output_serializer = SourceArticleReadSerializer(
+            instance=source_article,
+            context=self.get_serializer_context(),
+        )
+
+        return self.format_success_response(
+            message="saved",
+            code='saved',
+            data=output_serializer.data,
+            status_code=status.HTTP_200_OK,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
     @action(detail=False, methods=['post'], url_path='images')
     def upload_images(self, request):

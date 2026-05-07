@@ -22,7 +22,7 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     - is_deleted
     """
     default_title = _("Untitled")
-    default_markdown = ""
+    default_markdown = _("# Untitled")
 
     class ArticleStatus(models.IntegerChoices):
         """

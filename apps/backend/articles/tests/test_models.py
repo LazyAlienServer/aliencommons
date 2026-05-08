@@ -1,11 +1,21 @@
+from django.db import IntegrityError, transaction
+
 from articles.models import (
     ArticleEvent,
     ArticleSnapshot,
+    Collection,
+    CollectionItem,
     PublishedArticle,
     SourceArticle,
 )
 from articles.services.articles import ArticleWorkflow
-from core.tests.factories import create_source_article, create_user
+from core.tests.factories import (
+    create_collection,
+    create_collection_item,
+    create_published_article,
+    create_source_article,
+    create_user,
+)
 from core.tests.testcases import BaseTestCase
 
 
@@ -25,6 +35,21 @@ class ArticleModelTests(BaseTestCase):
 
         self.assertFalse(SourceArticle.objects.filter(id=article.id).exists())
         self.assertTrue(SourceArticle.all_objects.filter(id=article.id).exists())
+
+    def test_source_article_soft_delete_removes_published_article_and_collection_items(self):
+        collection = create_collection(author=self.author)
+        article = create_source_article(
+            author=self.author,
+            status=SourceArticle.ArticleStatus.PUBLISHED,
+        )
+        published = create_published_article(article)
+        create_collection_item(collection, published)
+
+        article.is_deleted = True
+        article.save(update_fields=["is_deleted"])
+
+        self.assertFalse(PublishedArticle.objects.filter(id=published.id).exists())
+        self.assertFalse(CollectionItem.objects.filter(collection=collection).exists())
 
     def test_published_article_string_representation_references_source_article(self):
         article = create_source_article(author=self.author, title="Ship log")
@@ -69,3 +94,42 @@ class ArticleModelTests(BaseTestCase):
             str(event),
             f"Operation Approve by {self.author.id} on article {article.id}",
         )
+
+    def test_collection_string_representation_is_title(self):
+        collection = create_collection(author=self.author, title="Redstone basics")
+
+        self.assertEqual(str(collection), "Redstone basics")
+
+    def test_collection_item_string_representation_references_article_and_collection(self):
+        collection = create_collection(author=self.author, title="Playlist")
+        article = create_source_article(author=self.author, title="Episode 1")
+        published = create_published_article(article, title=article.title)
+        item = create_collection_item(collection, published)
+
+        self.assertEqual(str(item), "Published version of article Episode 1 in Playlist")
+
+    def test_collection_item_rejects_duplicate_article_in_collection(self):
+        collection = create_collection(author=self.author)
+        article = create_source_article(author=self.author)
+        published = create_published_article(article)
+        create_collection_item(collection, published)
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                CollectionItem.objects.create(
+                    collection=collection,
+                    published_article=published,
+                    position=2,
+                )
+
+    def test_collection_delete_removes_collection_items(self):
+        collection = create_collection(author=self.author)
+        article = create_source_article(author=self.author)
+        published = create_published_article(article)
+        create_collection_item(collection, published)
+        collection_id = collection.id
+
+        collection.delete()
+
+        self.assertFalse(Collection.objects.filter(id=collection_id).exists())
+        self.assertFalse(CollectionItem.objects.filter(collection_id=collection_id).exists())

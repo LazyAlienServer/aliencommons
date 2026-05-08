@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 
-from .models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from .models import Collection, CollectionItem, SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
 
 
 @admin.register(SourceArticle)
@@ -41,8 +41,13 @@ class SourceArticleAdmin(admin.ModelAdmin):
     status_display.short_description = "Status"
 
     def action_soft_delete(self, request, queryset):
-        updated = queryset.update(is_deleted=True)
-        self.message_user(request, f"Soft-deleted {updated} article(s).", level=messages.WARNING)
+        count = 0
+        for obj in queryset:
+            obj.is_deleted = True
+            obj.save(update_fields=["is_deleted"])
+            count += 1
+
+        self.message_user(request, f"Soft-deleted {count} article(s).", level=messages.WARNING)
     action_soft_delete.short_description = "Soft delete selected"
 
     def action_restore(self, request, queryset):
@@ -151,3 +156,54 @@ class ArticleEventAdmin(admin.ModelAdmin):
     def type_display(self, obj):
         return obj.get_event_type_display()
     type_display.short_description = "Type"
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    model = Collection
+    list_display = (
+        "title",
+        "author",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = (
+        ("author", admin.RelatedOnlyFieldListFilter),
+        "created_at",
+    )
+    search_fields = ("title", "description", "author__username")
+    ordering = ("-created_at",)
+    list_per_page = 25
+    date_hierarchy = "created_at"
+    readonly_fields = ("id", "created_at", "updated_at")
+
+    fieldsets = [
+        ("Basic", {"fields": ("id", "title", "description")}),
+        ("Ownership", {"fields": ("author",)}),
+        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+    ]
+
+
+@admin.register(CollectionItem)
+class CollectionItemAdmin(admin.ModelAdmin):
+    model = CollectionItem
+    list_display = (
+        "collection",
+        "published_article",
+        "position",
+        "created_at",
+    )
+    list_filter = (
+        "collection",
+        "created_at",
+    )
+    search_fields = ("collection__title", "published_article__title")
+    ordering = ("collection", "position")
+    list_per_page = 25
+    date_hierarchy = "created_at"
+    readonly_fields = ("id", "created_at")
+
+    fieldsets = [
+        ("Basic", {"fields": ("id", "collection", "published_article", "position")}),
+        ("Timestamps", {"fields": ("created_at",)}),
+    ]

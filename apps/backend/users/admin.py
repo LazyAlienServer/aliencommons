@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
+
+from bookmarks.models import BookmarkFolder
 
 
 User = get_user_model()
@@ -33,6 +36,14 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2'),
+            'fields': ('username', 'password1', 'password2'),
         }),
     )
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            super().save_model(request, obj, form, change)
+            return
+
+        super().save_model(request, obj, form, change)
+        BookmarkFolder.objects.create(user=obj, name=settings.DEFAULT_BOOKMARK_FOLDER_NAME)

@@ -1,29 +1,29 @@
-from django_filters import rest_framework as filters
 from django.db.models import OuterRef, Subquery
+from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from core.utils.permissions import is_moderator
 from core.views.viewsets import MyModelViewSet, MyReadOnlyModelViewSet
-from .filters import SourceArticleFilter
-from .permissions import (
+from ..filters import SourceArticleFilter
+from ..models import ArticleEvent, ArticleSnapshot, PublishedArticle, SourceArticle
+from ..permissions import (
+    ArticleEventPermission,
     AuthorOnly,
     ModeratorOnly,
-    ArticleEventPermission,
 )
-from .models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
-from .serializers import (
-    SourceArticleReadSerializer,
-    SourceArticleWriteSerializer,
+from ..serializers import (
+    ArticleActionOutputSerializer,
+    ArticleEventSerializer,
+    ArticleSnapshotSerializer,
     ImageUploadSerializer,
     PublishedArticleSerializer,
-    ArticleSnapshotSerializer,
-    ArticleEventSerializer,
-    ArticleActionOutputSerializer,
+    SourceArticleReadSerializer,
+    SourceArticleWriteSerializer,
 )
-from .services.articles import (
-    submit, withdraw, approve, reject, unpublish, soft_delete
+from ..services.articles import (
+    approve, reject, save_draft, soft_delete, submit, unpublish, withdraw
 )
 
 
@@ -103,6 +103,40 @@ class SourceArticleViewSet(MyModelViewSet):
             data=output_serializer.data,
             status_code=status.HTTP_201_CREATED,
         )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        article = self.get_object()
+        input_serializer = SourceArticleWriteSerializer(
+            article,
+            data=request.data,
+            partial=partial,
+            context=self.get_serializer_context(),
+        )
+        input_serializer.is_valid(raise_exception=True)
+
+        source_article = save_draft(
+            source_article_id=article.id,
+            actor=request.user,
+            title=input_serializer.validated_data.get("title"),
+            markdown=input_serializer.validated_data.get("markdown"),
+        )
+
+        output_serializer = SourceArticleReadSerializer(
+            instance=source_article,
+            context=self.get_serializer_context(),
+        )
+
+        return self.format_success_response(
+            message="saved",
+            code='saved',
+            data=output_serializer.data,
+            status_code=status.HTTP_200_OK,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
     @action(detail=False, methods=['post'], url_path='images')
     def upload_images(self, request):

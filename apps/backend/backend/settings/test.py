@@ -14,6 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
+    "daphne",
     "core.apps.CoreConfig",
     "users.apps.UsersConfig",
     "django.contrib.admin",
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
+    "bookmarks.apps.BookmarksConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
@@ -43,6 +45,7 @@ DEFAULT_AVATARS = [
     "default_avatar/Shovel.webp",
     "default_avatar/Sword.webp",
 ]
+DEFAULT_BOOKMARK_FOLDER_NAME = "Default"
 
 SESSION_COOKIE_AGE = 1209600
 SESSION_EXPIRY_REFRESH_INTERVAL = 600

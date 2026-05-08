@@ -148,6 +148,7 @@ FORMAT_MODULE_PATH = None
 IGNORABLE_404_URLS = []
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -158,6 +159,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
+    "bookmarks.apps.BookmarksConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
@@ -330,7 +332,7 @@ USE_TZ = True
 USE_X_FORWARDED_HOST = False
 USE_X_FORWARDED_PORT = False
 
-WSGI_APPLICATION = "backend.wsgi.application"
+ASGI_APPLICATION = "backend.asgi.application"
 
 YEAR_MONTH_FORMAT = "F Y"
 
@@ -461,6 +463,7 @@ DEFAULT_AVATARS = [
     'default_avatar/Shovel.webp',
     'default_avatar/Sword.webp',
 ]
+DEFAULT_BOOKMARK_FOLDER_NAME: str = "Default"
 
 SESSION_EXPIRY_REFRESH_INTERVAL: int = 600
 SESSION_EXPIRY_REFRESH_FIELD: str = 'last_expiry_refresh_at'

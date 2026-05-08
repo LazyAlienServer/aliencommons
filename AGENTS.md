@@ -13,6 +13,18 @@ This is a monorepo. The main areas are:
 
 Prefer the conventions already present in the area you are editing.
 
+## Tech Stacks
+
+- Monorepo tooling: pnpm workspaces, Make targets, Docker Compose, and GitHub Actions.
+- Frontend: Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia, and the local `alienmark` workspace package.
+- Backend: Python 3.14, Django 6, Django REST Framework, Django Channels/Daphne, django-filter, django-cors-headers, and environs.
+- Backend persistence and runtime services: PostgreSQL, Redis, django-redis cache, Django sessions, RQ task workers via `django-tasks-rq`, and Pillow for image processing.
+- Media and storage: local filesystem storage in development/test paths, with S3-compatible storage through `django-storages` for hosted environments when configured.
+- Markdown rendering: `packages/alienmark` is a TypeScript Markdown parser/HTML renderer; `apps/alienmark` exposes it as an internal Fastify service used by the Django backend.
+- Documentation: MkDocs, Material for MkDocs, and `mkdocs-static-i18n`.
+- Operations and observability: Docker, Traefik labels in hosted compose files, Grafana, Loki, and Grafana Alloy.
+- Hosted environments use AWS infrastructure conventions and Cloudflare DNS for `aliencommons.com`.
+
 ## Environments
 
 The project uses three environments:
@@ -26,6 +38,7 @@ DNS is managed in Cloudflare for `aliencommons.com`.
 ## Working Rules
 
 - Read the nearby code before changing it.
+- Check for nested `AGENTS.md` files and follow the closest applicable instructions.
 - Do not rewrite unrelated files or reformat broad areas without a reason.
 - Do not remove or revert user changes unless explicitly asked.
 - Keep secrets, credentials, and local environment files out of commits.

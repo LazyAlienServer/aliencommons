@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.utils import timezone
 
-from articles.models import ArticleSnapshot, PublishedArticle, SourceArticle
+from articles.models import ArticleSnapshot, Collection, CollectionItem, PublishedArticle, SourceArticle
 from articles.services.articles import ArticleWorkflow
+from bookmarks.models import Bookmark, BookmarkFolder
 
 from .helpers import unique_suffix
 
@@ -19,7 +21,9 @@ def create_user(**kwargs):
     defaults.update(kwargs)
     password = defaults.pop("password")
 
-    return User.objects.create_user(password=password, **defaults)
+    user = User.objects.create_user(password=password, **defaults)
+    BookmarkFolder.objects.create(user=user, name=settings.DEFAULT_BOOKMARK_FOLDER_NAME)
+    return user
 
 
 def create_moderator(**kwargs):
@@ -31,7 +35,7 @@ def create_source_article(**kwargs):
     defaults = {
         "author": kwargs.pop("author", create_user()),
         "title": "First draft",
-        "markdown": "Hello",
+        "markdown": "# First draft\n\nHello",
         "status": SourceArticle.ArticleStatus.DRAFT,
     }
     defaults.update(kwargs)
@@ -63,3 +67,42 @@ def create_published_article(article, **kwargs):
     }
     defaults.update(kwargs)
     return PublishedArticle.objects.create(**defaults)
+
+
+def create_collection(**kwargs):
+    defaults = {
+        "author": kwargs.pop("author", create_user()),
+        "title": "Collection",
+        "description": "",
+    }
+    defaults.update(kwargs)
+    return Collection.objects.create(**defaults)
+
+
+def create_collection_item(collection, published_article, **kwargs):
+    defaults = {
+        "collection": collection,
+        "published_article": published_article,
+        "position": 1,
+    }
+    defaults.update(kwargs)
+    return CollectionItem.objects.create(**defaults)
+
+
+def create_bookmark_folder(**kwargs):
+    defaults = {
+        "user": kwargs.pop("user", create_user()),
+        "name": f"Folder {unique_suffix()}",
+    }
+    defaults.update(kwargs)
+    return BookmarkFolder.objects.create(**defaults)
+
+
+def create_bookmark(user, published_article, folder=None, **kwargs):
+    defaults = {
+        "user": user,
+        "folder": folder or create_bookmark_folder(user=user),
+        "published_article": published_article,
+    }
+    defaults.update(kwargs)
+    return Bookmark.objects.create(**defaults)

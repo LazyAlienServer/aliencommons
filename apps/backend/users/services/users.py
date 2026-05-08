@@ -8,6 +8,7 @@ import hashlib
 
 from core.exceptions import ServiceError
 from core.utils.cache import add_cache, set_cache, get_cache, delete_cache, incr_cache
+from bookmarks.models import BookmarkFolder
 from users.models import EmailAddress
 from users.tasks import send_verification_email_task
 from logs.logging import get_logger
@@ -75,13 +76,15 @@ def register(*, username, email, password):
         avatar = random.choice(settings.DEFAULT_AVATARS)
         return avatar
 
-    user = User(
+    user = User.objects.create_user(
         username=username,
+        password=password,
         avatar=pick_random_avatar(),
     )
 
-    user.set_password(password)
-    user.save()
+    BookmarkFolder.objects.create(
+        user=user, name=settings.DEFAULT_BOOKMARK_FOLDER_NAME
+    )
 
     email_address = EmailAddress.objects.create(
         user=user,

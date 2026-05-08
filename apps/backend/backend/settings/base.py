@@ -159,6 +159,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
+    "bookmarks.apps.BookmarksConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",
@@ -462,6 +463,7 @@ DEFAULT_AVATARS = [
     'default_avatar/Shovel.webp',
     'default_avatar/Sword.webp',
 ]
+DEFAULT_BOOKMARK_FOLDER_NAME: str = "Default"
 
 SESSION_EXPIRY_REFRESH_INTERVAL: int = 600
 SESSION_EXPIRY_REFRESH_FIELD: str = 'last_expiry_refresh_at'

@@ -12,8 +12,8 @@ from core.views.mixins import (
 )
 from ..serializers import (
     UserListSerializer,
-    UserRegisterInputSerializer,
-    UserRegisterOutputSerializer,
+    UserRegisterRequestSerializer,
+    UserRegisterResponseSerializer,
     UserRetrieveSerializer,
     UserUpdateSerializer,
 )
@@ -37,7 +37,7 @@ class UserViewSet(MyListModelMixin,
     serializer_class_mapping = {
         'list': UserListSerializer,
         'retrieve': UserRetrieveSerializer,
-        'create': UserRegisterOutputSerializer,
+        'create': UserRegisterResponseSerializer,
     }
 
     def get_serializer_class(self):
@@ -54,7 +54,7 @@ class UserViewSet(MyListModelMixin,
         return [permission() for permission in self.permission_classes]
 
     def create(self, request):
-        input_serializer = UserRegisterInputSerializer(data=request.data)
+        input_serializer = UserRegisterRequestSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
         result = register(
@@ -63,7 +63,7 @@ class UserViewSet(MyListModelMixin,
             password=input_serializer.validated_data['password'],
         )
 
-        output_serializer = UserRegisterOutputSerializer(instance=result)
+        output_serializer = UserRegisterResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="user registered successfully",

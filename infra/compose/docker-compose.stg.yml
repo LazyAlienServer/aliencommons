@@ -45,7 +45,6 @@ services:
       - "traefik.http.routers.backend-api-stg.tls.certresolver=le"
       - "traefik.http.services.backend-api-stg.loadbalancer.server.port=8000"
     volumes:
-      - /srv/alien-commons/stg/media:/code/media
       - /srv/alien-commons/stg/static:/code/staticfiles
     
   backend-task-scheduler:
@@ -130,18 +129,6 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8787
-  
-  media:
-    image: nginx:alpine
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.media.rule=Host(`api-stg.aliencommons.com`) && PathPrefix(`/media`)"
-      - "traefik.http.routers.media.entrypoints=websecure"
-      - "traefik.http.routers.media.tls.certresolver=le"
-      - "traefik.http.services.media.loadbalancer.server.port=80"
-    restart: unless-stopped
-    volumes:
-      - /srv/alien-commons/stg/media:/usr/share/nginx/html/media:ro
   
   static:
     image: nginx:alpine

@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 from core.utils.permissions import is_moderator
-from .models import ArticleEvent
+from .models import ArticleEvent, Collection, CollectionItem
 
 
 def is_the_author(user, obj):
@@ -42,3 +42,37 @@ class ArticleEventPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         obj: ArticleEvent
         return is_moderator(request.user) or is_the_author(request.user, obj.source_article)
+
+
+class CollectionPermission(permissions.BasePermission):
+    """
+    Collections are readable by anyone; writes are author-only.
+    """
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        obj: Collection
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return is_the_author(request.user, obj)
+
+
+class CollectionItemPermission(permissions.BasePermission):
+    """
+    Collection items are readable by anyone; writes are collection-author-only.
+    """
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        obj: CollectionItem
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return is_the_author(request.user, obj.collection)

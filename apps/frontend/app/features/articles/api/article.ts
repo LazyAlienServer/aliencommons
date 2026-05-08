@@ -16,15 +16,15 @@ function getTheSourceArticle(id) {
 }
 
 function createSourceArticle() {
-    return api.post(`/source_articles/`)
+    return api.post(`/source_articles/`, {}, { withCredentials: true })
 }
 
-function updateSourceArticle(id, title, content) {
+function updateSourceArticle(id, title, markdown) {
     return api.patch(
         `/source_articles/${id}/`,
         {
             title: title,
-            content: content,
+            markdown: markdown,
         },
         { withCredentials: true },
     )

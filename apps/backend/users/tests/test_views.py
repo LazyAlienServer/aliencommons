@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from rest_framework import status
 
+from bookmarks.models import BookmarkFolder
 from core.tests.factories import create_user
 from core.tests.testcases import BaseAPITestCase
 from core.utils.cache import set_cache
@@ -52,6 +53,13 @@ class UserViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["username"], "new-user")
         self.assertEqual(response.data["data"]["email"], "new-user@example.com")
         self.assertEqual(User.objects.filter(username="new-user").count(), 1)
+        user = User.objects.get(username="new-user")
+        self.assertTrue(
+            BookmarkFolder.objects.filter(
+                user=user,
+                name=settings.DEFAULT_BOOKMARK_FOLDER_NAME,
+            ).exists()
+        )
         self.assertEqual(len(callbacks), 1)
         send_task_mock.enqueue.assert_called_once()
         random_choice_mock.assert_called_once()

@@ -3,7 +3,7 @@ import { useUserStore } from "~/features/users/stores/useUserStore";
 import { getRefreshToken } from '@/core/utils'
 
 const api = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api/v1`,
+    baseURL: `${import.meta.env.VITE_API_BASE_URL}/v1`,
     timeout: 10000,
 })
 
@@ -95,7 +95,7 @@ api.interceptors.response.use(
 
 // for requests outside the users system
 const apiBare = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api/v1`,
+    baseURL: `${import.meta.env.VITE_API_BASE_URL}/v1`,
     timeout: 10000,
 })
 

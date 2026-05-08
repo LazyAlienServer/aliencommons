@@ -9,6 +9,7 @@ from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, Ar
 from core.exceptions import ServiceError
 from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
+from .markdown import extract_title_from_markdown, validate_article_markdown
 
 logger = get_logger(__name__)
 
@@ -26,6 +27,13 @@ def _get_locked_source_article(source_article_id):
         raise ServiceError(
             detail="Source article not found", code='source_article_not_found'
         )
+
+
+@transaction.atomic
+def save_draft(*, source_article_id, actor, title=None, markdown=None):
+    source_article = _get_locked_source_article(source_article_id)
+    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+    return workflow.save_draft(title=title, markdown=markdown)
 
 
 @transaction.atomic
@@ -196,7 +204,54 @@ class ArticleWorkflow:
             "event_id": event_id,
         }
 
+    def save_draft(self, *, title=None, markdown=None):
+        """
+        Save editable article content.
+
+        Only drafts and unpublished articles may be edited. A previously
+        unpublished article becomes a draft again when new source content is
+        saved, so it can enter the submission flow normally.
+        """
+        self._assert(
+            condition=self.source_article.status in (
+                SourceArticle.ArticleStatus.DRAFT,
+                SourceArticle.ArticleStatus.UNPUBLISHED,
+            ),
+            error_message="Only draft or unpublished articles can be edited."
+        )
+
+        has_changed = False
+
+        if markdown is not None and markdown != self.source_article.markdown:
+            title = extract_title_from_markdown(
+                markdown,
+                max_length=SourceArticle._meta.get_field("title").max_length,
+            )
+            self.source_article.markdown = markdown
+            self.source_article.title = title
+            has_changed = True
+
+        update_fields = []
+        if has_changed:
+            self.source_article.version += 1
+            self.source_article.last_saved_at = timezone.now()
+            update_fields.extend(["title", "markdown", "version", "last_saved_at"])
+
+        if self.source_article.status == SourceArticle.ArticleStatus.UNPUBLISHED:
+            self.source_article.status = SourceArticle.ArticleStatus.DRAFT
+            update_fields.append("status")
+
+        if update_fields:
+            self.source_article.save(update_fields=update_fields)
+
+        return self.source_article
+
     def submit(self):
+        validate_article_markdown(
+            self.source_article.markdown,
+            max_length=SourceArticle._meta.get_field("title").max_length,
+        )
+
         last_moderation_at = self.source_article.last_moderation_at
         if last_moderation_at and self._within_submit_cooldown(last_moderation_at, hours=6):
             raise ServiceError(

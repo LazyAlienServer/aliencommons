@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 
+from bookmarks.models import BookmarkFolder
 from core.exceptions import ServiceError
 from core.tests.factories import create_user
 from core.tests.testcases import BaseTestCase
@@ -51,6 +52,12 @@ class UserServiceTests(BaseTestCase):
         self.assertEqual(result["resend_cooldown_seconds"], settings.VERIFICATION_CODE_RESEND_COOLDOWN)
         self.assertEqual(result["code_ttl_seconds"], settings.VERIFICATION_CODE_TTL)
         self.assertEqual(user.avatar.name, "default_avatar/Axe.webp")
+        self.assertTrue(
+            BookmarkFolder.objects.filter(
+                user=user,
+                name=settings.DEFAULT_BOOKMARK_FOLDER_NAME,
+            ).exists()
+        )
         self.assertEqual(
             stored_hash,
             _hash_code("new-user@example.com", "123456"),

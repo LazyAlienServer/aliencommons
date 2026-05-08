@@ -35,7 +35,7 @@ services:
     working_dir: /code
     restart: unless-stopped
     command: >
-      sh -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
+      sh -c "daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
     depends_on:
       - alienmark
     labels:
@@ -45,7 +45,6 @@ services:
       - "traefik.http.routers.backend-production.tls.certresolver=le"
       - "traefik.http.services.backend-production.loadbalancer.server.port=8000"
     volumes:
-      - /srv/alien-commons/pro/media:/code/media
       - /srv/alien-commons/pro/static:/code/staticfiles
 
   backend-task-scheduler:
@@ -127,18 +126,6 @@ services:
       HOST: 0.0.0.0
       PORT: 8787
 
-  media:
-    image: nginx:alpine
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.media.rule=Host(`api.aliencommons.com`) && PathPrefix(`/media`)"
-      - "traefik.http.routers.media.entrypoints=websecure"
-      - "traefik.http.routers.media.tls.certresolver=le"
-      - "traefik.http.services.media.loadbalancer.server.port=80"
-    restart: unless-stopped
-    volumes:
-      - /srv/alien-commons/pro/media:/usr/share/nginx/html/media:ro
-  
   static:
     image: nginx:alpine
     labels:

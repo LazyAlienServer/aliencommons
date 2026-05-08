@@ -5,6 +5,7 @@ from django.utils import timezone
 from articles.models import ArticleSnapshot, Collection, CollectionItem, PublishedArticle, SourceArticle
 from articles.services.articles import ArticleWorkflow
 from bookmarks.models import Bookmark, BookmarkFolder
+from reactions.models import Reaction, ReactionTarget
 
 from .helpers import unique_suffix
 
@@ -106,3 +107,26 @@ def create_bookmark(user, published_article, folder=None, **kwargs):
     }
     defaults.update(kwargs)
     return Bookmark.objects.create(**defaults)
+
+
+def create_reaction_target(published_article, **kwargs):
+    defaults = {
+        "target_type": ReactionTarget.TargetType.PUBLISHED_ARTICLE,
+        "published_article": published_article,
+    }
+    defaults.update(kwargs)
+    return ReactionTarget.objects.create(**defaults)
+
+
+def create_reaction(user, published_article, **kwargs):
+    target = kwargs.pop("target", None) or ReactionTarget.objects.get_or_create(
+        target_type=ReactionTarget.TargetType.PUBLISHED_ARTICLE,
+        published_article=published_article,
+    )[0]
+    defaults = {
+        "user": user,
+        "target": target,
+        "reaction_type": Reaction.ReactionType.LIKE,
+    }
+    defaults.update(kwargs)
+    return Reaction.objects.create(**defaults)

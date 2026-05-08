@@ -227,9 +227,17 @@ class SourceArticleViewSet(MyModelViewSet):
 
 
 class PublishedArticleViewSet(MyReadOnlyModelViewSet):
-    queryset = PublishedArticle.objects.all()
+    queryset = PublishedArticle.objects.select_related("source_article")
     serializer_class = PublishedArticleSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        from reactions.querysets import with_published_article_reaction_summary
+
+        return with_published_article_reaction_summary(
+            super().get_queryset(),
+            user=self.request.user,
+        )
 
 
 class ArticleSnapshotViewSet(MyReadOnlyModelViewSet):

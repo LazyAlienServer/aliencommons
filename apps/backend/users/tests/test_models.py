@@ -1,8 +1,8 @@
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from core.tests.factories import create_user
 from core.tests.testcases import BaseTestCase
-from users.models import EmailAddress, User
+from users.models import EmailAddress, User, UserSubscription
 
 
 class UserModelTests(BaseTestCase):
@@ -73,3 +73,29 @@ class UserModelTests(BaseTestCase):
                 email="second@example.com",
                 is_primary=True,
             )
+
+    def test_user_subscription_string_representation(self):
+        subscriber = create_user(username="reader")
+        author = create_user(username="author")
+        subscription = UserSubscription.objects.create(
+            subscriber=subscriber,
+            subscribed_to=author,
+        )
+
+        self.assertEqual(str(subscription), "reader subscribes to author")
+
+    def test_user_subscription_rejects_duplicates(self):
+        subscriber = create_user(username="reader")
+        author = create_user(username="author")
+        UserSubscription.objects.create(subscriber=subscriber, subscribed_to=author)
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                UserSubscription.objects.create(subscriber=subscriber, subscribed_to=author)
+
+    def test_user_subscription_rejects_self_subscription(self):
+        user = create_user(username="reader")
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                UserSubscription.objects.create(subscriber=user, subscribed_to=user)

@@ -6,7 +6,7 @@ This directory contains the Django backend for AlienCommons. Keep backend change
 
 - `backend/` contains Django project settings, URL configuration, ASGI, and WSGI entrypoints.
 - `core/` contains shared response formatting, exception handling, pagination, viewset mixins, validators, middleware, and utility code.
-- `users/`, `articles/`, `tasks/`, and `logs/` are Django apps with their own models, services, views, serializers, admin, migrations, and tests where applicable.
+- `users/`, `articles/`, `bookmarks/`, `tasks/`, and `logs/` are Django apps with their own models, services, views, serializers, admin, migrations, and tests where applicable.
 - Runtime services include PostgreSQL, Redis/RQ task queues, Django sessions/cache, S3-backed media in staging/production, and the internal AlienMark rendering service.
 - Tests live next to the app they cover under each app's `tests/` package.
 
@@ -20,6 +20,7 @@ This directory contains the Django backend for AlienCommons. Keep backend change
 - Prefer environment variables for deployment-specific settings. EC2/ECS IAM roles should provide AWS credentials where possible; do not add static AWS keys to settings.
 - Treat migrations as part of model changes. Add focused migrations when models change, and avoid editing existing applied migrations unless the project is still deliberately rewriting history.
 - Keep generated/static/media artifacts out of code changes unless the task is explicitly about those assets.
+- Once add a new app, check whether it exists in AGENTS.md and in relevant GitHub Actions. If applicable, add it to them.
 
 ## Verification
 

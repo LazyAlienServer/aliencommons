@@ -142,6 +142,10 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
     """
     Serializer for published articles. All fields are ready-only.
     """
+    like_count = serializers.SerializerMethodField()
+    dislike_count = serializers.SerializerMethodField()
+    my_reaction = serializers.SerializerMethodField()
+
     class Meta:
         model = PublishedArticle
         fields = '__all__'
@@ -150,8 +154,61 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
             'source_article',
             'title',
             'html',
+            'like_count',
+            'dislike_count',
+            'my_reaction',
             'created_at',
             'updated_at',
+        )
+
+    def get_like_count(self, obj):
+        annotated_value = getattr(obj, "like_count", None)
+        if annotated_value is not None:
+            return annotated_value
+
+        reaction_target = getattr(obj, "reaction_target", None)
+        if reaction_target is None:
+            return 0
+
+        from reactions.models import Reaction
+
+        return reaction_target.reactions.filter(
+            reaction_type=Reaction.ReactionType.LIKE,
+        ).count()
+
+    def get_dislike_count(self, obj):
+        annotated_value = getattr(obj, "dislike_count", None)
+        if annotated_value is not None:
+            return annotated_value
+
+        reaction_target = getattr(obj, "reaction_target", None)
+        if reaction_target is None:
+            return 0
+
+        from reactions.models import Reaction
+
+        return reaction_target.reactions.filter(
+            reaction_type=Reaction.ReactionType.DISLIKE,
+        ).count()
+
+    def get_my_reaction(self, obj):
+        annotated_value = getattr(obj, "my_reaction", None)
+        if annotated_value is not None:
+            return annotated_value
+
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return None
+
+        reaction_target = getattr(obj, "reaction_target", None)
+        if reaction_target is None:
+            return None
+
+        return (
+            reaction_target.reactions
+            .filter(user=request.user)
+            .values_list("reaction_type", flat=True)
+            .first()
         )
 
 

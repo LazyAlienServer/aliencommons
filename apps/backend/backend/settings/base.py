@@ -160,6 +160,7 @@ INSTALLED_APPS = [
     "logs.apps.LogsConfig",
     "articles.apps.ArticlesConfig",
     "bookmarks.apps.BookmarksConfig",
+    "reactions.apps.ReactionsConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",

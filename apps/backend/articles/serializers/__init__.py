@@ -1,5 +1,5 @@
 from .articles import (
-    ArticleActionOutputSerializer,
+    ArticleActionResponseSerializer,
     ArticleEventSerializer,
     ArticleSnapshotSerializer,
     ImageUploadSerializer,
@@ -15,7 +15,7 @@ from .collections import (
 )
 
 __all__ = [
-    "ArticleActionOutputSerializer",
+    "ArticleActionResponseSerializer",
     "ArticleEventSerializer",
     "ArticleSnapshotSerializer",
     "CollectionItemReadSerializer",

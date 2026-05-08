@@ -205,7 +205,7 @@ class ArticleEventSerializer(serializers.ModelSerializer):
         return ArticleEvent.objects.create(**validated_data)
 
 
-class ArticleActionOutputSerializer(serializers.Serializer):
+class ArticleActionResponseSerializer(serializers.Serializer):
     event_type = serializers.IntegerField()
     actor_id = serializers.UUIDField()
     source_article_id = serializers.UUIDField()

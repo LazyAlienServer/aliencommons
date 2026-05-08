@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
 from bookmarks.models import BookmarkFolder
+from users.models import UserSubscription
 
 
 User = get_user_model()
@@ -47,3 +48,22 @@ class CustomUserAdmin(UserAdmin):
 
         super().save_model(request, obj, form, change)
         BookmarkFolder.objects.create(user=obj, name=settings.DEFAULT_BOOKMARK_FOLDER_NAME)
+
+
+@admin.register(UserSubscription)
+class UserSubscriptionAdmin(admin.ModelAdmin):
+    model = UserSubscription
+    list_display = ("subscriber", "subscribed_to", "created_at")
+    list_filter = (
+        ("subscriber", admin.RelatedOnlyFieldListFilter),
+        ("subscribed_to", admin.RelatedOnlyFieldListFilter),
+        "created_at",
+    )
+    search_fields = ("subscriber__username", "subscribed_to__username")
+    ordering = ("-created_at",)
+    readonly_fields = ("id", "subscriber", "subscribed_to", "created_at")
+
+    fieldsets = [
+        ("Basic", {"fields": ("id", "subscriber", "subscribed_to")}),
+        ("Timestamps", {"fields": ("created_at",)}),
+    ]

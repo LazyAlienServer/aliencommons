@@ -9,7 +9,7 @@ from bookmarks.models import BookmarkFolder
 from core.tests.factories import create_user
 from core.tests.testcases import BaseAPITestCase
 from core.utils.cache import set_cache
-from users.models import EmailAddress, User, UserSession
+from users.models import EmailAddress, User, UserSession, UserSubscription
 from users.services.users import _hash_code
 
 
@@ -88,6 +88,97 @@ class UserViewTests(BaseAPITestCase):
         )
         self.assert_uuid_equal(response.data["data"]["id"], self.user.id)
         self.assertEqual(response.data["data"]["username"], "captain")
+
+    def test_user_can_subscribe_to_another_user(self):
+        self.authenticate(self.user)
+        response = self.post_json(
+            reverse("subscription-list"),
+            {
+                "subscribed_to": str(self.other_user.id),
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assert_uuid_equal(response.data["data"]["subscriber"], self.user.id)
+        self.assert_uuid_equal(response.data["data"]["subscribed_to"], self.other_user.id)
+        self.assertEqual(UserSubscription.objects.count(), 1)
+
+    def test_user_cannot_subscribe_to_self(self):
+        self.authenticate(self.user)
+        response = self.post_json(
+            reverse("subscription-list"),
+            {
+                "subscribed_to": str(self.user.id),
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(UserSubscription.objects.count(), 0)
+
+    def test_user_cannot_duplicate_subscription(self):
+        UserSubscription.objects.create(
+            subscriber=self.user,
+            subscribed_to=self.other_user,
+        )
+
+        self.authenticate(self.user)
+        response = self.post_json(
+            reverse("subscription-list"),
+            {
+                "subscribed_to": str(self.other_user.id),
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(UserSubscription.objects.count(), 1)
+
+    def test_user_only_lists_own_subscriptions(self):
+        own_subscription = UserSubscription.objects.create(
+            subscriber=self.user,
+            subscribed_to=self.other_user,
+        )
+        third_user = create_user(username="third")
+        UserSubscription.objects.create(
+            subscriber=self.other_user,
+            subscribed_to=third_user,
+        )
+
+        self.authenticate(self.user)
+        response = self.get_json(reverse("subscription-list"))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="listed",
+        )
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+        self.assert_uuid_equal(response.data["data"]["results"][0]["id"], own_subscription.id)
+
+    def test_user_can_delete_own_subscription(self):
+        subscription = UserSubscription.objects.create(
+            subscriber=self.user,
+            subscribed_to=self.other_user,
+        )
+
+        self.authenticate(self.user)
+        response = self.delete_json(reverse("subscription-detail", args=[subscription.id]))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="deleted",
+        )
+        self.assertFalse(UserSubscription.objects.filter(id=subscription.id).exists())
 
     def test_me_requires_authentication(self):
         response = self.get_json(reverse("profile-me"))

@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
 from django.core.files.base import ContentFile
 
 from rest_framework import serializers
@@ -12,8 +11,9 @@ from core.validators import (
     FileTypeValidator,
     PasswordValidator,
 )
-from .models import EmailAddress, UserSubscription
-from .utils import normalize_email
+from ..models import EmailAddress
+from ..utils import normalize_email
+
 
 User = get_user_model()
 
@@ -182,107 +182,3 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
-
-class UserLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        required=True,
-        error_messages={
-            'required': "An email is required",
-        },
-    )
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        error_messages={
-            'required': "A password is required",
-        },
-    )
-
-    def validate_email(self, value):
-        """
-        Return a normalized email.
-        """
-        return normalize_email(value)
-
-
-class EmailVerifyInputSerializer(serializers.Serializer):
-    email = serializers.EmailField(
-        required=True,
-        error_messages={
-            'required': "An email is required",
-        },
-    )
-    code = serializers.CharField(
-        required=True,
-        trim_whitespace=True,
-        error_messages={
-            'required': "A verification code is required",
-        },
-        validators=[
-            RegexValidator(
-                regex=r"^\d{6}$",
-                message="Verification code must be a 6-digit number"
-            )
-        ]
-    )
-
-    def validate_email(self, value):
-        """
-        Return a normalized email.
-        """
-        return normalize_email(value)
-
-
-class EmailVerifyOutputSerializer(serializers.Serializer):
-    """
-    Serialize the verified email address.
-    """
-    email = serializers.EmailField(read_only=True)
-
-
-class UserSubscriptionReadSerializer(serializers.ModelSerializer):
-    subscriber_username = serializers.CharField(source="subscriber.username", read_only=True)
-    subscribed_to_username = serializers.CharField(source="subscribed_to.username", read_only=True)
-
-    class Meta:
-        model = UserSubscription
-        fields = (
-            "id",
-            "subscriber",
-            "subscriber_username",
-            "subscribed_to",
-            "subscribed_to_username",
-            "created_at",
-        )
-        read_only_fields = fields
-
-
-class UserSubscriptionWriteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserSubscription
-        fields = ("subscribed_to",)
-        validators = []
-
-    def validate_subscribed_to(self, value):
-        subscriber = self.context["request"].user
-
-        if value.id == subscriber.id:
-            raise serializers.ValidationError(
-                detail="You cannot subscribe to yourself",
-                code="self_subscription",
-            )
-
-        existing = UserSubscription.objects.filter(
-            subscriber=subscriber,
-            subscribed_to=value,
-        )
-        if self.instance is not None:
-            existing = existing.exclude(pk=self.instance.pk)
-        if existing.exists():
-            raise serializers.ValidationError(
-                detail="You already subscribed to this user",
-                code="duplicate_subscription",
-            )
-
-        return value

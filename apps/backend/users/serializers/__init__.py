@@ -1,21 +1,21 @@
-from .emails import EmailVerifyInputSerializer, EmailVerifyOutputSerializer
+from .emails import EmailVerifyRequestSerializer, EmailVerifyResponseSerializer
 from .sessions import UserLoginSerializer
 from .subscriptions import UserSubscriptionReadSerializer, UserSubscriptionWriteSerializer
 from .users import (
     UserListSerializer,
-    UserRegisterInputSerializer,
-    UserRegisterOutputSerializer,
+    UserRegisterRequestSerializer,
+    UserRegisterResponseSerializer,
     UserRetrieveSerializer,
     UserUpdateSerializer,
 )
 
 __all__ = [
-    "EmailVerifyInputSerializer",
-    "EmailVerifyOutputSerializer",
+    "EmailVerifyRequestSerializer",
+    "EmailVerifyResponseSerializer",
     "UserListSerializer",
     "UserLoginSerializer",
-    "UserRegisterInputSerializer",
-    "UserRegisterOutputSerializer",
+    "UserRegisterRequestSerializer",
+    "UserRegisterResponseSerializer",
     "UserRetrieveSerializer",
     "UserSubscriptionReadSerializer",
     "UserSubscriptionWriteSerializer",

@@ -18,7 +18,7 @@ from ..utils import normalize_email
 User = get_user_model()
 
 
-class UserRegisterInputSerializer(serializers.Serializer):
+class UserRegisterRequestSerializer(serializers.Serializer):
     """
     Register a new user.
     """
@@ -84,7 +84,7 @@ class UserRegisterInputSerializer(serializers.Serializer):
         return data
 
 
-class UserRegisterOutputSerializer(serializers.Serializer):
+class UserRegisterResponseSerializer(serializers.Serializer):
     """
     Return the result of user registration.
     """

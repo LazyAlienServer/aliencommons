@@ -5,7 +5,7 @@ from rest_framework import serializers
 from ..utils import normalize_email
 
 
-class EmailVerifyInputSerializer(serializers.Serializer):
+class EmailVerifyRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(
         required=True,
         error_messages={
@@ -33,7 +33,7 @@ class EmailVerifyInputSerializer(serializers.Serializer):
         return normalize_email(value)
 
 
-class EmailVerifyOutputSerializer(serializers.Serializer):
+class EmailVerifyResponseSerializer(serializers.Serializer):
     """
     Serialize the verified email address.
     """

@@ -14,7 +14,7 @@ from ..permissions import (
     ModeratorOnly,
 )
 from ..serializers import (
-    ArticleActionOutputSerializer,
+    ArticleActionResponseSerializer,
     ArticleEventSerializer,
     ArticleSnapshotSerializer,
     ImageUploadSerializer,
@@ -155,7 +155,7 @@ class SourceArticleViewSet(MyModelViewSet):
     @action(detail=True, methods=['post'])
     def submit(self, request, pk=None):
         result = submit(source_article_id=pk, actor=request.user)
-        output_serializer = ArticleActionOutputSerializer(instance=result)
+        output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="submitted",
@@ -167,7 +167,7 @@ class SourceArticleViewSet(MyModelViewSet):
     @action(detail=True, methods=['post'])
     def withdraw(self, request, pk=None):
         result = withdraw(source_article_id=pk, actor=request.user)
-        output_serializer = ArticleActionOutputSerializer(instance=result)
+        output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="withdrawn",
@@ -179,7 +179,7 @@ class SourceArticleViewSet(MyModelViewSet):
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         result = approve(source_article_id=pk, actor=request.user)
-        output_serializer = ArticleActionOutputSerializer(instance=result)
+        output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="approved",
@@ -191,7 +191,7 @@ class SourceArticleViewSet(MyModelViewSet):
     @action(detail=True, methods=['post'])
     def reject(self, request, pk=None):
         result = reject(source_article_id=pk, actor=request.user)
-        output_serializer = ArticleActionOutputSerializer(instance=result)
+        output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="rejected",
@@ -203,7 +203,7 @@ class SourceArticleViewSet(MyModelViewSet):
     @action(detail=True, methods=['post'])
     def unpublish(self, request, pk=None):
         result = unpublish(source_article_id=pk, actor=request.user)
-        output_serializer = ArticleActionOutputSerializer(instance=result)
+        output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="unpublished",
@@ -216,7 +216,7 @@ class SourceArticleViewSet(MyModelViewSet):
     def trash(self, request, pk=None):
         """Soft delete the article"""
         result = soft_delete(source_article_id=pk, actor=request.user)
-        output_serializer = ArticleActionOutputSerializer(instance=result)
+        output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
             message="deleted",

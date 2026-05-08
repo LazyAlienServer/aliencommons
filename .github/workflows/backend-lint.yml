@@ -42,6 +42,7 @@ jobs:
           backend
           core
           logs
+          reactions
           tasks
           users
           manage.py

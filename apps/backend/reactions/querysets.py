@@ -6,15 +6,15 @@ from .models import Reaction
 def with_published_article_reaction_summary(queryset, *, user=None):
     queryset = queryset.annotate(
         like_count=Count(
-            "reaction_target__reactions",
+            "content_target__reactions",
             filter=Q(
-                reaction_target__reactions__reaction_type=Reaction.ReactionType.LIKE,
+                content_target__reactions__reaction_type=Reaction.ReactionType.LIKE,
             ),
         ),
         dislike_count=Count(
-            "reaction_target__reactions",
+            "content_target__reactions",
             filter=Q(
-                reaction_target__reactions__reaction_type=Reaction.ReactionType.DISLIKE,
+                content_target__reactions__reaction_type=Reaction.ReactionType.DISLIKE,
             ),
         ),
     )
@@ -31,4 +31,3 @@ def with_published_article_reaction_summary(queryset, *, user=None):
         queryset = queryset.annotate(my_reaction=Subquery(my_reaction))
 
     return queryset
-

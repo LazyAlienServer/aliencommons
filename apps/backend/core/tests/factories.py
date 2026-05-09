@@ -5,7 +5,13 @@ from django.utils import timezone
 from articles.models import ArticleSnapshot, Collection, CollectionItem, PublishedArticle, SourceArticle
 from articles.services.articles import ArticleWorkflow
 from bookmarks.models import Bookmark, BookmarkFolder
-from reactions.models import Reaction, ReactionTarget
+from comments.models import Comment
+from core.models import ContentTarget
+from core.services.content_targets import (
+    get_or_create_comment_target,
+    get_or_create_published_article_target,
+)
+from reactions.models import Reaction
 
 from .helpers import unique_suffix
 
@@ -109,20 +115,20 @@ def create_bookmark(user, published_article, folder=None, **kwargs):
     return Bookmark.objects.create(**defaults)
 
 
-def create_reaction_target(published_article, **kwargs):
+def create_content_target(published_article, **kwargs):
+    if not kwargs:
+        return get_or_create_published_article_target(published_article)
+
     defaults = {
-        "target_type": ReactionTarget.TargetType.PUBLISHED_ARTICLE,
+        "target_type": ContentTarget.TargetType.PUBLISHED_ARTICLE,
         "published_article": published_article,
     }
     defaults.update(kwargs)
-    return ReactionTarget.objects.create(**defaults)
+    return ContentTarget.objects.create(**defaults)
 
 
 def create_reaction(user, published_article, **kwargs):
-    target = kwargs.pop("target", None) or ReactionTarget.objects.get_or_create(
-        target_type=ReactionTarget.TargetType.PUBLISHED_ARTICLE,
-        published_article=published_article,
-    )[0]
+    target = kwargs.pop("target", None) or get_or_create_published_article_target(published_article)
     defaults = {
         "user": user,
         "target": target,
@@ -130,3 +136,21 @@ def create_reaction(user, published_article, **kwargs):
     }
     defaults.update(kwargs)
     return Reaction.objects.create(**defaults)
+
+
+def create_comment(author, published_article, **kwargs):
+    parent = kwargs.pop("parent", None)
+    body = kwargs.pop("body", "A thoughtful comment")
+    target = kwargs.pop(
+        "target",
+        get_or_create_comment_target(parent) if parent else get_or_create_published_article_target(published_article),
+    )
+    comment = Comment.objects.create(
+        author=author,
+        target=target,
+        parent=parent,
+        body=body,
+        **kwargs,
+    )
+    get_or_create_comment_target(comment)
+    return comment

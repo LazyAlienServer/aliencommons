@@ -5,6 +5,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db import models
 from django.utils import timezone
 from PIL import Image
 from rest_framework import serializers
@@ -145,6 +146,7 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
     like_count = serializers.SerializerMethodField()
     dislike_count = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = PublishedArticle
@@ -157,6 +159,7 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
             'like_count',
             'dislike_count',
             'my_reaction',
+            'comment_count',
             'created_at',
             'updated_at',
         )
@@ -166,13 +169,13 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
         if annotated_value is not None:
             return annotated_value
 
-        reaction_target = getattr(obj, "reaction_target", None)
-        if reaction_target is None:
+        content_target = getattr(obj, "content_target", None)
+        if content_target is None:
             return 0
 
         from reactions.models import Reaction
 
-        return reaction_target.reactions.filter(
+        return content_target.reactions.filter(
             reaction_type=Reaction.ReactionType.LIKE,
         ).count()
 
@@ -181,13 +184,13 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
         if annotated_value is not None:
             return annotated_value
 
-        reaction_target = getattr(obj, "reaction_target", None)
-        if reaction_target is None:
+        content_target = getattr(obj, "content_target", None)
+        if content_target is None:
             return 0
 
         from reactions.models import Reaction
 
-        return reaction_target.reactions.filter(
+        return content_target.reactions.filter(
             reaction_type=Reaction.ReactionType.DISLIKE,
         ).count()
 
@@ -200,16 +203,32 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
         if request is None or request.user.is_anonymous:
             return None
 
-        reaction_target = getattr(obj, "reaction_target", None)
-        if reaction_target is None:
+        content_target = getattr(obj, "content_target", None)
+        if content_target is None:
             return None
 
         return (
-            reaction_target.reactions
+            content_target.reactions
             .filter(user=request.user)
             .values_list("reaction_type", flat=True)
             .first()
         )
+
+    def get_comment_count(self, obj):
+        annotated_value = getattr(obj, "comment_count", None)
+        if annotated_value is not None:
+            return annotated_value
+
+        content_target = getattr(obj, "content_target", None)
+        if content_target is None:
+            return 0
+
+        from comments.models import Comment
+
+        return Comment.objects.filter(
+            models.Q(target=content_target)
+            | models.Q(parent__target=content_target)
+        ).count()
 
 
 class ArticleSnapshotSerializer(serializers.ModelSerializer):

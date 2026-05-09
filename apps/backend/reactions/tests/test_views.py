@@ -9,7 +9,8 @@ from core.tests.factories import (
     create_user,
 )
 from core.tests.testcases import BaseAPITestCase
-from reactions.models import Reaction, ReactionTarget
+from core.models import ContentTarget
+from reactions.models import Reaction
 
 
 class ReactionViewTests(BaseAPITestCase):
@@ -38,7 +39,7 @@ class ReactionViewTests(BaseAPITestCase):
         self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
         self.assertEqual(response.data["data"]["reaction_type"], Reaction.ReactionType.LIKE)
         self.assertEqual(Reaction.objects.count(), 1)
-        self.assertEqual(ReactionTarget.objects.count(), 1)
+        self.assertEqual(ContentTarget.objects.count(), 1)
 
     def test_posting_same_target_switches_existing_reaction(self):
         reaction = create_reaction(

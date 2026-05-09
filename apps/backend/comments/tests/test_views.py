@@ -47,7 +47,7 @@ class CommentViewTests(BaseAPITestCase):
         response = self.post_json(
             reverse("comment-list"),
             {
-                "parent": str(parent.id),
+                "target": str(parent.content_target.id),
                 "body": "A reply",
             },
         )
@@ -58,19 +58,75 @@ class CommentViewTests(BaseAPITestCase):
             code="created",
         )
         self.assert_uuid_equal(response.data["data"]["parent"], parent.id)
+        self.assert_uuid_equal(response.data["data"]["target"], parent.content_target.id)
         self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
         self.assertEqual(Comment.objects.count(), 2)
 
-    def test_user_cannot_reply_to_reply(self):
+    def test_reply_to_reply_is_flattened_under_top_level_parent(self):
         parent = create_comment(self.author, self.published, body="Top level")
-        reply = create_comment(self.other_user, self.published, parent=parent, body="Reply")
+        reply = create_comment(self.other_user, self.published, reply_to=parent, body="Reply")
 
         self.authenticate(self.author)
         response = self.post_json(
             reverse("comment-list"),
             {
-                "parent": str(reply.id),
-                "body": "Nested reply",
+                "target": str(reply.content_target.id),
+                "body": "Replying to a reply",
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assert_uuid_equal(response.data["data"]["parent"], parent.id)
+        self.assert_uuid_equal(response.data["data"]["target"], reply.content_target.id)
+        self.assertEqual(Comment.objects.count(), 3)
+
+    def test_comment_mentions_render_with_current_usernames(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("comment-list"),
+            {
+                "published_article": str(self.published.id),
+                "body": "{{mention:0}} and {{mention:1}}",
+                "mentions": [str(self.other_user.id), str(self.author.id)],
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assertEqual(
+            response.data["data"]["render_body"],
+            "[@other-commenter](http://testserver/users/other-commenter) "
+            "and [@commenter](http://testserver/users/commenter)",
+        )
+        self.assertEqual(
+            response.data["data"]["mention_users"],
+            [
+                {
+                    "user_id": str(self.other_user.id),
+                    "username": "other-commenter",
+                },
+                {
+                    "user_id": str(self.author.id),
+                    "username": "commenter",
+                },
+            ],
+        )
+
+    def test_comment_rejects_unused_mentions(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("comment-list"),
+            {
+                "published_article": str(self.published.id),
+                "body": "{{mention:0}}",
+                "mentions": [str(self.other_user.id), str(self.author.id)],
             },
         )
 
@@ -78,7 +134,6 @@ class CommentViewTests(BaseAPITestCase):
             response,
             status_code=status.HTTP_400_BAD_REQUEST,
         )
-        self.assertEqual(Comment.objects.count(), 2)
 
     def test_author_can_edit_own_comment(self):
         comment = create_comment(self.author, self.published, body="Before")
@@ -139,7 +194,7 @@ class CommentViewTests(BaseAPITestCase):
 
     def test_list_filters_comments_by_published_article(self):
         top_level = create_comment(self.author, self.published, body="Top level")
-        reply = create_comment(self.other_user, self.published, parent=top_level, body="Reply")
+        reply = create_comment(self.other_user, self.published, reply_to=top_level, body="Reply")
         other_article = create_source_article(title="Other")
         other_published = create_published_article(other_article, title=other_article.title)
         create_comment(self.author, other_published, body="Other")
@@ -162,7 +217,7 @@ class CommentViewTests(BaseAPITestCase):
 
     def test_published_article_response_includes_comment_count(self):
         top_level = create_comment(self.author, self.published, body="Top level")
-        create_comment(self.other_user, self.published, parent=top_level, body="Reply")
+        create_comment(self.other_user, self.published, reply_to=top_level, body="Reply")
         deleted = create_comment(self.author, self.published, body="Deleted")
         deleted.is_deleted = True
         deleted.save(update_fields=["is_deleted"])
@@ -176,4 +231,3 @@ class CommentViewTests(BaseAPITestCase):
             code="retrieved",
         )
         self.assertEqual(response.data["data"]["comment_count"], 2)
-

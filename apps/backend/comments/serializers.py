@@ -1,12 +1,16 @@
 from rest_framework import serializers
 
 from articles.models import PublishedArticle
+from core.models import ContentTarget
 
+from .mentions import render_body, serialize_mentions, validate_mentions
 from .models import Comment
 
 
 class CommentReadSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source="author.username", read_only=True)
+    render_body = serializers.SerializerMethodField()
+    mention_users = serializers.SerializerMethodField()
     published_article = serializers.SerializerMethodField()
     reply_count = serializers.SerializerMethodField()
 
@@ -20,6 +24,9 @@ class CommentReadSerializer(serializers.ModelSerializer):
             "published_article",
             "parent",
             "body",
+            "render_body",
+            "mentions",
+            "mention_users",
             "reply_count",
             "created_at",
             "updated_at",
@@ -31,6 +38,12 @@ class CommentReadSerializer(serializers.ModelSerializer):
             return obj.parent.target.published_article_id
         return obj.target.published_article_id
 
+    def get_render_body(self, obj):
+        return render_body(obj.body, obj.mentions)
+
+    def get_mention_users(self, obj):
+        return serialize_mentions(obj.mentions)
+
     def get_reply_count(self, obj):
         annotated_value = getattr(obj, "reply_count", None)
         if annotated_value is not None:
@@ -40,8 +53,13 @@ class CommentReadSerializer(serializers.ModelSerializer):
 
 class CommentWriteSerializer(serializers.Serializer):
     published_article = serializers.UUIDField(required=False)
-    parent = serializers.UUIDField(required=False)
+    target = serializers.UUIDField(required=False)
     body = serializers.CharField(allow_blank=False, trim_whitespace=True)
+    mentions = serializers.ListField(
+        child=serializers.UUIDField(),
+        required=False,
+        allow_empty=True,
+    )
 
     def validate_published_article(self, value):
         try:
@@ -52,13 +70,13 @@ class CommentWriteSerializer(serializers.Serializer):
                 code="published_article_not_found",
             ) from exc
 
-    def validate_parent(self, value):
+    def validate_target(self, value):
         try:
-            return Comment.objects.get(pk=value)
-        except Comment.DoesNotExist as exc:
+            return ContentTarget.objects.select_related("comment").get(pk=value)
+        except ContentTarget.DoesNotExist as exc:
             raise serializers.ValidationError(
-                detail="Parent comment does not exist",
-                code="parent_comment_not_found",
+                detail="Content target does not exist",
+                code="content_target_not_found",
             ) from exc
 
     def validate_body(self, value):
@@ -70,33 +88,36 @@ class CommentWriteSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
-        parent = attrs.get("parent")
+        target = attrs.get("target")
         published_article = attrs.get("published_article")
+        body = attrs.get("body", getattr(self.instance, "body", ""))
+        mentions = attrs.get("mentions", getattr(self.instance, "mentions", []))
+        attrs["mentions"] = validate_mentions(body=body, mentions=mentions)
 
         if self.instance is not None:
-            if parent is not None or published_article is not None:
+            if target is not None or published_article is not None:
                 raise serializers.ValidationError(
                     detail="Comment target cannot be changed",
                     code="comment_target_immutable",
                 )
             return attrs
 
-        if parent is not None and published_article is not None:
+        if target is not None and published_article is not None:
             raise serializers.ValidationError(
-                detail="Provide either parent or published_article, not both",
+                detail="Provide either target or published_article, not both",
                 code="ambiguous_comment_target",
             )
 
-        if parent is None and published_article is None:
+        if target is None and published_article is None:
             raise serializers.ValidationError(
-                detail="A published article or parent comment is required",
+                detail="A published article or content target is required",
                 code="comment_target_required",
             )
 
-        if parent is not None and parent.parent_id is not None:
+        if target is not None and target.comment_id is None:
             raise serializers.ValidationError(
-                detail="Replies cannot have replies",
-                code="nested_comment_not_allowed",
+                detail="Replies must target a comment",
+                code="invalid_comment_reply_target",
             )
 
         return attrs

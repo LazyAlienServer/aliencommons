@@ -18,6 +18,7 @@ class CommentViewSet(MyModelViewSet):
         "author",
         "target",
         "target__published_article",
+        "target__comment",
         "parent",
         "parent__target",
     )
@@ -70,8 +71,9 @@ class CommentViewSet(MyModelViewSet):
         comment = create_comment(
             author=request.user,
             body=input_serializer.validated_data["body"],
+            mentions=input_serializer.validated_data["mentions"],
             published_article=input_serializer.validated_data.get("published_article"),
-            parent=input_serializer.validated_data.get("parent"),
+            target=input_serializer.validated_data.get("target"),
         )
         output_serializer = CommentReadSerializer(
             instance=comment,
@@ -98,6 +100,7 @@ class CommentViewSet(MyModelViewSet):
         comment = update_comment(
             comment=comment,
             body=input_serializer.validated_data.get("body", comment.body),
+            mentions=input_serializer.validated_data.get("mentions", comment.mentions),
         )
         output_serializer = CommentReadSerializer(
             instance=comment,

@@ -139,17 +139,24 @@ def create_reaction(user, published_article, **kwargs):
 
 
 def create_comment(author, published_article, **kwargs):
-    parent = kwargs.pop("parent", None)
+    reply_to = kwargs.pop("reply_to", None)
+    if reply_to is not None:
+        target = kwargs.pop("target", get_or_create_comment_target(reply_to))
+        parent = kwargs.pop("parent", reply_to if reply_to.parent_id is None else reply_to.parent)
+    else:
+        parent = kwargs.pop("parent", None)
+        target = kwargs.pop(
+            "target",
+            get_or_create_comment_target(parent) if parent else get_or_create_published_article_target(published_article),
+        )
     body = kwargs.pop("body", "A thoughtful comment")
-    target = kwargs.pop(
-        "target",
-        get_or_create_comment_target(parent) if parent else get_or_create_published_article_target(published_article),
-    )
+    mentions = kwargs.pop("mentions", [])
     comment = Comment.objects.create(
         author=author,
         target=target,
         parent=parent,
         body=body,
+        mentions=mentions,
         **kwargs,
     )
     get_or_create_comment_target(comment)

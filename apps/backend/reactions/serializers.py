@@ -54,7 +54,7 @@ class ReactionWriteSerializer(serializers.Serializer):
             if published_article.id != current_article_id:
                 raise serializers.ValidationError(
                     detail="Reaction target cannot be changed",
-                    code="reaction_target_immutable",
+                    code="content_target_immutable",
                 )
 
         if "reaction_type" not in attrs:

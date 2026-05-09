@@ -6,7 +6,7 @@ This directory contains the Django backend for AlienCommons. Keep backend change
 
 - `backend/` contains Django project settings, URL configuration, ASGI, and WSGI entrypoints.
 - `core/` contains shared response formatting, exception handling, pagination, viewset mixins, validators, middleware, and utility code.
-- `users/`, `articles/`, `bookmarks/`, `reactions/`, `tasks/`, and `logs/` are Django apps with their own models, services, views, serializers, admin, migrations, and tests where applicable.
+- `users/`, `articles/`, `bookmarks/`, `comments/`, `reactions/`, `tasks/`, and `logs/` are Django apps with their own models, services, views, serializers, admin, migrations, and tests where applicable.
 - Runtime services include PostgreSQL, Redis/RQ task queues, Django sessions/cache, S3-backed media in staging/production, and the internal AlienMark rendering service.
 - Tests live next to the app they cover under each app's `tests/` package.
 

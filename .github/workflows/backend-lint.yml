@@ -39,6 +39,7 @@ jobs:
           uv run ruff check
           articles
           bookmarks
+          comments
           backend
           core
           logs

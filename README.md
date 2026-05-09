@@ -1,6 +1,6 @@
 # AlienCommons
 
-A website for every Technical Minecraft player.
+The common land for every TechMC player.
 
 > *This project starts on Jun 29, 2025.*
 

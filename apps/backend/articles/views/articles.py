@@ -232,12 +232,14 @@ class PublishedArticleViewSet(MyReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        from comments.querysets import with_published_article_comment_count
         from reactions.querysets import with_published_article_reaction_summary
 
-        return with_published_article_reaction_summary(
+        queryset = with_published_article_reaction_summary(
             super().get_queryset(),
             user=self.request.user,
         )
+        return with_published_article_comment_count(queryset)
 
 
 class ArticleSnapshotViewSet(MyReadOnlyModelViewSet):

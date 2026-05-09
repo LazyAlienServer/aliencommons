@@ -11,6 +11,7 @@ urlpatterns = [
     path("v1/", include("users.urls")),
     path("v1/", include("articles.urls")),
     path("v1/", include("bookmarks.urls")),
+    path("v1/", include("comments.urls")),
     path("v1/", include("reactions.urls")),
 ]
 

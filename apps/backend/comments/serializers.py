@@ -1,9 +1,14 @@
 from rest_framework import serializers
 
 from articles.models import PublishedArticle
+from core.exceptions import ServiceError
 from core.models import ContentTarget
+from core.utils.markdown import (
+    render_markdown_mentions,
+    serialize_markdown_mentions,
+    validate_markdown_mentions,
+)
 
-from .mentions import render_body, serialize_mentions, validate_mentions
 from .models import Comment
 
 
@@ -39,10 +44,10 @@ class CommentReadSerializer(serializers.ModelSerializer):
         return obj.target.published_article_id
 
     def get_render_body(self, obj):
-        return render_body(obj.body, obj.mentions)
+        return render_markdown_mentions(obj.body, obj.mentions)
 
     def get_mention_users(self, obj):
-        return serialize_mentions(obj.mentions)
+        return serialize_markdown_mentions(obj.mentions)
 
     def get_reply_count(self, obj):
         annotated_value = getattr(obj, "reply_count", None)
@@ -92,7 +97,10 @@ class CommentWriteSerializer(serializers.Serializer):
         published_article = attrs.get("published_article")
         body = attrs.get("body", getattr(self.instance, "body", ""))
         mentions = attrs.get("mentions", getattr(self.instance, "mentions", []))
-        attrs["mentions"] = validate_mentions(body=body, mentions=mentions)
+        try:
+            attrs["mentions"] = validate_markdown_mentions(body=body, mentions=mentions)
+        except ServiceError as exc:
+            raise serializers.ValidationError(detail=exc.detail, code=exc.code) from exc
 
         if self.instance is not None:
             if target is not None or published_article is not None:

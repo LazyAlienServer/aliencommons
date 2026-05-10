@@ -9,12 +9,15 @@ class BaseReport(UUIDPrimaryKeyMixin,
                  TimeStampedMixin,
                  models.Model):
     class ReportReason(models.IntegerChoices):
-        SPAM = 1, "Spam"
-        HARASSMENT = 2, "Harassment"
-        HATE = 3, "Hate"
-        SEXUAL_CONTENT = 4, "Sexual Content"
-        VIOLENCE = 5, "Violence"
-        ILLEGAL = 6, "Illegal"
+        OFF_TOPIC = 1, "Off Topic"
+        SPAM = 2, "Spam or Promotion"
+        HARASSMENT = 3, "Harassment or Abuse"
+        HATE_OR_DISCRIMINATION = 4, "Hate or Discrimination"
+        SEXUAL_CONTENT = 5, "Sexual Content"
+        VIOLENCE = 6, "Violence or Threats"
+        POLITICS = 7, "Politics or Ideology"
+        RELIGION = 8, "Religious Controversy"
+        ILLEGAL = 9, "Illegal Activity"
         OTHER = 99, "Other"
 
     class ReportStatus(models.IntegerChoices):
@@ -143,4 +146,3 @@ class UserReport(BaseReport):
 
     def __str__(self):
         return f"User report {self.id}"
-

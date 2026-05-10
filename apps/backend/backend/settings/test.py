@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "bookmarks.apps.BookmarksConfig",
     "comments.apps.CommentsConfig",
     "reactions.apps.ReactionsConfig",
+    "reports.apps.ReportsConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",

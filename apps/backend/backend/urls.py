@@ -13,6 +13,7 @@ urlpatterns = [
     path("v1/", include("bookmarks.urls")),
     path("v1/", include("comments.urls")),
     path("v1/", include("reactions.urls")),
+    path("v1/", include("reports.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

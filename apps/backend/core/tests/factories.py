@@ -12,6 +12,7 @@ from core.services.content_targets import (
     get_or_create_published_article_target,
 )
 from reactions.models import Reaction
+from reports.models import ContentReport, UserReport
 
 from .helpers import unique_suffix
 
@@ -161,3 +162,36 @@ def create_comment(author, published_article, **kwargs):
     )
     get_or_create_comment_target(comment)
     return comment
+
+
+def create_content_report(reporter, target, **kwargs):
+    from reports.services import build_content_report_snapshot
+
+    snapshot = kwargs.pop("snapshot", build_content_report_snapshot(target))
+    defaults = {
+        "reporter": reporter,
+        "target": target,
+        "target_type": target.target_type,
+        "target_object_id": snapshot["target_object_id"],
+        "reason": ContentReport.ReportReason.SPAM,
+        "description": "",
+        "snapshot": snapshot,
+    }
+    defaults.update(kwargs)
+    return ContentReport.objects.create(**defaults)
+
+
+def create_user_report(reporter, reported_user, **kwargs):
+    from reports.services import build_user_report_snapshot
+
+    snapshot = kwargs.pop("snapshot", build_user_report_snapshot(reported_user))
+    defaults = {
+        "reporter": reporter,
+        "reported_user": reported_user,
+        "reported_user_id_snapshot": reported_user.id,
+        "reason": UserReport.ReportReason.SPAM,
+        "description": "",
+        "snapshot": snapshot,
+    }
+    defaults.update(kwargs)
+    return UserReport.objects.create(**defaults)

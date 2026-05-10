@@ -15,9 +15,8 @@ Each subdirectory is a separate documentation project. Prefer shared guidance he
 
 ## Languages
 
-- When a page exists in both English and Chinese, update both versions together.
+- Always update both English and Chinese versions together unless specified.
 - Keep the English and Chinese pages equivalent in meaning, even if the wording is not literal.
-- If only one language exists for a page, follow the existing structure and do not create a second language unless the task asks for it.
 
 ## MkDocs
 

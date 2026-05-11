@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "comments.apps.CommentsConfig",
     "reactions.apps.ReactionsConfig",
     "reports.apps.ReportsConfig",
+    "posts.apps.PostsConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",

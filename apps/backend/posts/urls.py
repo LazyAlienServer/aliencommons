@@ -4,6 +4,6 @@ from .views import CommunityPostViewSet
 
 
 router = routers.SimpleRouter()
-router.register(r"community_posts", CommunityPostViewSet, basename="community_posts")
+router.register(r"community_posts", CommunityPostViewSet, basename="community_post")
 
 urlpatterns = router.urls

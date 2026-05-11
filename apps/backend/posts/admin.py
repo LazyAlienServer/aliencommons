@@ -12,5 +12,6 @@ class CommunityPostAdmin(admin.ModelAdmin):
         "updated_at",
         "is_deleted",
     )
-    search_fields = ("body",)
+    list_filter = ("is_deleted", "created_at")
+    search_fields = ("body", "author__username")
     ordering = ("-created_at",)

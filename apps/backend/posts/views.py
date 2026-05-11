@@ -80,5 +80,5 @@ class CommunityPostViewSet(MyModelViewSet):
         return self.format_success_response(
             message="deleted",
             code="deleted",
-            status_code=status.HTTP_204_NO_CONTENT,
+            status_code=status.HTTP_200_OK,
         )

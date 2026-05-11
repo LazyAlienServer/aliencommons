@@ -20,7 +20,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         newer = create_community_post(author=self.other_user, body="Newer")
 
         self.authenticate(self.author)
-        response = self.get_json(reverse("community_posts-list"))
+        response = self.get_json(reverse("community_post-list"))
 
         self.assert_success_response(
             response,
@@ -34,7 +34,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         post = create_community_post(author=self.author, body="Hello community")
 
         self.authenticate(self.other_user)
-        response = self.get_json(reverse("community_posts-detail", args=[post.id]))
+        response = self.get_json(reverse("community_post-detail", args=[post.id]))
 
         self.assert_success_response(
             response,
@@ -48,7 +48,7 @@ class CommunityPostViewTests(BaseAPITestCase):
     def test_authenticated_user_can_create_post_as_request_user(self):
         self.authenticate(self.author)
         response = self.post_json(
-            reverse("community_posts-list"),
+            reverse("community_post-list"),
             {
                 "body": "Hello community",
             },
@@ -69,7 +69,7 @@ class CommunityPostViewTests(BaseAPITestCase):
 
         self.authenticate(self.author)
         response = self.patch_json(
-            reverse("community_posts-detail", args=[post.id]),
+            reverse("community_post-detail", args=[post.id]),
             {
                 "body": "After",
             },
@@ -89,7 +89,7 @@ class CommunityPostViewTests(BaseAPITestCase):
 
         self.authenticate(self.other_user)
         response = self.patch_json(
-            reverse("community_posts-detail", args=[post.id]),
+            reverse("community_post-detail", args=[post.id]),
             {
                 "body": "After",
             },
@@ -103,7 +103,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         post = create_community_post(author=self.author, body="Hello community")
 
         self.authenticate(self.author)
-        response = self.delete_json(reverse("community_posts-detail", args=[post.id]))
+        response = self.delete_json(reverse("community_post-detail", args=[post.id]))
 
         self.assert_success_response(
             response,
@@ -117,7 +117,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         post = create_community_post(author=self.author, body="Hello community")
 
         self.authenticate(self.other_user)
-        response = self.delete_json(reverse("community_posts-detail", args=[post.id]))
+        response = self.delete_json(reverse("community_post-detail", args=[post.id]))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(CommunityPost.objects.filter(id=post.id).exists())
@@ -126,11 +126,11 @@ class CommunityPostViewTests(BaseAPITestCase):
         post = create_community_post(author=self.author, body="Hello community")
 
         responses = [
-            self.get_json(reverse("community_posts-list")),
-            self.get_json(reverse("community_posts-detail", args=[post.id])),
-            self.post_json(reverse("community_posts-list"), {"body": "Hello"}),
-            self.patch_json(reverse("community_posts-detail", args=[post.id]), {"body": "After"}),
-            self.delete_json(reverse("community_posts-detail", args=[post.id])),
+            self.get_json(reverse("community_post-list")),
+            self.get_json(reverse("community_post-detail", args=[post.id])),
+            self.post_json(reverse("community_post-list"), {"body": "Hello"}),
+            self.patch_json(reverse("community_post-detail", args=[post.id]), {"body": "After"}),
+            self.delete_json(reverse("community_post-detail", args=[post.id])),
         ]
 
         for response in responses:
@@ -140,7 +140,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         self.authenticate(self.author)
 
         for body in ("", "   \n\t  ", "x" * 5001):
-            response = self.post_json(reverse("community_posts-list"), {"body": body})
+            response = self.post_json(reverse("community_post-list"), {"body": body})
 
             self.assert_error_response(
                 response,
@@ -153,7 +153,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         self.authenticate(self.author)
 
         for body in ("", "   \n\t  ", "x" * 5001):
-            response = self.patch_json(reverse("community_posts-detail", args=[post.id]), {"body": body})
+            response = self.patch_json(reverse("community_post-detail", args=[post.id]), {"body": body})
 
             self.assert_error_response(
                 response,

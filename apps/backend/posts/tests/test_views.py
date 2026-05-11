@@ -125,9 +125,11 @@ class CommunityPostViewTests(BaseAPITestCase):
 
         self.assert_success_response(
             response,
-            status_code=status.HTTP_204_NO_CONTENT,
+            status_code=status.HTTP_200_OK,
             code="deleted",
         )
+        self.assertEqual(response.content, response.rendered_content)
+        self.assertIn(b'"success":true', response.content)
         self.assertFalse(CommunityPost.objects.filter(id=post.id).exists())
         self.assertTrue(CommunityPost.all_objects.filter(id=post.id, is_deleted=True).exists())
 

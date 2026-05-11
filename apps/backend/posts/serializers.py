@@ -7,7 +7,12 @@ from .models import CommunityPost
 
 class CommunityPostReadSerializer(serializers.ModelSerializer):
     author = UserListSerializer(read_only=True)
-    author_username = serializers.CharField(source="author.username", read_only=True)
+    author_username = serializers.SerializerMethodField()
+
+    def get_author_username(self, obj):
+        if obj.author is None:
+            return None
+        return obj.author.username
 
     class Meta:
         model = CommunityPost

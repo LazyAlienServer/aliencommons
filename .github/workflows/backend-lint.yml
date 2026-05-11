@@ -43,6 +43,7 @@ jobs:
           backend
           core
           logs
+          posts
           reactions
           reports
           tasks

@@ -59,7 +59,7 @@ class CommunityPostViewSet(MyModelViewSet):
         serializer.is_valid(raise_exception=True)
         post = update_community_post(
             post=post,
-            **serializer.validated_data,
+            body=serializer.validated_data.get("body", post.body),
         )
         output_serializer = CommunityPostReadSerializer(
             instance=post,

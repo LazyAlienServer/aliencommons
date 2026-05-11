@@ -84,6 +84,24 @@ class CommunityPostViewTests(BaseAPITestCase):
         self.assertEqual(post.body, "After")
         self.assertEqual(response.data["data"]["body"], "After")
 
+    def test_author_can_patch_post_without_body(self):
+        post = create_community_post(author=self.author, body="Before")
+
+        self.authenticate(self.author)
+        response = self.patch_json(
+            reverse("community_post-detail", args=[post.id]),
+            {},
+        )
+
+        post.refresh_from_db()
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="updated",
+        )
+        self.assertEqual(post.body, "Before")
+        self.assertEqual(response.data["data"]["body"], "Before")
+
     def test_other_user_cannot_update_post(self):
         post = create_community_post(author=self.author, body="Before")
 

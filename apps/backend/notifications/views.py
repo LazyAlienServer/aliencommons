@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from django_filters import rest_framework as filters
 
 from core.views.viewsets import MyReadOnlyModelViewSet
 from .models import Notification
@@ -15,6 +16,7 @@ from .services import (
 class NotificationViewSet(MyReadOnlyModelViewSet):
     serializer_class = NotificationReadSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.DjangoFilterBackend]
     filterset_fields = ["is_read", "notification_type"]
 
     def get_queryset(self):

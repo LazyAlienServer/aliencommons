@@ -133,6 +133,20 @@ class CommunityPostViewTests(BaseAPITestCase):
         self.assertFalse(CommunityPost.objects.filter(id=post.id).exists())
         self.assertTrue(CommunityPost.all_objects.filter(id=post.id, is_deleted=True).exists())
 
+    def test_authenticated_user_can_retrieve_post_without_author(self):
+        post = CommunityPost.objects.create(author=None, body="Orphaned post")
+
+        self.authenticate(self.other_user)
+        response = self.get_json(reverse("community_post-detail", args=[post.id]))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="retrieved",
+        )
+        self.assertIsNone(response.data["data"]["author"])
+        self.assertIsNone(response.data["data"]["author_username"])
+
     def test_other_user_cannot_destroy_post(self):
         post = create_community_post(author=self.author, body="Hello community")
 

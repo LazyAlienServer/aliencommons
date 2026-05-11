@@ -22,6 +22,7 @@ The Django API service for AlienCommons.
 - `reactions`: like/dislike targets and user reactions
 - `reports`: content and user moderation reports
 - `tasks`: scheduled/background task definitions
+- `notifications`: user notification preferences and delivery
 - `core`: shared utilities, responses, permissions, and test helpers
 
 ## Local Commands
@@ -33,7 +34,7 @@ uv run python manage.py check
 uv run python manage.py makemigrations
 uv run python manage.py migrate
 uv run python manage.py test --settings=backend.settings.test
-uv run ruff check articles bookmarks comments reactions reports core users logs tasks backend manage.py
+uv run ruff check articles bookmarks comments notifications reactions reports core users logs tasks backend manage.py
 ```
 
 Or use the root Make targets:

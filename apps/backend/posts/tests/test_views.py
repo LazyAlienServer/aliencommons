@@ -134,7 +134,7 @@ class CommunityPostViewTests(BaseAPITestCase):
         ]
 
         for response in responses:
-            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_rejects_invalid_body_values(self):
         self.authenticate(self.author)

@@ -13,6 +13,7 @@ from core.services.content_targets import (
 )
 from reactions.models import Reaction
 from reports.models import ContentReport, UserReport
+from posts.services import create_community_post as create_community_post_service
 
 from .helpers import unique_suffix
 
@@ -162,6 +163,18 @@ def create_comment(author, published_article, **kwargs):
     )
     get_or_create_comment_target(comment)
     return comment
+
+
+def create_community_post(author=None, body="Test post", **kwargs):
+    if author is None:
+        author = create_user()
+
+    defaults = {
+        "author": author,
+        "body": body,
+    }
+    defaults.update(kwargs)
+    return create_community_post_service(**defaults)
 
 
 def create_content_report(reporter, target, **kwargs):

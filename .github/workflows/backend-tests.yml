@@ -30,6 +30,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: apps/backend
+          cache-suffix: backend-tests
 
       - name: Install backend dependencies
         run: uv sync --locked --dev

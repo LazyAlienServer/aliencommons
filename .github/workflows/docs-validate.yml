@@ -58,6 +58,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: docs/contributors
+          cache-suffix: docs-validate-contributors
 
       - name: Install documentation dependencies
         run: uv sync --locked
@@ -87,6 +89,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: docs/alienmark
+          cache-suffix: docs-validate-alienmark
 
       - name: Install documentation dependencies
         run: uv sync --locked
@@ -116,6 +120,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: docs/users
+          cache-suffix: docs-validate-users
 
       - name: Install documentation dependencies
         run: uv sync --locked

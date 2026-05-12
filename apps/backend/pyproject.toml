@@ -13,7 +13,7 @@ dependencies = [
     "djangorestframework>=3.17.1",
     "environs>=15.0.1",
     "pillow>=12.2.0",
-    "psycopg[binary]>=3.3.2",
+    "psycopg[binary]>=3.3.4",
     "requests>=2.33.1",
     "user-agents>=2.2.0",
 ]

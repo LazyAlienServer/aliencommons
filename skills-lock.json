@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "skills": {
+    "django-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-patterns/SKILL.md",
+      "computedHash": "b1477691a59a4ed4cc4fa2180cec057537857455c537ad6d87f6c68340ab07f3"
+    },
+    "django-security": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-security/SKILL.md",
+      "computedHash": "9c84b8260f3829f8930a472bca1cd4978f97af94d3639cca8ab3cd5578df674a"
+    },
+    "django-tdd": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-tdd/SKILL.md",
+      "computedHash": "128b1f7d37200c0f75f9e027e6012a3649beafde6cdc74bdc9e3b91065170f98"
+    },
+    "django-verification": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-verification/SKILL.md",
+      "computedHash": "f890c0a4ca713dd8876d328677cc6078be9c0b6b745b5fc67eb5444fdae3ff90"
+    },
+    "docker-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/docker-patterns/SKILL.md",
+      "computedHash": "2750c564c7b600fbbfd44de2c693955c677c18c872d06019fa896ab770c69ed9"
+    },
+    "nuxt": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/nuxt/SKILL.md",
+      "computedHash": "9e8237ec92083db9a6f4c77d5e5bf4b1d9873d670671235bc75455ee1ca39c74"
+    },
+    "redis-development": {
+      "source": "redis/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/redis-development/SKILL.md",
+      "computedHash": "d27174128aebe583d5ca15747389c84e286daed589bfa2b99847392a012719b5"
+    }
+  }
+}

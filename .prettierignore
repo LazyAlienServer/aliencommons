@@ -1,0 +1,12 @@
+apps/frontend/.nuxt
+apps/frontend/.output
+.nuxt
+.output
+.dist
+dist
+coverage
+node_modules
+.venv
+htmlcov
+staticfiles
+media

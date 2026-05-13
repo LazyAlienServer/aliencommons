@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "webstorm": {
+      "type": "remote",
+      "url": "http://127.0.0.1:64342/sse"
+    },
+    "nuxt-docs": {
+      "type": "remote",
+      "url": "https://nuxt.com/mcp"
+    },
+    "vue-docs": {
+      "type": "remote",
+      "url": "https://mcp.vue-mcp.org/mcp"
+    },
+    "nuxt-dev": {
+      "type": "remote",
+      "url": "http://localhost:3000/__mcp/sse"
+    }
+  }
+}

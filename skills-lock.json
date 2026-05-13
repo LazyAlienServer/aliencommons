@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "skills": {
+    "antfu": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/antfu/SKILL.md",
+      "computedHash": "e6629200b1f033c78150985fb1b1ec2aa848a378c0637f9a850cb33f650bce19"
+    },
+    "django-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-patterns/SKILL.md",
+      "computedHash": "b1477691a59a4ed4cc4fa2180cec057537857455c537ad6d87f6c68340ab07f3"
+    },
+    "django-security": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-security/SKILL.md",
+      "computedHash": "9c84b8260f3829f8930a472bca1cd4978f97af94d3639cca8ab3cd5578df674a"
+    },
+    "django-tdd": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-tdd/SKILL.md",
+      "computedHash": "128b1f7d37200c0f75f9e027e6012a3649beafde6cdc74bdc9e3b91065170f98"
+    },
+    "django-verification": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/django-verification/SKILL.md",
+      "computedHash": "f890c0a4ca713dd8876d328677cc6078be9c0b6b745b5fc67eb5444fdae3ff90"
+    },
+    "docker-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/docker-patterns/SKILL.md",
+      "computedHash": "2750c564c7b600fbbfd44de2c693955c677c18c872d06019fa896ab770c69ed9"
+    },
+    "nuxt": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/nuxt/SKILL.md",
+      "computedHash": "9e8237ec92083db9a6f4c77d5e5bf4b1d9873d670671235bc75455ee1ca39c74"
+    },
+    "python-anti-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-anti-patterns/SKILL.md",
+      "computedHash": "5a6d1c378bbfc859a12fe08dda1e2b856af725ff3cc46ee38cea8bd03736abdb"
+    },
+    "python-code-style": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-code-style/SKILL.md",
+      "computedHash": "35ed0c437f33462187b0a89da8e5bfe9ac259dbc8731257c5445f1a5e1229acf"
+    },
+    "python-configuration": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-configuration/SKILL.md",
+      "computedHash": "a7b8fa332a3550fac69fcca491f75d61ce879fbc1274454c9be729b1462f8406"
+    },
+    "python-design-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-design-patterns/SKILL.md",
+      "computedHash": "f263ed30e7627f1f22aea99f0f098b73a9f3b5f1c9ea36d3a31a787eacf2e07e"
+    },
+    "python-error-handling": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-error-handling/SKILL.md",
+      "computedHash": "05d1fd2762d38e6afac8533e28554038e27fc8620b2df63f1e806de3c4d77fe3"
+    },
+    "python-packaging": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-packaging/SKILL.md",
+      "computedHash": "08ef72315247c1219da243898681713927b0dcdedf38b87bb7fe3e675b41d1ef"
+    },
+    "python-performance-optimization": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-performance-optimization/SKILL.md",
+      "computedHash": "1a7009e7e16fd08c201f4a527a44d4f0d9d1d892b15b92ab3492624b23be22b8"
+    },
+    "python-project-structure": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-project-structure/SKILL.md",
+      "computedHash": "2f4f560964af8ecad4d54666c044baa54671d0abd1136c848b539befe24db170"
+    },
+    "python-resilience": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-resilience/SKILL.md",
+      "computedHash": "2f109425df447de4618fed93808ecea89e037c07ab1d2676cf7349d0d320c885"
+    },
+    "python-resource-management": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-resource-management/SKILL.md",
+      "computedHash": "74e97b123578f66e6c333ca930bcd0d623bb508ccca693b114b630cb2596365e"
+    },
+    "python-type-safety": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-type-safety/SKILL.md",
+      "computedHash": "85d67e5a633eb8fa7f34db9afa7e45ffbc254a4af19171572e7f319e6099a40e"
+    },
+    "redis-development": {
+      "source": "redis/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/redis-development/SKILL.md",
+      "computedHash": "d27174128aebe583d5ca15747389c84e286daed589bfa2b99847392a012719b5"
+    },
+    "vite": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vite/SKILL.md",
+      "computedHash": "867ff66238f3152e9c494339ad08dc432dd0df5bcf5cc7a00b61a72b580eb908"
+    },
+    "vitest": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "669c7275f7e1379b06b2bcfa593603aead4c983b951c7e8edbc09640aa38d0a1"
+    },
+    "vue": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue/SKILL.md",
+      "computedHash": "9c241141e07e836e4f0537c63e8f929fba3767c2997250be38e699f19b75e3f2"
+    },
+    "vue-best-practices": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue-best-practices/SKILL.md",
+      "computedHash": "d7d22c8cb343583c3904692c4d1d7b50382945e433e4f6e053f4aabb9846cbc3"
+    },
+    "vue-router-best-practices": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue-router-best-practices/SKILL.md",
+      "computedHash": "e27384f4e6c8c70a612e76b74e4387efb8e291a6a1e3aa14a69102a4ce4b4654"
+    },
+    "vue-testing-best-practices": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue-testing-best-practices/SKILL.md",
+      "computedHash": "18c7d8f42f350f927e37de055e34c97b8cfb9f79c12cf942f7f3d2a0821057b5"
+    },
+    "web-design-guidelines": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "65a2e7d85753383ae0f88df15475d58b9e39723e9c4bb6891421d6144a85f79c"
+    }
+  }
+}

@@ -5,6 +5,15 @@
 .idea/
 .vscode/
 
+# Agents
+.claude
+.codex
+.pi
+.opencode
+.agents
+.sisyphus
+.windsurf
+
 # Logs and runtime files
 *.log
 *.pid
@@ -71,3 +80,4 @@ env/.env.stg
 # Observability runtime data
 o11y/grafana/data/
 o11y/loki/data/
+.gitnexus

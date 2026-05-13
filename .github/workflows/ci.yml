@@ -1,0 +1,262 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - "apps/backend/**"
+      - "docs/contributors/**"
+      - "docs/alienmark/**"
+      - "docs/users/**"
+      - "packages/alienmark/**"
+      - "apps/frontend/package.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "make/node.mk"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      docs-contributors: ${{ steps.filter.outputs.docs-contributors }}
+      docs-alienmark: ${{ steps.filter.outputs.docs-alienmark }}
+      docs-users: ${{ steps.filter.outputs.docs-users }}
+      alienmark: ${{ steps.filter.outputs.alienmark }}
+      workflow: ${{ steps.filter.outputs.workflow }}
+
+    steps:
+      - name: Detect changed CI areas
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+            docs-contributors:
+              - 'docs/contributors/**'
+            docs-alienmark:
+              - 'docs/alienmark/**'
+            docs-users:
+              - 'docs/users/**'
+            alienmark:
+              - 'packages/alienmark/**'
+              - 'apps/frontend/package.json'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'make/node.mk'
+            workflow:
+              - '.github/workflows/ci.yml'
+
+  backend-lint:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.workflow == 'true'
+
+    defaults:
+      run:
+        working-directory: apps/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          working-directory: apps/backend
+          cache-suffix: backend-lint
+
+      - name: Install lint dependencies
+        run: uv sync --locked --dev
+
+      - name: Run Ruff
+        run: >
+          uv run ruff check
+          articles
+          bookmarks
+          comments
+          backend
+          core
+          logs
+          reactions
+          reports
+          tasks
+          users
+          manage.py
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.workflow == 'true'
+
+    defaults:
+      run:
+        working-directory: apps/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          working-directory: apps/backend
+          cache-suffix: backend-tests
+
+      - name: Install backend dependencies
+        run: uv sync --locked --dev
+
+      - name: Run Backend tests
+        env:
+          DJANGO_SETTINGS_MODULE: backend.settings.test
+        run: uv run python manage.py test
+
+  alienmark:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.alienmark == 'true' || needs.changes.outputs.workflow == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Alienmark type check
+        run: pnpm --filter alienmark check
+
+      - name: Run Alienmark tests
+        run: pnpm --filter alienmark test
+
+      - name: Build Alienmark
+        run: pnpm --filter alienmark build
+
+  docs-contributors:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.docs-contributors == 'true' || needs.changes.outputs.workflow == 'true'
+
+    defaults:
+      run:
+        working-directory: docs/contributors
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          working-directory: docs/contributors
+          cache-suffix: docs-validate-contributors
+
+      - name: Install documentation dependencies
+        run: uv sync --locked
+
+      - name: Build and validate MkDocs site
+        run: uv run mkdocs build --strict
+
+  docs-alienmark:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.docs-alienmark == 'true' || needs.changes.outputs.workflow == 'true'
+
+    defaults:
+      run:
+        working-directory: docs/alienmark
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          working-directory: docs/alienmark
+          cache-suffix: docs-validate-alienmark
+
+      - name: Install documentation dependencies
+        run: uv sync --locked
+
+      - name: Build and validate MkDocs site
+        run: uv run mkdocs build --strict
+
+  docs-users:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.docs-users == 'true' || needs.changes.outputs.workflow == 'true'
+
+    defaults:
+      run:
+        working-directory: docs/users
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          working-directory: docs/users
+          cache-suffix: docs-validate-users
+
+      - name: Install documentation dependencies
+        run: uv sync --locked
+
+      - name: Build and validate MkDocs site
+        run: uv run mkdocs build --strict

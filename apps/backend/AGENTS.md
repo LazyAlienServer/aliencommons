@@ -38,7 +38,7 @@ This directory contains the Django backend for AlienCommons. Keep backend change
   ```
 
 - If local dependencies or services make a check impossible, say exactly what was not run and why.
-- After any backend change, inspect the backend GitHub workflows under `.github/workflows/` and decide whether they need updates. In particular, check backend lint, backend tests, and backend API docs workflows when dependencies, commands, settings modules, app names, generated schema behavior, or verification steps change.
+- After any backend change, inspect `.github/workflows/ci.yml` and decide whether the backend lint/test jobs need updates. Also inspect deployment or documentation workflows when dependencies, commands, settings modules, app names, generated schema behavior, or verification steps change.
 
 ## Settings And Environments
 

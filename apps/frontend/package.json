@@ -23,6 +23,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
     "eslint": "^10.3.0",
+    "nuxt-mcp-dev": "^0.3.2",
     "typescript": "^6.0.3"
   }
 }

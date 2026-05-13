@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   modules: [
       '@pinia/nuxt',
       '@nuxt/eslint',
+      'nuxt-mcp-dev',
   ],
   vite: {
     plugins: [

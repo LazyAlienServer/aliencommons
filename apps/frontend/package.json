@@ -7,6 +7,11 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "lint": "eslint .",
+    "style": "prettier --check package.json nuxt.config.ts eslint.config.mjs app --ignore-path ../../.prettierignore",
+    "style:fix": "prettier --write package.json nuxt.config.ts eslint.config.mjs app --ignore-path ../../.prettierignore",
+    "typecheck": "vue-tsc --noEmit",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run style",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
@@ -24,6 +29,7 @@
     "@nuxt/eslint": "^1.15.2",
     "eslint": "^10.3.0",
     "nuxt-mcp-dev": "^0.3.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.2.8"
   }
 }

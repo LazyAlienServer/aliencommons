@@ -6,6 +6,10 @@
     "frontend:dev": "pnpm --filter frontend dev",
     "frontend:build": "pnpm --filter frontend build",
     "frontend:preview": "pnpm --filter frontend preview",
+    "frontend:lint": "pnpm --filter frontend lint",
+    "frontend:style": "pnpm --filter frontend style",
+    "frontend:style:fix": "pnpm --filter frontend style:fix",
+    "frontend:typecheck": "pnpm --filter frontend typecheck",
     "alienmark:dev": "pnpm --filter alienmark dev",
     "alienmark:build": "pnpm --filter alienmark build",
     "alienmark:test": "pnpm --filter alienmark test",
@@ -16,6 +20,10 @@
     "alienmark-service:check": "pnpm --filter alienmark-service check",
     "node:build": "pnpm -r --if-present build",
     "node:test": "pnpm -r --if-present test",
+    "node:lint": "pnpm -r --if-present lint",
+    "node:style": "pnpm -r --if-present style",
+    "node:style:fix": "pnpm -r --if-present style:fix",
+    "node:typecheck": "pnpm -r --if-present typecheck",
     "node:check": "pnpm -r --if-present check"
   },
   "devDependencies": {

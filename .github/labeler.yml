@@ -36,5 +36,8 @@ feature:
 refactor:
  - head-branch: ['^refactor', 'refactor']
 
+chore:
+ - head-branch: ['^chore', 'chore']
+
 release:
  - base-branch: 'main'

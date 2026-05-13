@@ -5,6 +5,15 @@
 .idea/
 .vscode/
 
+# Agents
+.claude
+.codex
+.pi
+.opencode
+.agents
+.sisyphus
+.windsurf
+
 # Logs and runtime files
 *.log
 *.pid

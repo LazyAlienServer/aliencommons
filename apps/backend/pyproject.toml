@@ -14,13 +14,13 @@ dependencies = [
     "environs==15.0.1",
     "pillow==12.2.0",
     "psycopg[binary]==3.3.4",
-    "requests==2.33.1",
+    "requests==2.34.0",
     "user-agents==2.2.0",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff==0.15.11",
+    "ruff==0.15.12",
 ]
 
 [tool.uv]

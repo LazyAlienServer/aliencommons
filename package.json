@@ -17,5 +17,9 @@
     "node:build": "pnpm -r --if-present build",
     "node:test": "pnpm -r --if-present test",
     "node:check": "pnpm -r --if-present check"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0"
   }
 }

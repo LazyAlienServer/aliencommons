@@ -8,6 +8,10 @@
     "nuxt": {
       "type": "remote",
       "url": "https://nuxt.com/mcp"
+    },
+    "vue-docs": {
+      "type": "remote",
+      "url": "https://mcp.vue-mcp.org/mcp"
     }
   }
 }

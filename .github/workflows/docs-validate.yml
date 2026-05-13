@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Detect changed docs projects
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             contributors:
@@ -47,10 +47,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
 
@@ -58,6 +58,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: docs/contributors
+          cache-suffix: docs-validate-contributors
 
       - name: Install documentation dependencies
         run: uv sync --locked
@@ -76,10 +78,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
 
@@ -87,6 +89,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: docs/alienmark
+          cache-suffix: docs-validate-alienmark
 
       - name: Install documentation dependencies
         run: uv sync --locked
@@ -105,10 +109,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
 
@@ -116,6 +120,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: docs/users
+          cache-suffix: docs-validate-users
 
       - name: Install documentation dependencies
         run: uv sync --locked

@@ -14,6 +14,7 @@ urlpatterns = [
     path("v1/", include("comments.urls")),
     path("v1/", include("reactions.urls")),
     path("v1/", include("reports.urls")),
+    path("v1/", include("posts.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

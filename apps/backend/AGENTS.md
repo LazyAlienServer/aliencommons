@@ -34,7 +34,7 @@ This directory contains the Django backend for AlienCommons. Keep backend change
 - For lint-sensitive changes, prefer:
 
   ```bash
-  uv run ruff check articles backend core logs tasks users manage.py
+  uv run ruff check articles bookmarks comments posts reactions reports core users logs tasks backend manage.py
   ```
 
 - If local dependencies or services make a check impossible, say exactly what was not run and why.

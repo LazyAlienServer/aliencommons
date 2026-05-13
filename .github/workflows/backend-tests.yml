@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.14"
 
@@ -30,6 +30,8 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          working-directory: apps/backend
+          cache-suffix: backend-tests
 
       - name: Install backend dependencies
         run: uv sync --locked --dev

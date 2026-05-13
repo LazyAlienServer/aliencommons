@@ -7,6 +7,7 @@ from core.services.content_targets import (
     get_or_create_comment_target,
     get_or_create_published_article_target,
 )
+from notifications.services import create_mention_notifications_for_comment
 
 from .models import Comment
 
@@ -38,13 +39,17 @@ def create_comment(*, author, body: str, mentions: list, published_article: Publ
         mentions=mentions,
     )
     get_or_create_comment_target(comment)
+    create_mention_notifications_for_comment(comment)
     return comment
 
 
+@transaction.atomic
 def update_comment(*, comment: Comment, body: str, mentions: list):
+    previous_mentions = set(comment.mentions or [])
     comment.body = body
     comment.mentions = mentions
     comment.save(update_fields=["body", "mentions", "updated_at"])
+    create_mention_notifications_for_comment(comment, previous_mentions=previous_mentions)
     return comment
 
 

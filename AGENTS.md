@@ -54,6 +54,7 @@ Run the smallest relevant checks for the change. If a check cannot be run, menti
 - Use focused commits and clear commit messages.
 - Feature work should normally branch from the active development branch.
 - Production releases should be represented by tags, not by editing this file.
+- Do not include a `Verification` section in pull request descriptions unless the user explicitly asks for one.
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

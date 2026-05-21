@@ -3,7 +3,7 @@ PNPM_FRONTEND = $(PNPM) --filter frontend
 PNPM_ALIENMARK = $(PNPM) --filter alienmark
 PNPM_ALIENMARK_SERVICE = $(PNPM) --filter alienmark-service
 
-.PHONY: node-install node-build node-test node-check frontend-dev frontend-build frontend-check frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check
+.PHONY: node-install node-build node-test node-check node-typecheck node-lint node-style frontend-dev frontend-build frontend-check frontend-typecheck frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-typecheck alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check alienmark-service-typecheck
 
 # NODE WORKSPACE
 node-install:
@@ -16,7 +16,16 @@ node-test:
 	$(PNPM) -r --if-present test
 
 node-check:
-	$(PNPM) -r --if-present check
+	$(PNPM) run node:check
+
+node-typecheck:
+	$(PNPM) run node:typecheck
+
+node-lint:
+	$(PNPM) run lint:check
+
+node-style:
+	$(PNPM) run style:check
 
 frontend-dev:
 	$(PNPM_FRONTEND) dev
@@ -26,6 +35,9 @@ frontend-build:
 
 frontend-check:
 	$(PNPM_FRONTEND) check
+
+frontend-typecheck:
+	$(PNPM_FRONTEND) typecheck
 
 frontend-preview:
 	$(PNPM_FRONTEND) preview
@@ -42,6 +54,9 @@ alienmark-test:
 alienmark-check:
 	$(PNPM_ALIENMARK) check
 
+alienmark-typecheck:
+	$(PNPM_ALIENMARK) typecheck
+
 alienmark-service-dev:
 	$(PNPM_ALIENMARK_SERVICE) dev
 
@@ -52,4 +67,9 @@ alienmark-service-start:
 	$(PNPM_ALIENMARK_SERVICE) start
 
 alienmark-service-check:
+	$(PNPM_ALIENMARK) build
 	$(PNPM_ALIENMARK_SERVICE) check
+
+alienmark-service-typecheck:
+	$(PNPM_ALIENMARK) build
+	$(PNPM_ALIENMARK_SERVICE) typecheck

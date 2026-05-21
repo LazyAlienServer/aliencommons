@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "tsdown",
+    "check": "pnpm run lint:check && pnpm run typecheck && pnpm run style:check && pnpm run test",
     "typecheck": "tsc --noEmit",
     "dev": "tsdown --watch",
     "lint": "pnpm run lint:check",

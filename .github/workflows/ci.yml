@@ -7,8 +7,9 @@ on:
       - "docs/contributors/**"
       - "docs/alienmark/**"
       - "docs/users/**"
+      - "apps/alienmark/**"
+      - "apps/frontend/**"
       - "packages/alienmark/**"
-      - "apps/frontend/package.json"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -29,7 +30,7 @@ jobs:
       docs-contributors: ${{ steps.filter.outputs.docs-contributors }}
       docs-alienmark: ${{ steps.filter.outputs.docs-alienmark }}
       docs-users: ${{ steps.filter.outputs.docs-users }}
-      alienmark: ${{ steps.filter.outputs.alienmark }}
+      node: ${{ steps.filter.outputs.node }}
       workflow: ${{ steps.filter.outputs.workflow }}
 
     steps:
@@ -46,9 +47,10 @@ jobs:
               - 'docs/alienmark/**'
             docs-users:
               - 'docs/users/**'
-            alienmark:
+            node:
+              - 'apps/alienmark/**'
+              - 'apps/frontend/**'
               - 'packages/alienmark/**'
-              - 'apps/frontend/package.json'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -133,10 +135,10 @@ jobs:
           DJANGO_SETTINGS_MODULE: backend.settings.test
         run: uv run python manage.py test
 
-  alienmark:
+  node:
     runs-on: ubuntu-latest
     needs: changes
-    if: needs.changes.outputs.alienmark == 'true' || needs.changes.outputs.workflow == 'true'
+    if: needs.changes.outputs.node == 'true' || needs.changes.outputs.workflow == 'true'
 
     steps:
       - name: Checkout repository
@@ -160,14 +162,8 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Alienmark type check
-        run: pnpm --filter alienmark typecheck
-
-      - name: Run Alienmark tests
-        run: pnpm --filter alienmark test
-
-      - name: Build Alienmark
-        run: pnpm --filter alienmark build
+      - name: Run Node checks
+        run: pnpm run node:check
 
   docs-contributors:
     runs-on: ubuntu-latest

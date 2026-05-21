@@ -41,14 +41,11 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run AlienMark type check
-        run: pnpm --filter alienmark typecheck
-
-      - name: Run AlienMark tests
-        run: pnpm --filter alienmark test
+      - name: Run AlienMark package checks
+        run: pnpm run alienmark:check
 
       - name: Build AlienMark
-        run: pnpm --filter alienmark build
+        run: pnpm run alienmark:build
 
       - name: Configure package metadata for GitHub Packages
         working-directory: packages/alienmark

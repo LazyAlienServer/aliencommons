@@ -17,6 +17,7 @@ class CommunityPostServiceTests(BaseTestCase):
         self.assertEqual(post.author, author)
         self.assertEqual(post.body, "Hello community")
         self.assertTrue(CommunityPost.objects.filter(id=post.id).exists())
+        self.assertEqual(post.content_target.community_post, post)
 
     def test_update_community_post_updates_body_and_returns_post(self):
         author = create_user(username="post-author")
@@ -27,6 +28,20 @@ class CommunityPostServiceTests(BaseTestCase):
         post.refresh_from_db()
         self.assertEqual(updated, post)
         self.assertEqual(post.body, "After")
+
+    def test_update_community_post_updates_mentions(self):
+        author = create_user(username="post-author")
+        mentioned = create_user(username="mentioned")
+        post = CommunityPost.objects.create(author=author, body="Before")
+
+        update_community_post(
+            post=post,
+            body="{{mention:0}}",
+            mentions=[str(mentioned.id)],
+        )
+
+        post.refresh_from_db()
+        self.assertEqual(post.mentions, [str(mentioned.id)])
 
     def test_soft_delete_community_post_marks_post_deleted_and_returns_post(self):
         author = create_user(username="post-author")

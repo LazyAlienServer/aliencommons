@@ -1,13 +1,19 @@
+from core.services.content_targets import get_or_create_community_post_target
+
 from .models import CommunityPost
 
 
-def create_community_post(*, author, body: str):
-    return CommunityPost.objects.create(author=author, body=body)
+def create_community_post(*, author, body: str, mentions: list = None):
+    post = CommunityPost.objects.create(author=author, body=body, mentions=mentions or [])
+    get_or_create_community_post_target(post)
+    return post
 
 
-def update_community_post(*, post: CommunityPost, body: str):
+def update_community_post(*, post: CommunityPost, body: str, mentions: list = None):
     post.body = body
-    post.save(update_fields=["body", "updated_at"])
+    if mentions is not None:
+        post.mentions = mentions
+    post.save(update_fields=["body", "mentions", "updated_at"])
     return post
 
 

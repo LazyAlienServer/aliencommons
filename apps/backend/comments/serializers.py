@@ -8,6 +8,7 @@ from core.utils.markdown import (
     serialize_markdown_mentions,
     validate_markdown_mentions,
 )
+from posts.models import CommunityPost
 
 from .models import Comment
 
@@ -17,6 +18,7 @@ class CommentReadSerializer(serializers.ModelSerializer):
     render_body = serializers.SerializerMethodField()
     mention_users = serializers.SerializerMethodField()
     published_article = serializers.SerializerMethodField()
+    community_post = serializers.SerializerMethodField()
     reply_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -27,6 +29,7 @@ class CommentReadSerializer(serializers.ModelSerializer):
             "author_username",
             "target",
             "published_article",
+            "community_post",
             "parent",
             "body",
             "render_body",
@@ -43,6 +46,11 @@ class CommentReadSerializer(serializers.ModelSerializer):
             return obj.parent.target.published_article_id
         return obj.target.published_article_id
 
+    def get_community_post(self, obj):
+        if obj.parent_id is not None:
+            return obj.parent.target.community_post_id
+        return obj.target.community_post_id
+
     def get_render_body(self, obj):
         return render_markdown_mentions(obj.body, obj.mentions)
 
@@ -58,6 +66,7 @@ class CommentReadSerializer(serializers.ModelSerializer):
 
 class CommentWriteSerializer(serializers.Serializer):
     published_article = serializers.UUIDField(required=False)
+    community_post = serializers.UUIDField(required=False)
     target = serializers.UUIDField(required=False)
     body = serializers.CharField(allow_blank=False, trim_whitespace=True)
     mentions = serializers.ListField(
@@ -73,6 +82,15 @@ class CommentWriteSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 detail="Published article does not exist",
                 code="published_article_not_found",
+            ) from exc
+
+    def validate_community_post(self, value):
+        try:
+            return CommunityPost.objects.get(pk=value)
+        except CommunityPost.DoesNotExist as exc:
+            raise serializers.ValidationError(
+                detail="Community post does not exist",
+                code="community_post_not_found",
             ) from exc
 
     def validate_target(self, value):
@@ -95,6 +113,7 @@ class CommentWriteSerializer(serializers.Serializer):
     def validate(self, attrs):
         target = attrs.get("target")
         published_article = attrs.get("published_article")
+        community_post = attrs.get("community_post")
         body = attrs.get("body", getattr(self.instance, "body", ""))
         mentions = attrs.get("mentions", getattr(self.instance, "mentions", []))
         try:
@@ -103,22 +122,23 @@ class CommentWriteSerializer(serializers.Serializer):
             raise serializers.ValidationError(detail=exc.detail, code=exc.code) from exc
 
         if self.instance is not None:
-            if target is not None or published_article is not None:
+            if target is not None or published_article is not None or community_post is not None:
                 raise serializers.ValidationError(
                     detail="Comment target cannot be changed",
                     code="comment_target_immutable",
                 )
             return attrs
 
-        if target is not None and published_article is not None:
+        direct_targets = [target, published_article, community_post]
+        if sum(item is not None for item in direct_targets) > 1:
             raise serializers.ValidationError(
-                detail="Provide either target or published_article, not both",
+                detail="Provide only one comment target",
                 code="ambiguous_comment_target",
             )
 
-        if target is None and published_article is None:
+        if target is None and published_article is None and community_post is None:
             raise serializers.ValidationError(
-                detail="A published article or content target is required",
+                detail="A published article, community post, or content target is required",
                 code="comment_target_required",
             )
 

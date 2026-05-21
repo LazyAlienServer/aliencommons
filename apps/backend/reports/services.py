@@ -48,6 +48,20 @@ def build_content_report_snapshot(target: ContentTarget):
         )
         return snapshot
 
+    if target.target_type == ContentTarget.TargetType.COMMUNITY_POST:
+        post = target.community_post
+        snapshot.update(
+            {
+                "target_object_id": str(post.id),
+                "author_id": str(post.author_id) if post.author_id else None,
+                "body": post.body,
+                "render_body": render_markdown_mentions(post.body, post.mentions),
+                "mentions": post.mentions,
+                "is_deleted": post.is_deleted,
+            }
+        )
+        return snapshot
+
     return snapshot
 
 
@@ -103,4 +117,3 @@ def moderate_report(*, report, moderator, status: int, resolution_note: str = ""
         report.save(update_fields=["status", "resolution_note", "resolved_by", "resolved_at", "updated_at"])
 
     return report
-

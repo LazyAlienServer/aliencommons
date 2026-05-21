@@ -21,6 +21,12 @@ class CommunityPost(UUIDPrimaryKeyMixin,
         verbose_name=_("body"),
         help_text=_("The post body"),
     )
+    mentions = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name=_("mentions"),
+        help_text=_("Ordered user IDs referenced by mention tokens in the post body"),
+    )
 
     class Meta:
         verbose_name = _("community post")

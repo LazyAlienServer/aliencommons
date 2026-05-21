@@ -5,10 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 
 from articles.models import PublishedArticle
 from core.views.viewsets import MyModelViewSet
+from posts.models import CommunityPost
 from .models import Reaction
 from .serializers import ReactionReadSerializer, ReactionWriteSerializer
 from .services import (
+    clear_community_post_reaction,
     clear_published_article_reaction,
+    set_community_post_reaction,
     set_published_article_reaction,
     update_reaction_type,
 )
@@ -19,6 +22,7 @@ class ReactionViewSet(MyModelViewSet):
         "user",
         "target",
         "target__published_article",
+        "target__community_post",
     )
     permission_classes = [IsAuthenticated]
     default_serializer_class = ReactionReadSerializer
@@ -41,11 +45,18 @@ class ReactionViewSet(MyModelViewSet):
             context=self.get_serializer_context(),
         )
         input_serializer.is_valid(raise_exception=True)
-        reaction, created = set_published_article_reaction(
-            user=request.user,
-            published_article=input_serializer.validated_data["published_article"],
-            reaction_type=input_serializer.validated_data["reaction_type"],
-        )
+        if "published_article" in input_serializer.validated_data:
+            reaction, created = set_published_article_reaction(
+                user=request.user,
+                published_article=input_serializer.validated_data["published_article"],
+                reaction_type=input_serializer.validated_data["reaction_type"],
+            )
+        else:
+            reaction, created = set_community_post_reaction(
+                user=request.user,
+                community_post=input_serializer.validated_data["community_post"],
+                reaction_type=input_serializer.validated_data["reaction_type"],
+            )
         output_serializer = ReactionReadSerializer(
             instance=reaction,
             context=self.get_serializer_context(),
@@ -101,6 +112,25 @@ class ReactionViewSet(MyModelViewSet):
         deleted = clear_published_article_reaction(
             user=request.user,
             published_article=published_article,
+        )
+
+        return self.format_success_response(
+            message="deleted" if deleted else "not reacted",
+            code="deleted" if deleted else "not_reacted",
+            data={"deleted": deleted},
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=False,
+        methods=["delete"],
+        url_path=r"community_posts/(?P<community_post_id>[^/.]+)",
+    )
+    def clear_community_post(self, request, community_post_id=None):
+        community_post = get_object_or_404(CommunityPost, pk=community_post_id)
+        deleted = clear_community_post_reaction(
+            user=request.user,
+            community_post=community_post,
         )
 
         return self.format_success_response(

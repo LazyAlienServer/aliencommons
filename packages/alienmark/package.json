@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "dev": "tsdown --watch",
     "lint": "pnpm run lint:check",
     "lint:check": "oxlint src test",

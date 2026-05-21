@@ -42,7 +42,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run AlienMark type check
-        run: pnpm --filter alienmark check
+        run: pnpm --filter alienmark typecheck
 
       - name: Run AlienMark tests
         run: pnpm --filter alienmark test

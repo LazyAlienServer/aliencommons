@@ -7,7 +7,7 @@
   "main": "./dist/server.mjs",
   "scripts": {
     "build": "tsdown src/server.ts --format esm --dts false",
-    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.mjs",
     "lint": "pnpm run lint:check",

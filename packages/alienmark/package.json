@@ -19,6 +19,12 @@
     "build": "tsdown",
     "check": "tsc --noEmit",
     "dev": "tsdown --watch",
+    "lint": "pnpm run lint:check",
+    "lint:check": "oxlint src test",
+    "lint:fix": "oxlint src test --fix",
+    "style": "pnpm run style:check",
+    "style:check": "prettier --check package.json README.md src test tsconfig.json --ignore-path ../../.prettierignore",
+    "style:fix": "prettier --write package.json README.md src test tsconfig.json --ignore-path ../../.prettierignore",
     "test": "vitest run"
   },
   "keywords": [],

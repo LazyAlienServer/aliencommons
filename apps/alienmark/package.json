@@ -9,7 +9,13 @@
     "build": "tsdown src/server.ts --format esm --dts false",
     "check": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
-    "start": "node dist/server.mjs"
+    "start": "node dist/server.mjs",
+    "lint": "pnpm run lint:check",
+    "lint:check": "oxlint src",
+    "lint:fix": "oxlint src --fix",
+    "style": "pnpm run style:check",
+    "style:check": "prettier --check package.json src tsconfig.json --ignore-path ../../.prettierignore",
+    "style:fix": "prettier --write package.json src tsconfig.json --ignore-path ../../.prettierignore"
   },
   "dependencies": {
     "alienmark": "workspace:*",

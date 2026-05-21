@@ -3,12 +3,19 @@ import { ref, computed } from "vue";
 import { useUserStore } from "@/features/user/stores";
 import { updateAvatar, updateUsername } from "@/features/user/api";
 import { useToast } from "vue-toastification";
-import { PencilIcon, PersonIcon, MailIcon, RocketIcon } from "@/core/assets/icons"
+import {
+  PencilIcon,
+  PersonIcon,
+  MailIcon,
+  RocketIcon,
+} from "@/core/assets/icons";
 
 const toast = useToast();
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo);
-const avatarUrl = computed(() => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar)
+const avatarUrl = computed(
+  () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar,
+);
 
 const fileInput = ref(null);
 
@@ -24,12 +31,11 @@ async function handleFile(event) {
 
   try {
     const response = await updateAvatar(file);
-    userInfo.value = response.data.data
-    toast.success('Avatar updated successfully!');
-
+    userInfo.value = response.data.data;
+    toast.success("Avatar updated successfully!");
   } catch (error) {
     toast.error(error.response?.data?.message);
-    console.error('Avatar update failed:', error);
+    console.error("Avatar update failed:", error);
   }
 }
 
@@ -46,117 +52,102 @@ async function handleUsernameUpdate() {
   loading.value = true;
 
   try {
-    const response = await updateUsername(newUsername.value)
-    userInfo.value = response.data.data
-    toast.success('Username updated successfully!');
-
+    const response = await updateUsername(newUsername.value);
+    userInfo.value = response.data.data;
+    toast.success("Username updated successfully!");
   } catch (error) {
-    const msg = error.response?.data?.message
+    const msg = error.response?.data?.message;
     toast.error(msg);
-    console.error('Update username failed', error)
-
+    console.error("Update username failed", error);
   } finally {
-    toggleInput()
+    toggleInput();
     loading.value = false;
   }
 }
 </script>
 
 <template>
-  <div v-if="userInfo" class="flex flex-col gap-5 mr-15 mt-3 h-full w-1/5">
-    <div class="flex flex-col gap-y-7 items-center relative">
-
+  <div v-if="userInfo" class="mt-3 mr-15 flex h-full w-1/5 flex-col gap-5">
+    <div class="relative flex flex-col items-center gap-y-7">
       <img
-          :src="avatarUrl"
-          alt="User Avatar"
-          class="w-55 h-55 rounded-full object-cover border border-gray-300"
+        :src="avatarUrl"
+        alt="User Avatar"
+        class="h-55 w-55 rounded-full border border-gray-300 object-cover"
       />
 
       <PencilIcon
-          @click="triggerFileSelect"
-          class="w-6 h-6 fill-current absolute top-0 right-0 rounded-full p-1 shadow-lg transform -translate-x-4 translate-y-4"
+        @click="triggerFileSelect"
+        class="absolute top-0 right-0 h-6 w-6 -translate-x-4 translate-y-4 transform rounded-full fill-current p-1 shadow-lg"
       />
 
       <input
-          ref="fileInput"
-          type="file"
-          accept="image/*"
-          class="hidden"
-          @change="handleFile"
+        ref="fileInput"
+        type="file"
+        accept="image/*"
+        class="hidden"
+        @change="handleFile"
       />
-
     </div>
 
     <!-- Edit username -->
-    <div
-        v-if="isInputOpen"
-        class="flex flex-col items-center gap-3"
-    >
-
+    <div v-if="isInputOpen" class="flex flex-col items-center gap-3">
       <input
-          v-model="newUsername"
-          type="text"
-          placeholder="        New Username"
-          class="username-input"
+        v-model="newUsername"
+        type="text"
+        placeholder="        New Username"
+        class="username-input"
       />
 
       <div class="flex flex-row items-center gap-3">
-
         <button
-            @click="handleUsernameUpdate"
-            :disabled="loading"
-            class="form-btn"
+          @click="handleUsernameUpdate"
+          :disabled="loading"
+          class="form-btn"
         >
           Save
         </button>
         <button
-            @click="toggleInput"
-            :disabled="loading"
-            class="bg-gray-400 hover:bg-gray-500 form-btn"
+          @click="toggleInput"
+          :disabled="loading"
+          class="form-btn bg-gray-400 hover:bg-gray-500"
         >
           Cancel
         </button>
-
       </div>
-
     </div>
 
     <div v-else class="flex flex-col items-center gap-4">
-
       <!-- username & edit toggle button-->
       <p class="text-2xl font-bold">{{ userInfo.username }}</p>
 
       <div
-          class="flex flex-row items-center gap-x-2 rounded-lg border border-gray-400 hover:bg-gray-300 px-4 py-1"
-          @click="toggleInput"
+        class="flex flex-row items-center gap-x-2 rounded-lg border border-gray-400 px-4 py-1 hover:bg-gray-300"
+        @click="toggleInput"
       >
-
-        <PencilIcon class="w-4.5 h-4.5 fill-current"/>
+        <PencilIcon class="h-4.5 w-4.5 fill-current" />
         <p class="text-[16px]">Edit Your Username</p>
-
       </div>
 
       <!-- Other user info -->
-      <div class="flex flex-col pl-2 mt-2 gap-2">
-
+      <div class="mt-2 flex flex-col gap-2 pl-2">
         <div class="flex flex-row items-center gap-1">
-          <PersonIcon class="w-4.5 h-4.5 fill-current"/>
+          <PersonIcon class="h-4.5 w-4.5 fill-current" />
           <p class="text-[16px]">ID: {{ userInfo.id }}</p>
         </div>
 
         <div class="flex flex-row items-center gap-1">
-          <MailIcon class="w-4.5 h-4.5 fill-current"/>
+          <MailIcon class="h-4.5 w-4.5 fill-current" />
           <p class="text-[16px]">Email: {{ userInfo.email }}</p>
         </div>
 
         <div class="flex flex-row items-center gap-1">
-          <RocketIcon class="w-4.5 h-4.5 fill-current"/>
-          <p class="text-[16px]">Joined Since: {{ new Date(userInfo.date_joined).toLocaleDateString() }}</p>
+          <RocketIcon class="h-4.5 w-4.5 fill-current" />
+          <p class="text-[16px]">
+            Joined Since:
+            {{ new Date(userInfo.date_joined).toLocaleDateString() }}
+          </p>
         </div>
-
       </div>
-
     </div>
-
   </div>
 </template>

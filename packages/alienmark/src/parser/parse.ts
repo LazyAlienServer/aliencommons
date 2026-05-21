@@ -15,7 +15,10 @@ import { parseInline } from "./inline.js";
 const ORDERED_LIST_RE = /^(\d+)\.\s+(.*)$/;
 const UNORDERED_LIST_RE = /^[-*]\s+(.*)$/;
 
-export function parse(markdown: string, options: ParseOptions = {}): DocumentNode {
+export function parse(
+  markdown: string,
+  options: ParseOptions = {},
+): DocumentNode {
   const normalized = markdown.replace(/\r\n?/g, "\n");
   const lines = normalized.split("\n");
   const children: BlockNode[] = [];
@@ -82,7 +85,10 @@ export function parse(markdown: string, options: ParseOptions = {}): DocumentNod
   };
 }
 
-function parseCodeBlock(lines: string[], startIndex: number): { node: CodeBlockNode; nextIndex: number } {
+function parseCodeBlock(
+  lines: string[],
+  startIndex: number,
+): { node: CodeBlockNode; nextIndex: number } {
   const openingLine = getLine(lines, startIndex).trim();
   const language = openingLine.slice(3).trim() || null;
   const content: string[] = [];
@@ -160,7 +166,9 @@ function parseList(
       break;
     }
 
-    const match = ordered ? line.match(ORDERED_LIST_RE) : line.match(UNORDERED_LIST_RE);
+    const match = ordered
+      ? line.match(ORDERED_LIST_RE)
+      : line.match(UNORDERED_LIST_RE);
     if (!match) {
       break;
     }

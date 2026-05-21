@@ -16,7 +16,9 @@ describe("alienmark", () => {
   });
 
   it("renders inline markdown", () => {
-    const html = renderMarkdown("Use **bold**, __bold too__, *italic*, `code`, and [links](https://example.com).");
+    const html = renderMarkdown(
+      "Use **bold**, __bold too__, *italic*, `code`, and [links](https://example.com).",
+    );
 
     expect(html).toBe(
       '<p>Use <strong>bold</strong>, <strong>bold too</strong>, <em>italic</em>, <code>code</code>, and <a href="https://example.com">links</a>.</p>',
@@ -24,7 +26,9 @@ describe("alienmark", () => {
   });
 
   it("renders images", () => {
-    const html = renderMarkdown('Logo: ![Alien "logo"](https://example.com/logo.png?x=<tag>)');
+    const html = renderMarkdown(
+      'Logo: ![Alien "logo"](https://example.com/logo.png?x=<tag>)',
+    );
 
     expect(html).toBe(
       '<p>Logo: <img src="https://example.com/logo.png?x=&lt;tag&gt;" alt="Alien &quot;logo&quot;" /></p>',

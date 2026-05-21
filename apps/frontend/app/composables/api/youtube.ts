@@ -1,9 +1,7 @@
-import { apiBare } from './axiosInstance'
+import { apiBare } from "./axiosInstance";
 
 function getChannelSnapshot() {
-    return apiBare.get('/pages/youtube_channel_snapshot/', {})
+  return apiBare.get("/pages/youtube_channel_snapshot/", {});
 }
 
-export {
-    getChannelSnapshot,
-}
+export { getChannelSnapshot };

@@ -1,187 +1,169 @@
 /*  Custom editor styles  */
-@import '@tailwindcss';
+@import "@tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* Custom Themes */
 @theme {
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
 }
 
 /* Custom Utilities */
 @utility bg-light {
-    background-color: #FAFAFA;
+  background-color: #fafafa;
 }
 
 @utility bg-dark {
-    background-color: #1E1E1E;
+  background-color: #1e1e1e;
 }
 
-
 @utility text-light {
-    color: #1E1E1E;
+  color: #1e1e1e;
 }
 
 @utility text-dark {
-    color: #FAFAFA;
+  color: #fafafa;
 }
 
 @utility no-select {
-    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Article Components */
 @layer components {
-    .article-card {
-        @apply flex flex-col gap-2 p-4 w-full bg-white rounded-lg border-1 border-gray-200 shadow items-start
-        hover:bg-gray-200
-        dark:bg-dark dark:border-gray-200 dark:hover:bg-gray-600;
-    }
-    .article-sidebar-filter-query {
-        @apply flex flex-row items-center border border-gray-300 rounded-sm py-1 px-1.5 whitespace-nowrap
-        hover:bg-gray-200;
-    }
-    .editor-actions-btn {
-        @apply flex flex-row items-center rounded-sm px-1 py-1 relative border border-gray-300
-        hover:bg-gray-200;
-    }
-    .editor-actions-dropdown {
-        @apply absolute
-        flex flex-col right-0 top-full mt-1 w-32 p-2 z-10
-        rounded-xl border border-gray-200 bg-white shadow
-    }
-    .editor-actions-dropdown-btn {
-        @apply flex flex-row gap-x-2 px-3 py-2 items-center
-        w-full h-auto rounded text-left
-        no-select
-        hover:bg-gray-100
-    }
-    .editor-toolbar-btn {
-        @apply flex flex-row items-center
-        border border-gray-200 rounded-sm p-1
-        relative
-        hover:bg-gray-200;
-    }
-    .editor-toolbar-btn.active {
-        @apply bg-purple-200;
-    }
-    .editor-toolbar-svg.active {
-        @apply stroke-purple-600;
-    }
-    .editor-toolbar-btn-tooltip {
-        @apply absolute pointer-events-none left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-md
-        bg-dark text-dark px-2 py-1 text-xs opacity-0 translate-y-1
-        group-hover:opacity-100 group-hover:translate-y-0
-        dark:text-light dark:bg-light;
-    }
-    .editor-toolbar-dropdown {
-        @apply absolute
-        flex flex-col left-0 top-full w-38 p-2 z-10
-        rounded-xl border border-gray-200 bg-white shadow
-    }
-    .editor-toolbar-dropdown-btn {
-        @apply flex flex-row gap-x-2 px-3 py-2 items-center
-        w-full h-auto rounded text-left
-        no-select
-        hover:bg-gray-100
-    }
-    .editor-toolbar-dropdown-btn.active {
-        @apply bg-gray-100
-    }
-    .ProseMirror {
-        @apply outline-0
-    }
-    .ProseMirror blockquote {
-        @apply border-l-4 border-gray-200 pl-4 my-4 text-gray-600;
-    }
-    .ProseMirror h1 {
-        @apply text-4xl font-bold
-    }
-    .ProseMirror h2 {
-        @apply text-3xl font-bold
-    }
-    .ProseMirror h3 {
-        @apply text-2xl font-bold
-    }
-    .ProseMirror pre {
-        @apply relative my-4 rounded-lg bg-gray-900 px-4 py-3 overflow-x-auto;
-    }
-    .ProseMirror pre code {
-        @apply block leading-relaxed whitespace-pre font-mono bg-transparent text-gray-100 text-[14px];
-    }
-    .ProseMirror code {
-        @apply rounded bg-gray-100 px-1 py-0.5 font-mono text-[15px] text-gray-800;
-    }
-    .ProseMirror a {
-        @apply text-blue-500 underline text-[18px] hover:text-blue-500;
-    }
-    /* List styles */
-    .ProseMirror ul {
-        @apply list-disc pl-5;
-    }
-    .ProseMirror ol {
-        @apply list-decimal pl-5;
-    }
-    .ProseMirror ul li p,
-    .ProseMirror ol li p {
-        @apply my-1;
-    }
-    /* Task list specific styles */
-    .ProseMirror ul[data-type='taskList'] {
-        @apply list-none;
-    }
-    .ProseMirror ul[data-type='taskList'] > li {
-        @apply flex flex-row items-center justify-start;
-    }
-    .ProseMirror ul[data-type='taskList'] > li > label {
-        @apply mr-2 select-none;
-    }
-    .ProseMirror ul[data-type='taskList'] > li > div {
-        @apply flex-1;
-    }
-    .ProseMirror ul[data-type='taskList'] > li[data-checked='true'] > div {
-        @apply line-through text-gray-400;
-    }
-    .ProseMirror ul[data-type='taskList'] input[type='checkbox'] {
-        @apply cursor-pointer w-[14px] h-[14px];
-    }
-    .ProseMirror ul[data-type='taskList'] ul[data-type='taskList'] {
-        @apply m-0;
-    }
-    /* Mathematics extension styles */
-    .tiptap-mathematics-render {
-        @apply px-1 rounded bg-gray-100;
-    }
-    /* Editable math hover behavior */
-    .tiptap-mathematics-render--editable {
-        @apply cursor-pointer transition-colors duration-200;
-    }
-    .tiptap-mathematics-render--editable:hover {
-        @apply bg-gray-200;
-    }
-    /* Inline math */
-    .tiptap-mathematics-render[data-type='inline-math'] {
-        @apply inline-block;
-    }
-    /* Block math */
-    .tiptap-mathematics-render[data-type='block-math'] {
-        @apply block my-4 p-4 text-center;
-    }
-    /* Math render error states */
-    .tiptap-mathematics-render.inline-math-error,
-    .tiptap-mathematics-render.block-math-error {
-        @apply bg-red-100 text-red-600 border border-red-400 p-2 rounded;
-    }
-    .ProseMirror p.is-editor-empty:first-child::before {
-        content: attr(data-placeholder);
-        @apply text-gray-400;
-        float: left;
-        pointer-events: none;
-        height: 0;
-    }
-    /* Youtube embed */
-    div[data-youtube-video] iframe {
-        @apply block min-h-[200px] min-w-[200px] outline-transparent rounded-md
-        border-6 border-gray-900;
-    }
+  .article-card {
+    @apply dark:bg-dark flex w-full flex-col items-start gap-2 rounded-lg border-1 border-gray-200 bg-white p-4 shadow hover:bg-gray-200 dark:border-gray-200 dark:hover:bg-gray-600;
+  }
+  .article-sidebar-filter-query {
+    @apply flex flex-row items-center rounded-sm border border-gray-300 px-1.5 py-1 whitespace-nowrap hover:bg-gray-200;
+  }
+  .editor-actions-btn {
+    @apply relative flex flex-row items-center rounded-sm border border-gray-300 px-1 py-1 hover:bg-gray-200;
+  }
+  .editor-actions-dropdown {
+    @apply absolute top-full right-0 z-10 mt-1 flex w-32 flex-col rounded-xl border border-gray-200 bg-white p-2 shadow;
+  }
+  .editor-actions-dropdown-btn {
+    @apply no-select flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left hover:bg-gray-100;
+  }
+  .editor-toolbar-btn {
+    @apply relative flex flex-row items-center rounded-sm border border-gray-200 p-1 hover:bg-gray-200;
+  }
+  .editor-toolbar-btn.active {
+    @apply bg-purple-200;
+  }
+  .editor-toolbar-svg.active {
+    @apply stroke-purple-600;
+  }
+  .editor-toolbar-btn-tooltip {
+    @apply bg-dark text-dark dark:text-light dark:bg-light pointer-events-none absolute top-full left-1/2 mt-1 -translate-x-1/2 translate-y-1 rounded-md px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:translate-y-0 group-hover:opacity-100;
+  }
+  .editor-toolbar-dropdown {
+    @apply absolute top-full left-0 z-10 flex w-38 flex-col rounded-xl border border-gray-200 bg-white p-2 shadow;
+  }
+  .editor-toolbar-dropdown-btn {
+    @apply no-select flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left hover:bg-gray-100;
+  }
+  .editor-toolbar-dropdown-btn.active {
+    @apply bg-gray-100;
+  }
+  .ProseMirror {
+    @apply outline-0;
+  }
+  .ProseMirror blockquote {
+    @apply my-4 border-l-4 border-gray-200 pl-4 text-gray-600;
+  }
+  .ProseMirror h1 {
+    @apply text-4xl font-bold;
+  }
+  .ProseMirror h2 {
+    @apply text-3xl font-bold;
+  }
+  .ProseMirror h3 {
+    @apply text-2xl font-bold;
+  }
+  .ProseMirror pre {
+    @apply relative my-4 overflow-x-auto rounded-lg bg-gray-900 px-4 py-3;
+  }
+  .ProseMirror pre code {
+    @apply block bg-transparent font-mono text-[14px] leading-relaxed whitespace-pre text-gray-100;
+  }
+  .ProseMirror code {
+    @apply rounded bg-gray-100 px-1 py-0.5 font-mono text-[15px] text-gray-800;
+  }
+  .ProseMirror a {
+    @apply text-[18px] text-blue-500 underline hover:text-blue-500;
+  }
+  /* List styles */
+  .ProseMirror ul {
+    @apply list-disc pl-5;
+  }
+  .ProseMirror ol {
+    @apply list-decimal pl-5;
+  }
+  .ProseMirror ul li p,
+  .ProseMirror ol li p {
+    @apply my-1;
+  }
+  /* Task list specific styles */
+  .ProseMirror ul[data-type="taskList"] {
+    @apply list-none;
+  }
+  .ProseMirror ul[data-type="taskList"] > li {
+    @apply flex flex-row items-center justify-start;
+  }
+  .ProseMirror ul[data-type="taskList"] > li > label {
+    @apply mr-2 select-none;
+  }
+  .ProseMirror ul[data-type="taskList"] > li > div {
+    @apply flex-1;
+  }
+  .ProseMirror ul[data-type="taskList"] > li[data-checked="true"] > div {
+    @apply text-gray-400 line-through;
+  }
+  .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+    @apply h-[14px] w-[14px] cursor-pointer;
+  }
+  .ProseMirror ul[data-type="taskList"] ul[data-type="taskList"] {
+    @apply m-0;
+  }
+  /* Mathematics extension styles */
+  .tiptap-mathematics-render {
+    @apply rounded bg-gray-100 px-1;
+  }
+  /* Editable math hover behavior */
+  .tiptap-mathematics-render--editable {
+    @apply cursor-pointer transition-colors duration-200;
+  }
+  .tiptap-mathematics-render--editable:hover {
+    @apply bg-gray-200;
+  }
+  /* Inline math */
+  .tiptap-mathematics-render[data-type="inline-math"] {
+    @apply inline-block;
+  }
+  /* Block math */
+  .tiptap-mathematics-render[data-type="block-math"] {
+    @apply my-4 block p-4 text-center;
+  }
+  /* Math render error states */
+  .tiptap-mathematics-render.inline-math-error,
+  .tiptap-mathematics-render.block-math-error {
+    @apply rounded border border-red-400 bg-red-100 p-2 text-red-600;
+  }
+  .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    @apply text-gray-400;
+    float: left;
+    pointer-events: none;
+    height: 0;
+  }
+  /* Youtube embed */
+  div[data-youtube-video] iframe {
+    @apply block min-h-[200px] min-w-[200px] rounded-md border-6 border-gray-900 outline-transparent;
+  }
 }

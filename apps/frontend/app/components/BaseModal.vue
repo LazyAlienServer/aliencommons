@@ -1,79 +1,68 @@
 <script setup lang="ts">
-import { watch, onMounted, onBeforeUnmount } from 'vue'
+import { watch, onMounted, onBeforeUnmount } from "vue";
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
     required: true,
   },
-})
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
 function close() {
-  emit('update:modelValue', false)
+  emit("update:modelValue", false);
 }
 
 function lockBody() {
-  document.body.style.overflow = 'hidden'
+  document.body.style.overflow = "hidden";
 }
 
 function unlockBody() {
-  document.body.style.overflow = ''
+  document.body.style.overflow = "";
 }
 
 watch(
-    () => props.modelValue,
-    (isOpen) => {
-      if (isOpen) {
-        lockBody()
-      } else {
-        unlockBody()
-      }
-    },
-    { immediate: true }
-)
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen) {
+      lockBody();
+    } else {
+      unlockBody();
+    }
+  },
+  { immediate: true },
+);
 
 function handleKeydown(e) {
-  if (!props.modelValue) return
-  if (e.key === 'Escape') {
-    close()
+  if (!props.modelValue) return;
+  if (e.key === "Escape") {
+    close();
   }
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown)
-})
+  window.addEventListener("keydown", handleKeydown);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
-  unlockBody()
-})
+  window.removeEventListener("keydown", handleKeydown);
+  unlockBody();
+});
 </script>
 
 <template>
   <Teleport to="body">
-    <div
-        v-if="modelValue"
-        class="modal"
-    >
+    <div v-if="modelValue" class="modal">
       <!-- Mask -->
-      <div
-          class="modal-mask"
-          @click="close()"
-      />
+      <div class="modal-mask" @click="close()" />
 
       <!-- Modal content -->
-      <div
-          class="modal-content"
-          @click.stop
-      >
+      <div class="modal-content" @click.stop>
         <slot />
       </div>
     </div>
   </Teleport>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

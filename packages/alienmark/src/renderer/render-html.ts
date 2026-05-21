@@ -15,7 +15,9 @@ export function renderHtml(node: DocumentNode | BlockNode): string {
     case "heading":
       return `<h${node.depth}>${renderInlineNodes(node.children)}</h${node.depth}>`;
     case "codeBlock": {
-      const className = node.language ? ` class="language-${escapeHtmlAttribute(node.language)}"` : "";
+      const className = node.language
+        ? ` class="language-${escapeHtmlAttribute(node.language)}"`
+        : "";
       return `<pre><code${className}>${escapeHtml(node.value)}</code></pre>`;
     }
     case "blockquote":
@@ -29,7 +31,10 @@ export function renderHtml(node: DocumentNode | BlockNode): string {
 
 function renderList(node: ListNode): string {
   const tag = node.ordered ? "ol" : "ul";
-  const startAttribute = node.ordered && node.start !== null && node.start !== 1 ? ` start="${node.start}"` : "";
+  const startAttribute =
+    node.ordered && node.start !== null && node.start !== 1
+      ? ` start="${node.start}"`
+      : "";
   return `<${tag}${startAttribute}>${node.items.map(renderListItem).join("")}</${tag}>`;
 }
 

@@ -1,125 +1,116 @@
-import { api } from '@/core/api'
-
+import { api } from "@/core/api";
 
 function getMySourceArticles(query = undefined) {
-    return api.get(
-        '/source_articles/',
-        {
-            withCredentials: true,
-            params: query,
-        },
-    );
+  return api.get("/source_articles/", {
+    withCredentials: true,
+    params: query,
+  });
 }
 
 function getTheSourceArticle(id) {
-    return api.get(`/source_articles/${id}/`, { withCredentials: true });
+  return api.get(`/source_articles/${id}/`, { withCredentials: true });
 }
 
 function createSourceArticle() {
-    return api.post(`/source_articles/`, {}, { withCredentials: true })
+  return api.post(`/source_articles/`, {}, { withCredentials: true });
 }
 
 function updateSourceArticle(id, title, markdown) {
-    return api.patch(
-        `/source_articles/${id}/`,
-        {
-            title: title,
-            markdown: markdown,
-        },
-        { withCredentials: true },
-    )
+  return api.patch(
+    `/source_articles/${id}/`,
+    {
+      title: title,
+      markdown: markdown,
+    },
+    { withCredentials: true },
+  );
 }
 
 function submitArticle(id) {
-    return api.post(
-        `/source_articles/${id}/submit/`,
-        {},
-        { withCredentials: true }
-    );
+  return api.post(
+    `/source_articles/${id}/submit/`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function withdrawArticle(id) {
-    return api.post(
-        `/source_articles/${id}/withdraw/`,
-        {},
-        { withCredentials: true }
-    );
+  return api.post(
+    `/source_articles/${id}/withdraw/`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function approveArticle(id) {
-    return api.post(
-        `/source_articles/${id}/approve/`,
-        {},
-        { withCredentials: true }
-    );
+  return api.post(
+    `/source_articles/${id}/approve/`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function rejectArticle(id) {
-    return api.post(
-        `/source_articles/${id}/reject/`,
-        {},
-        { withCredentials: true }
-    );
+  return api.post(
+    `/source_articles/${id}/reject/`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function unpublishArticle(id) {
-    return api.post(
-        `/source_articles/${id}/unpublish/`,
-        {},
-        { withCredentials: true }
-    );
+  return api.post(
+    `/source_articles/${id}/unpublish/`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function deleteArticle(id) {
-    return api.post(
-        `/source_articles/${id}/delete/`,
-        {},
-        { withCredentials: true }
-    );
+  return api.post(
+    `/source_articles/${id}/delete/`,
+    {},
+    { withCredentials: true },
+  );
 }
 
 function uploadArticleImage(formData) {
-
-    return api.post(
-        `/source_articles/images/`,
-        formData,
-        {
-            headers: { 'Content-Type': 'multipart/form-data' },
-            withCredentials: true,
-        }
-    )
+  return api.post(`/source_articles/images/`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    withCredentials: true,
+  });
 }
 
 function getPendingArticles() {
-    return api.get('/article_snapshots/pending_ones/', { withCredentials: true });
+  return api.get("/article_snapshots/pending_ones/", { withCredentials: true });
 }
 
 function getThePendingArticle(id) {
-    return api.get(`/article_snapshots/${id}/`, { withCredentials: true });
+  return api.get(`/article_snapshots/${id}/`, { withCredentials: true });
 }
 
 function getPublishedArticles() {
-    return api.get('/published_articles/');
+  return api.get("/published_articles/");
 }
 
 function getThePublishedArticle(id) {
-    return api.get(`/published_articles/${id}/`);
+  return api.get(`/published_articles/${id}/`);
 }
 
 export {
-    getMySourceArticles,
-    getTheSourceArticle,
-    createSourceArticle,
-    updateSourceArticle,
-    submitArticle,
-    withdrawArticle,
-    approveArticle,
-    rejectArticle,
-    unpublishArticle,
-    deleteArticle,
-    uploadArticleImage,
-    getPendingArticles,
-    getThePendingArticle,
-    getPublishedArticles,
-    getThePublishedArticle,
-}
+  getMySourceArticles,
+  getTheSourceArticle,
+  createSourceArticle,
+  updateSourceArticle,
+  submitArticle,
+  withdrawArticle,
+  approveArticle,
+  rejectArticle,
+  unpublishArticle,
+  deleteArticle,
+  uploadArticleImage,
+  getPendingArticles,
+  getThePendingArticle,
+  getPublishedArticles,
+  getThePublishedArticle,
+};

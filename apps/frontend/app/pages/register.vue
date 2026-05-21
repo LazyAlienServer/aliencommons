@@ -1,5 +1,5 @@
 <script setup>
-import { RegisterForm } from '@/features/user/components';
+import { RegisterForm } from "@/features/user/components";
 </script>
 
 <template>

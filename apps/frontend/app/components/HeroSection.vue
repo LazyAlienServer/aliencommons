@@ -1,49 +1,50 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue";
 import { getChannelSnapshot } from "@/core/api";
 import { extractErrorMessage } from "@/core/utils";
-import { WebsiteIcon } from "~/assets/logos"
+import { WebsiteIcon } from "~/assets/logos";
 
-const snapshot = ref({})
-let intervalId = null
+const snapshot = ref({});
+let intervalId = null;
 
 async function loadSnapshot() {
   try {
     const response = await getChannelSnapshot(snapshot);
-    snapshot.value = response.data
-    console.log("Fetch channel snapshot successfully")
+    snapshot.value = response.data;
+    console.log("Fetch channel snapshot successfully");
   } catch (error) {
-    console.warn('Failed to fetch channel snapshot:', extractErrorMessage(error))
+    console.warn(
+      "Failed to fetch channel snapshot:",
+      extractErrorMessage(error),
+    );
   }
 }
 
 onMounted(() => {
-  loadSnapshot()
-  intervalId = setInterval(loadSnapshot, 60 * 1000)
-})
+  loadSnapshot();
+  intervalId = setInterval(loadSnapshot, 60 * 1000);
+});
 
 onUnmounted(() => {
-  clearInterval(intervalId)
-})
+  clearInterval(intervalId);
+});
 </script>
 
 <template>
-  <div class="flex flex-row px-14 gap-40 items-center">
-
-    <div class="flex flex-col items-start pl-15 pt-6">
+  <div class="flex flex-row items-center gap-40 px-14">
+    <div class="flex flex-col items-start pt-6 pl-15">
       <div class="flex flex-col gap-x-2">
         <h1 class="text-[58px] font-bold">LAS Technical Minecraft</h1>
         <h1 class="text-[58px] font-bold">Translation Team</h1>
       </div>
 
-      <br>
+      <br />
 
       <p class="text-[32px]">A bridge between Minecraft communities.</p>
 
-      <br>
+      <br />
 
-      <div class="flex flex-row items-start gap-6 my-8">
-
+      <div class="my-8 flex flex-row items-start gap-6">
         <div class="hero-card">
           <p class="text-2xl font-bold">{{ snapshot.since }}</p>
           <p class="text-[14px]">Days Running</p>
@@ -63,10 +64,9 @@ onUnmounted(() => {
           <p class="text-2xl font-bold">{{ snapshot.view_count }}</p>
           <p class="text-[14px]">Views</p>
         </div>
-
       </div>
     </div>
 
-    <WebsiteIcon class="w-70 h-70 fill-current"/>
+    <WebsiteIcon class="h-70 w-70 fill-current" />
   </div>
 </template>

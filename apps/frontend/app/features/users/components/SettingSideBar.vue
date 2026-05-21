@@ -1,40 +1,36 @@
 <script setup lang="ts">
 import { useUserStore } from "@/features/user/stores";
-import { PaintBrushIcon } from "@/core/assets/icons"
+import { PaintBrushIcon } from "@/core/assets/icons";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo);
-const avatarUrl = computed(() => import.meta.env.VITE_API_BASE_URL + userStore.userInfo?.avatar)
+const avatarUrl = computed(
+  () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo?.avatar,
+);
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 mr-15 h-auto gap-y-6 w-1/5">
-
+  <div class="mr-15 flex h-auto w-1/5 flex-col gap-2 gap-y-6">
     <div class="flex flex-row items-center gap-3">
-
       <img
-          :src="avatarUrl"
-          alt="User Avatar"
-          class="w-13 h-13 rounded-full object-cover border border-gray-300"
+        :src="avatarUrl"
+        alt="User Avatar"
+        class="h-13 w-13 rounded-full border border-gray-300 object-cover"
       />
 
-      <div class="flex flex-col mb-0.5">
+      <div class="mb-0.5 flex flex-col">
         <p class="text-[22px] font-semibold">{{ userInfo?.username }}</p>
-        <p class="text-[12px] ml-0.5 text-gray-600">{{ userInfo?.email }}</p>
+        <p class="ml-0.5 text-[12px] text-gray-600">{{ userInfo?.email }}</p>
       </div>
-
     </div>
 
     <div class="flex flex-col gap-y-3">
-
       <router-link :to="{ name: 'appearance' }" class="sidebar-link">
         <PaintBrushIcon class="sidebar-icon" />
         Appearance
       </router-link>
-
     </div>
-
   </div>
 </template>

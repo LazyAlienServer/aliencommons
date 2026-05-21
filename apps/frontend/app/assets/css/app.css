@@ -1,121 +1,111 @@
 /*  Custom tailwind themes, utilities, components, variants and base styles  */
-@import '@tailwindcss';
+@import "@tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* Custom Themes */
 @theme {
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
 }
 
 /* Custom Utilities */
 @utility bg-light {
-    background-color: #FCFCFC;
+  background-color: #fcfcfc;
 }
 
 @utility bg-dark {
-    background-color: #1E1E1E;
+  background-color: #1e1e1e;
 }
 
-
 @utility text-light {
-    color: #1E1E1E;
+  color: #1e1e1e;
 }
 
 @utility text-dark {
-    color: #FCFCFC;
+  color: #fcfcfc;
 }
 
 @utility no-select {
-    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Custom Components */
 @layer components {
-    .backgrounds-auto {
-        @apply bg-light dark:bg-dark;
-    }
-    .header-backgrounds-auto {
-        @apply bg-neutral-100 dark:bg-neutral-700;
-    }
-    .hover-auto {
-        @apply hover:bg-gray-200 dark:hover:bg-[#2C2C2C];
-    }
-    .app-header {
-        @apply fixed top-0 left-0 w-full h-16
-        flex flex-row justify-between gap-6 px-8 py-3.5 z-50
-        no-select shrink-0;
-    }
-    .page-header {
-        @apply fixed top-16 h-10 w-full border-b z-40 pb-2 px-8
-        border-neutral-300 dark:border-neutral-700;
-    }
-    .app-footer {
-        @apply flex flex-col px-4 h-auto pb-8 pt-10 justify-between items-center gap-1 shrink-0;
-    }
-    .link {
-        @apply text-[14px] hover:text-[#3B82F6] transition-colors duration-200 hover:underline;
-    }
-    .col-body-container {
-        @apply flex flex-col gap-y-6 px-22 flex-1;
-    }
-    .row-body-container {
-        @apply flex flex-row gap-y-6 px-22 flex-1;
-    }
-    .sidebar-link {
-        @apply flex flex-row gap-2 py-1.5 pl-2 rounded-md text-[15px] hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-[#2C2C2C];
-    }
-    .sidebar-icon {
-        @apply w-4.5 h-4.5 fill-current mt-[3.1px];
-    }
-    .hero-card {
-        @apply flex flex-col rounded-md border shadow-md border-gray-400 p-6 gap-y-2 items-center w-43;
-    }
-    .header-icon {
-        @apply rounded-lg p-2 relative
-        hover:cursor-pointer hover:bg-gray-200
-        dark:hover:bg-[#2C2C2C];
-    }
-    .header-icon-dropdown {
-        @apply absolute
-        flex flex-col right-0 top-full mt-1 w-38 p-2 z-10
-        rounded-xl border border-gray-200 bg-white shadow
-    }
-    .header-icon-dropdown-btn {
-        @apply flex flex-row gap-x-2 px-3 py-2 items-center
-        w-full h-auto rounded text-left
-        no-select
-        hover:bg-gray-100
-    }
-    .header-icon-tooltip {
-        @apply absolute pointer-events-none left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-md
-        bg-dark text-dark px-2 py-1 text-xs opacity-0 translate-y-1
-        group-hover:opacity-100 group-hover:translate-y-0
-        dark:text-light dark:bg-light
-    }
-    .username-input {
-        @apply w-auto h-8 self-center border-x-0 border-t-0 border-b-1 outline-none;
-    }
-    .login-register-input {
-        @apply w-full h-8 self-center border-x-0 border-t-0 border-b-1 outline-none;
-    }
-    .login-register-icon {
-        @apply h-4.5 w-4.5 fill-current mb-1;
-    }
-    .form-btn {
-        @apply text-[13px] py-2 px-2.5 bg-green-600 hover:bg-green-700 w-auto rounded-md font-semibold self-center text-white
-    }
+  .backgrounds-auto {
+    @apply bg-light dark:bg-dark;
+  }
+  .header-backgrounds-auto {
+    @apply bg-neutral-100 dark:bg-neutral-700;
+  }
+  .hover-auto {
+    @apply hover:bg-gray-200 dark:hover:bg-[#2C2C2C];
+  }
+  .app-header {
+    @apply no-select fixed top-0 left-0 z-50 flex h-16 w-full shrink-0 flex-row justify-between gap-6 px-8 py-3.5;
+  }
+  .page-header {
+    @apply fixed top-16 z-40 h-10 w-full border-b border-neutral-300 px-8 pb-2 dark:border-neutral-700;
+  }
+  .app-footer {
+    @apply flex h-auto shrink-0 flex-col items-center justify-between gap-1 px-4 pt-10 pb-8;
+  }
+  .link {
+    @apply text-[14px] transition-colors duration-200 hover:text-[#3B82F6] hover:underline;
+  }
+  .col-body-container {
+    @apply flex flex-1 flex-col gap-y-6 px-22;
+  }
+  .row-body-container {
+    @apply flex flex-1 flex-row gap-y-6 px-22;
+  }
+  .sidebar-link {
+    @apply flex flex-row gap-2 rounded-md py-1.5 pl-2 text-[15px] hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-[#2C2C2C];
+  }
+  .sidebar-icon {
+    @apply mt-[3.1px] h-4.5 w-4.5 fill-current;
+  }
+  .hero-card {
+    @apply flex w-43 flex-col items-center gap-y-2 rounded-md border border-gray-400 p-6 shadow-md;
+  }
+  .header-icon {
+    @apply relative rounded-lg p-2 hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-[#2C2C2C];
+  }
+  .header-icon-dropdown {
+    @apply absolute top-full right-0 z-10 mt-1 flex w-38 flex-col rounded-xl border border-gray-200 bg-white p-2 shadow;
+  }
+  .header-icon-dropdown-btn {
+    @apply no-select flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left hover:bg-gray-100;
+  }
+  .header-icon-tooltip {
+    @apply bg-dark text-dark dark:text-light dark:bg-light pointer-events-none absolute top-full left-1/2 mt-1 -translate-x-1/2 translate-y-1 rounded-md px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:translate-y-0 group-hover:opacity-100;
+  }
+  .username-input {
+    @apply h-8 w-auto self-center border-x-0 border-t-0 border-b-1 outline-none;
+  }
+  .login-register-input {
+    @apply h-8 w-full self-center border-x-0 border-t-0 border-b-1 outline-none;
+  }
+  .login-register-icon {
+    @apply mb-1 h-4.5 w-4.5 fill-current;
+  }
+  .form-btn {
+    @apply w-auto self-center rounded-md bg-green-600 px-2.5 py-2 text-[13px] font-semibold text-white hover:bg-green-700;
+  }
 }
 
 /* Custom Base styles */
 @layer base {
-    ul {
-        @apply text-lg;
-    }
-    form {
-        @apply w-full flex flex-col max-w-sm bg-white p-8 rounded-lg shadow-md space-y-6 border border-gray-200 self-center mb-2
-    }
-    hr {
-        @apply border-t border-gray-300
-    }
+  ul {
+    @apply text-lg;
+  }
+  form {
+    @apply mb-2 flex w-full max-w-sm flex-col space-y-6 self-center rounded-lg border border-gray-200 bg-white p-8 shadow-md;
+  }
+  hr {
+    @apply border-t border-gray-300;
+  }
 }

@@ -5,6 +5,7 @@
   "scripts": {
     "frontend:dev": "pnpm --filter frontend dev",
     "frontend:build": "pnpm --filter frontend build",
+    "frontend:check": "pnpm --filter frontend check",
     "frontend:preview": "pnpm --filter frontend preview",
     "frontend:lint": "pnpm --filter frontend lint",
     "frontend:style": "pnpm --filter frontend style",

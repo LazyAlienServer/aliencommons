@@ -3,7 +3,7 @@ PNPM_FRONTEND = $(PNPM) --filter frontend
 PNPM_ALIENMARK = $(PNPM) --filter alienmark
 PNPM_ALIENMARK_SERVICE = $(PNPM) --filter alienmark-service
 
-.PHONY: node-install node-build node-test node-check frontend-dev frontend-build frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check
+.PHONY: node-install node-build node-test node-check frontend-dev frontend-build frontend-check frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check
 
 # NODE WORKSPACE
 node-install:
@@ -23,6 +23,9 @@ frontend-dev:
 
 frontend-build:
 	$(PNPM_FRONTEND) build
+
+frontend-check:
+	$(PNPM_FRONTEND) check
 
 frontend-preview:
 	$(PNPM_FRONTEND) preview

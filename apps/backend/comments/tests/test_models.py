@@ -32,6 +32,18 @@ class CommentModelTests(BaseTestCase):
 
         self.assertTrue(ContentTarget.objects.filter(comment=comment).exists())
 
+    def test_comment_created_directly_has_content_target(self):
+        target = get_or_create_published_article_target(self.published)
+
+        comment = Comment.objects.create(
+            author=self.author,
+            target=target,
+            body="Direct",
+        )
+
+        self.assertEqual(comment.content_target.target_type, ContentTarget.TargetType.COMMENT)
+        self.assertEqual(comment.content_target.comment, comment)
+
     def test_published_article_delete_cascades_comments_and_comment_targets(self):
         comment = create_comment(self.author, self.published)
         comment_target = comment.content_target
@@ -41,4 +53,3 @@ class CommentModelTests(BaseTestCase):
         self.assertFalse(PublishedArticle.objects.filter(id=self.published.id).exists())
         self.assertFalse(Comment.all_objects.filter(id=comment.id).exists())
         self.assertFalse(ContentTarget.objects.filter(id=comment_target.id).exists())
-

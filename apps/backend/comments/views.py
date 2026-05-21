@@ -7,6 +7,7 @@ from .permissions import CommentPermission
 from .serializers import CommentReadSerializer, CommentWriteSerializer
 from .services import (
     create_comment,
+    get_community_post_target,
     get_published_article_target,
     soft_delete_comment,
     update_comment,
@@ -19,6 +20,7 @@ class CommentViewSet(MyModelViewSet):
         "target",
         "target__published_article",
         "target__comment",
+        "target__community_post",
         "parent",
         "parent__target",
     )
@@ -46,10 +48,20 @@ class CommentViewSet(MyModelViewSet):
             )
         )
         published_article_id = self.request.query_params.get("published_article")
+        community_post_id = self.request.query_params.get("community_post")
         parent_id = self.request.query_params.get("parent")
 
         if published_article_id:
             target = get_published_article_target(published_article_id)
+            if target is None:
+                return queryset.none()
+            queryset = queryset.filter(
+                Q(target=target)
+                | Q(parent__target=target)
+            )
+
+        if community_post_id:
+            target = get_community_post_target(community_post_id)
             if target is None:
                 return queryset.none()
             queryset = queryset.filter(
@@ -73,6 +85,7 @@ class CommentViewSet(MyModelViewSet):
             body=input_serializer.validated_data["body"],
             mentions=input_serializer.validated_data["mentions"],
             published_article=input_serializer.validated_data.get("published_article"),
+            community_post=input_serializer.validated_data.get("community_post"),
             target=input_serializer.validated_data.get("target"),
         )
         output_serializer = CommentReadSerializer(

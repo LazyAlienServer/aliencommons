@@ -25,6 +25,16 @@ class CommunityPostViewSet(MyModelViewSet):
     def get_serializer_class(self):
         return self.serializer_class_mapping.get(self.action, self.default_serializer_class)
 
+    def get_queryset(self):
+        from comments.querysets import with_community_post_comment_count
+        from reactions.querysets import with_community_post_reaction_summary
+
+        queryset = with_community_post_reaction_summary(
+            super().get_queryset(),
+            user=self.request.user,
+        )
+        return with_community_post_comment_count(queryset)
+
     def create(self, request, *args, **kwargs):
         serializer = CommunityPostWriteSerializer(
             data=request.data,
@@ -60,6 +70,7 @@ class CommunityPostViewSet(MyModelViewSet):
         post = update_community_post(
             post=post,
             body=serializer.validated_data.get("body", post.body),
+            mentions=serializer.validated_data.get("mentions", post.mentions),
         )
         output_serializer = CommunityPostReadSerializer(
             instance=post,

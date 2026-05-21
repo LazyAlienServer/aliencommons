@@ -13,6 +13,7 @@ class ContentTarget(UUIDPrimaryKeyMixin,
     class TargetType(models.IntegerChoices):
         PUBLISHED_ARTICLE = 1, "Published Article"
         COMMENT = 2, "Comment"
+        COMMUNITY_POST = 3, "Community Post"
 
     target_type = models.IntegerField(
         choices=TargetType.choices,
@@ -38,6 +39,15 @@ class ContentTarget(UUIDPrimaryKeyMixin,
         verbose_name=_("comment"),
         help_text=_("The comment this content target points to"),
     )
+    community_post = models.OneToOneField(
+        "posts.CommunityPost",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="content_target",
+        verbose_name=_("community post"),
+        help_text=_("The community post this content target points to"),
+    )
 
     class Meta:
         verbose_name = _("content target")
@@ -51,11 +61,19 @@ class ContentTarget(UUIDPrimaryKeyMixin,
                         target_type=1,
                         published_article__isnull=False,
                         comment__isnull=True,
+                        community_post__isnull=True,
                     )
                     | models.Q(
                         target_type=2,
                         published_article__isnull=True,
                         comment__isnull=False,
+                        community_post__isnull=True,
+                    )
+                    | models.Q(
+                        target_type=3,
+                        published_article__isnull=True,
+                        comment__isnull=True,
+                        community_post__isnull=False,
                     )
                 ),
                 name="content_target_requires_exactly_one_object",

@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from core.tests.factories import (
+    create_community_post,
     create_published_article,
     create_reaction,
     create_source_article,
@@ -40,6 +41,28 @@ class ReactionViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["reaction_type"], Reaction.ReactionType.LIKE)
         self.assertEqual(Reaction.objects.count(), 1)
         self.assertEqual(ContentTarget.objects.count(), 1)
+
+    def test_user_can_like_community_post(self):
+        post = create_community_post(author=self.other_user, body="Post")
+
+        self.authenticate(self.user)
+        response = self.post_json(
+            reverse("reaction-list"),
+            {
+                "community_post": str(post.id),
+                "reaction_type": Reaction.ReactionType.LIKE,
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assert_uuid_equal(response.data["data"]["user"], self.user.id)
+        self.assert_uuid_equal(response.data["data"]["community_post"], post.id)
+        self.assertIsNone(response.data["data"]["published_article"])
+        self.assertEqual(Reaction.objects.count(), 1)
 
     def test_posting_same_target_switches_existing_reaction(self):
         reaction = create_reaction(
@@ -131,6 +154,30 @@ class ReactionViewTests(BaseAPITestCase):
             code="not_reacted",
         )
         self.assertFalse(response.data["data"]["deleted"])
+
+    def test_user_can_clear_own_reaction_by_community_post(self):
+        post = create_community_post(author=self.other_user, body="Post")
+        reaction = Reaction.objects.create(
+            user=self.user,
+            target=post.content_target,
+            reaction_type=Reaction.ReactionType.LIKE,
+        )
+
+        self.authenticate(self.user)
+        response = self.delete_json(
+            reverse(
+                "reaction-clear-community-post",
+                args=[post.id],
+            ),
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="deleted",
+        )
+        self.assertTrue(response.data["data"]["deleted"])
+        self.assertFalse(Reaction.objects.filter(id=reaction.id).exists())
 
     def test_user_cannot_delete_another_users_reaction(self):
         reaction = create_reaction(self.other_user, self.published)

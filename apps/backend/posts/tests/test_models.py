@@ -1,3 +1,4 @@
+from core.models import ContentTarget
 from core.tests.factories import create_community_post, create_user
 from core.tests.testcases import BaseTestCase
 from posts.models import CommunityPost
@@ -13,6 +14,16 @@ class CommunityPostModelTests(BaseTestCase):
         self.assertEqual(post.body, "Hello community")
         self.assertFalse(post.is_deleted)
         self.assertTrue(CommunityPost.objects.filter(id=post.id).exists())
+        self.assertEqual(post.content_target.target_type, ContentTarget.TargetType.COMMUNITY_POST)
+        self.assertEqual(post.content_target.community_post, post)
+
+    def test_post_created_directly_has_content_target(self):
+        author = create_user(username="direct-post-author")
+
+        post = CommunityPost.objects.create(author=author, body="Direct")
+
+        self.assertEqual(post.content_target.target_type, ContentTarget.TargetType.COMMUNITY_POST)
+        self.assertEqual(post.content_target.community_post, post)
 
     def test_posts_are_ordered_newest_first(self):
         author = create_user(username="post-author")
@@ -37,3 +48,11 @@ class CommunityPostModelTests(BaseTestCase):
         post = create_community_post(author=author, body="Hello community")
 
         self.assertEqual(str(post), f"Post {post.id} by {author.id}")
+
+    def test_post_delete_cascades_content_target(self):
+        post = create_community_post()
+        target_id = post.content_target.id
+
+        post.delete()
+
+        self.assertFalse(ContentTarget.objects.filter(id=target_id).exists())

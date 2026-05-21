@@ -5,6 +5,7 @@ from rest_framework import status
 from comments.models import Comment
 from core.tests.factories import (
     create_comment,
+    create_community_post,
     create_published_article,
     create_source_article,
     create_user,
@@ -38,6 +39,28 @@ class CommentViewTests(BaseAPITestCase):
         self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
         self.assertIsNone(response.data["data"]["parent"])
         self.assertEqual(response.data["data"]["body"], "This is useful")
+        self.assertEqual(Comment.objects.count(), 1)
+
+    def test_user_can_comment_on_community_post(self):
+        post = create_community_post(author=self.author, body="Post")
+
+        self.authenticate(self.other_user)
+        response = self.post_json(
+            reverse("comment-list"),
+            {
+                "community_post": str(post.id),
+                "body": "A post comment",
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assert_uuid_equal(response.data["data"]["target"], post.content_target.id)
+        self.assert_uuid_equal(response.data["data"]["community_post"], post.id)
+        self.assertIsNone(response.data["data"]["published_article"])
         self.assertEqual(Comment.objects.count(), 1)
 
     def test_user_can_reply_to_top_level_comment(self):
@@ -204,6 +227,37 @@ class CommentViewTests(BaseAPITestCase):
             reverse("comment-list"),
             {
                 "published_article": str(self.published.id),
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="listed",
+        )
+        comment_ids = {item["id"] for item in response.data["data"]["results"]}
+        self.assertEqual(comment_ids, {str(top_level.id), str(reply.id)})
+
+    def test_list_filters_comments_by_community_post(self):
+        post = create_community_post(author=self.author, body="Post")
+        other_post = create_community_post(author=self.author, body="Other")
+        top_level = Comment.objects.create(
+            author=self.author,
+            target=post.content_target,
+            body="Top level",
+        )
+        reply = create_comment(self.other_user, None, reply_to=top_level, body="Reply")
+        Comment.objects.create(
+            author=self.author,
+            target=other_post.content_target,
+            body="Other",
+        )
+
+        self.authenticate(self.author)
+        response = self.get_json(
+            reverse("comment-list"),
+            {
+                "community_post": str(post.id),
             },
         )
 

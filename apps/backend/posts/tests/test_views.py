@@ -4,7 +4,9 @@ from rest_framework import status
 
 from core.tests.factories import create_community_post, create_user
 from core.tests.testcases import BaseAPITestCase
+from comments.models import Comment
 from posts.models import CommunityPost
+from reactions.models import Reaction
 
 
 class CommunityPostViewTests(BaseAPITestCase):
@@ -45,6 +47,37 @@ class CommunityPostViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["body"], "Hello community")
         self.assertEqual(response.data["data"]["author_username"], "post-author")
 
+    def test_post_response_includes_comment_and_reaction_summary(self):
+        post = create_community_post(author=self.author, body="Summary")
+        Comment.objects.create(
+            author=self.other_user,
+            target=post.content_target,
+            body="Top level",
+        )
+        Reaction.objects.create(
+            user=self.author,
+            target=post.content_target,
+            reaction_type=Reaction.ReactionType.LIKE,
+        )
+        Reaction.objects.create(
+            user=self.other_user,
+            target=post.content_target,
+            reaction_type=Reaction.ReactionType.DISLIKE,
+        )
+
+        self.authenticate(self.author)
+        response = self.get_json(reverse("community_post-detail", args=[post.id]))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="retrieved",
+        )
+        self.assertEqual(response.data["data"]["comment_count"], 1)
+        self.assertEqual(response.data["data"]["like_count"], 1)
+        self.assertEqual(response.data["data"]["dislike_count"], 1)
+        self.assertEqual(response.data["data"]["my_reaction"], Reaction.ReactionType.LIKE)
+
     def test_authenticated_user_can_create_post_as_request_user(self):
         self.authenticate(self.author)
         response = self.post_json(
@@ -63,6 +96,57 @@ class CommunityPostViewTests(BaseAPITestCase):
         self.assertEqual(post.author, self.author)
         self.assertEqual(post.body, "Hello community")
         self.assert_uuid_equal(response.data["data"]["author"]["id"], self.author.id)
+        self.assert_uuid_equal(response.data["data"]["content_target"], post.content_target.id)
+        self.assertEqual(response.data["data"]["mentions"], [])
+
+    def test_post_mentions_render_with_current_usernames(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("community_post-list"),
+            {
+                "body": "{{mention:0}} and {{mention:1}}",
+                "mentions": [str(self.other_user.id), str(self.author.id)],
+            },
+        )
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_201_CREATED,
+            code="created",
+        )
+        self.assertEqual(
+            response.data["data"]["render_body"],
+            "[@other-user](http://testserver/users/other-user) "
+            "and [@post-author](http://testserver/users/post-author)",
+        )
+        self.assertEqual(
+            response.data["data"]["mention_users"],
+            [
+                {
+                    "user_id": str(self.other_user.id),
+                    "username": "other-user",
+                },
+                {
+                    "user_id": str(self.author.id),
+                    "username": "post-author",
+                },
+            ],
+        )
+
+    def test_create_rejects_unused_mentions(self):
+        self.authenticate(self.author)
+        response = self.post_json(
+            reverse("community_post-list"),
+            {
+                "body": "{{mention:0}}",
+                "mentions": [str(self.other_user.id), str(self.author.id)],
+            },
+        )
+
+        self.assert_error_response(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     def test_author_can_update_own_post(self):
         post = create_community_post(author=self.author, body="Before")

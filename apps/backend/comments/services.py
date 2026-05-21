@@ -5,14 +5,24 @@ from core.exceptions import ServiceError
 from core.models import ContentTarget
 from core.services.content_targets import (
     get_or_create_comment_target,
+    get_or_create_community_post_target,
     get_or_create_published_article_target,
 )
+from posts.models import CommunityPost
 
 from .models import Comment
 
 
 @transaction.atomic
-def create_comment(*, author, body: str, mentions: list, published_article: PublishedArticle = None, target=None):
+def create_comment(
+    *,
+    author,
+    body: str,
+    mentions: list,
+    published_article: PublishedArticle = None,
+    community_post: CommunityPost = None,
+    target=None,
+):
     if target is not None:
         if target.comment_id is None:
             raise ServiceError(
@@ -22,13 +32,16 @@ def create_comment(*, author, body: str, mentions: list, published_article: Publ
         target_comment = target.comment
         parent = target_comment if target_comment.parent_id is None else target_comment.parent
     else:
-        if published_article is None:
+        if published_article is None and community_post is None:
             raise ServiceError(
-                detail="A published article is required",
-                code="published_article_required",
+                detail="A published article or community post is required",
+                code="content_target_required",
             )
         parent = None
-        target = get_or_create_published_article_target(published_article)
+        if published_article is not None:
+            target = get_or_create_published_article_target(published_article)
+        else:
+            target = get_or_create_community_post_target(community_post)
 
     comment = Comment.objects.create(
         author=author,
@@ -59,6 +72,16 @@ def get_published_article_target(published_article_id):
         return ContentTarget.objects.get(
             target_type=ContentTarget.TargetType.PUBLISHED_ARTICLE,
             published_article_id=published_article_id,
+        )
+    except ContentTarget.DoesNotExist:
+        return None
+
+
+def get_community_post_target(community_post_id):
+    try:
+        return ContentTarget.objects.get(
+            target_type=ContentTarget.TargetType.COMMUNITY_POST,
+            community_post_id=community_post_id,
         )
     except ContentTarget.DoesNotExist:
         return None

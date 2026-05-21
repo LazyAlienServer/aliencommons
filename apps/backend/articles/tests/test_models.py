@@ -9,6 +9,7 @@ from articles.models import (
     SourceArticle,
 )
 from articles.services.articles import ArticleWorkflow
+from core.models import ContentTarget
 from core.tests.factories import (
     create_collection,
     create_collection_item,
@@ -61,6 +62,19 @@ class ArticleModelTests(BaseTestCase):
         )
 
         self.assertEqual(str(published), "Published version of article Ship log")
+
+    def test_published_article_created_directly_has_content_target(self):
+        article = create_source_article(author=self.author, title="Targetable")
+
+        published = PublishedArticle.objects.create(
+            source_article=article,
+            title=article.title,
+            html=article.markdown,
+            publication_at=article.created_at,
+        )
+
+        self.assertEqual(published.content_target.target_type, ContentTarget.TargetType.PUBLISHED_ARTICLE)
+        self.assertEqual(published.content_target.published_article, published)
 
     def test_article_snapshot_string_representation_uses_source_article_id(self):
         article = create_source_article(author=self.author)

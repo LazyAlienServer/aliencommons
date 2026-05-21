@@ -59,7 +59,7 @@ Run the smallest relevant checks for the change. If a check cannot be run, menti
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **alien-commons** (2650 symbols, 4181 relationships, 58 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **aliencommons** (2937 symbols, 5444 relationships, 102 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -82,10 +82,10 @@ This project is indexed by GitNexus as **alien-commons** (2650 symbols, 4181 rel
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/alien-commons/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/alien-commons/clusters` | All functional areas |
-| `gitnexus://repo/alien-commons/processes` | All execution flows |
-| `gitnexus://repo/alien-commons/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/aliencommons/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/aliencommons/clusters` | All functional areas |
+| `gitnexus://repo/aliencommons/processes` | All execution flows |
+| `gitnexus://repo/aliencommons/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 

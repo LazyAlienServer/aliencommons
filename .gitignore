@@ -13,6 +13,7 @@
 .agents
 .sisyphus
 .windsurf
+CLAUDE.md
 
 # Logs and runtime files
 *.log

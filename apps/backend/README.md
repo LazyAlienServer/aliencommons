@@ -19,6 +19,7 @@ The Django API service for AlienCommons.
 - `articles`: source articles, published articles, collections, and article workflows
 - `bookmarks`: bookmark folders and article bookmarks
 - `comments`: article comments and replies
+- `notifications`: user notification events, fan-out deliveries, and inbox APIs
 - `posts`: community posts and related content
 - `reactions`: like/dislike targets and user reactions
 - `reports`: content and user moderation reports
@@ -34,7 +35,7 @@ uv run python manage.py check
 uv run python manage.py makemigrations
 uv run python manage.py migrate
 uv run python manage.py test --settings=backend.settings.test
-uv run ruff check articles bookmarks comments posts reactions reports core users logs tasks backend manage.py
+uv run ruff check articles bookmarks comments notifications posts reactions reports core users logs tasks backend manage.py
 ```
 
 Or use the root Make targets:

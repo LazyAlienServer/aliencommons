@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from core.views.viewsets import MyModelViewSet
+from notifications.services import notify_new_subscriber
 from ..models import UserSubscription
 from ..serializers import UserSubscriptionReadSerializer, UserSubscriptionWriteSerializer
 
@@ -34,6 +35,7 @@ class UserSubscriptionViewSet(MyModelViewSet):
         )
         input_serializer.is_valid(raise_exception=True)
         subscription = input_serializer.save(subscriber=request.user)
+        notify_new_subscriber(subscription=subscription)
         output_serializer = UserSubscriptionReadSerializer(
             instance=subscription,
             context=self.get_serializer_context(),

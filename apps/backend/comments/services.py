@@ -8,6 +8,7 @@ from core.services.content_targets import (
     get_or_create_community_post_target,
     get_or_create_published_article_target,
 )
+from notifications.services import notify_comment_reply, notify_mentions
 from posts.models import CommunityPost
 
 from .models import Comment
@@ -50,14 +51,29 @@ def create_comment(
         body=body,
         mentions=mentions,
     )
-    get_or_create_comment_target(comment)
+    comment_target = get_or_create_comment_target(comment)
+    notify_mentions(
+        actor=author,
+        target=comment_target,
+        mention_user_ids=mentions,
+        dedupe_prefix=f"comment:{comment.id}:created",
+    )
+    if target.comment_id is not None:
+        notify_comment_reply(comment=comment)
     return comment
 
 
 def update_comment(*, comment: Comment, body: str, mentions: list):
+    previous_mentions = set(comment.mentions)
     comment.body = body
     comment.mentions = mentions
     comment.save(update_fields=["body", "mentions", "updated_at"])
+    notify_mentions(
+        actor=comment.author,
+        target=comment.content_target,
+        mention_user_ids=set(mentions) - previous_mentions,
+        dedupe_prefix=f"comment:{comment.id}:updated",
+    )
     return comment
 
 

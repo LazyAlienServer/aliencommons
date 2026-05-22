@@ -95,6 +95,7 @@ jobs:
           backend
           core
           logs
+          notifications
           posts
           reactions
           reports

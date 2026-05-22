@@ -9,6 +9,7 @@ from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, Ar
 from core.exceptions import ServiceError
 from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
+from notifications.services import notify_subscribed_author_posted
 from .markdown import extract_title_from_markdown, validate_article_markdown
 
 logger = get_logger(__name__)
@@ -158,6 +159,11 @@ class ArticleWorkflow:
             title=self.article_snapshot.title,
             html=html,
             publication_at=timezone.now(),
+        )
+        notify_subscribed_author_posted(
+            actor=self.source_article.author,
+            target=published_article.content_target,
+            content_kind="published_article",
         )
 
         return published_article

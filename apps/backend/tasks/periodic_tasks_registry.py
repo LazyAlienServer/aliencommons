@@ -22,4 +22,13 @@ periodic_tasks = [
         },
         "args": [1],  # grace_days=1
     },
+    {
+        "name": "fan out pending notification events",
+        "task": "notifications.tasks.fan_out_pending_notification_events_task",
+        "queue_name": "maintenance",
+        "schedule": {
+            "every": 1,
+            "period": "minute",
+        },
+    },
 ]

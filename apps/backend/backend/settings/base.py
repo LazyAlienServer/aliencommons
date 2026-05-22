@@ -164,6 +164,7 @@ INSTALLED_APPS = [
     "reactions.apps.ReactionsConfig",
     "reports.apps.ReportsConfig",
     "posts.apps.PostsConfig",
+    "notifications.apps.NotificationsConfig",
     "tasks.apps.TasksConfig",
     "corsheaders",
     "rest_framework",

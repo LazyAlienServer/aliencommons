@@ -21,11 +21,5 @@
   "dependencies": {
     "alienmark": "workspace:*",
     "fastify": "^5.6.2"
-  },
-  "devDependencies": {
-    "@types/node": "^25.7.0",
-    "tsdown": "^0.22.0",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
   }
 }

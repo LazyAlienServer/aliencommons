@@ -16,10 +16,10 @@ node-test:
 	$(PNPM) -r --if-present test
 
 node-check:
-	$(PNPM) run node:check
+	$(PNPM) run check
 
 node-typecheck:
-	$(PNPM) run node:typecheck
+	$(PNPM) run typecheck
 
 node-lint:
 	$(PNPM) run lint:check

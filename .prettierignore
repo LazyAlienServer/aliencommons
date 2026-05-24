@@ -13,4 +13,3 @@ media
 pnpm-lock.yaml
 pnpm-workspace.yaml
 *.md
-package.json

@@ -60,7 +60,7 @@ Run the smallest relevant checks for the change. If a check cannot be run, menti
 
 | Area | Command | Notes |
 |------|---------|-------|
-| Node workspace (frontend, alienmark, alienmark-service) | `pnpm run node:check` | Aggregate gate; matches the CI `node` job. |
+| Node workspace (frontend, alienmark, alienmark-service) | `pnpm run check` | Aggregate gate; matches the CI `node` job. |
 | Node single package | `pnpm --filter <name> check` | Runs lint, typecheck, and style for one package. |
 | Backend (in `apps/backend/`) | `uv run python manage.py test` | See `apps/backend/AGENTS.md` for ruff and per-app guidance. |
 | Backend via Compose | `make dev-backend-test` / `make dev-backend-check` | Uses `infra/compose/docker-compose.dev.yml`. |

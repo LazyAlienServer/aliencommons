@@ -30,5 +30,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "tsdown": "^0.22.0"
+  }
 }

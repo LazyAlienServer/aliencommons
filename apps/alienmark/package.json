@@ -21,5 +21,8 @@
   "dependencies": {
     "alienmark": "workspace:*",
     "fastify": "^5.6.2"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.0"
   }
 }

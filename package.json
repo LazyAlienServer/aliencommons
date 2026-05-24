@@ -28,8 +28,8 @@
     "lint:check": "oxlint",
     "lint:fix": "oxlint --fix",
     "lint": "pnpm run lint:check",
-    "style:check": "prettier --check",
-    "style:fix": "prettier --write",
+    "style:check": "prettier --check .",
+    "style:fix": "prettier --write .",
     "style": "pnpm run style:check",
     "typecheck": "pnpm run alienmark:typecheck && pnpm run alienmark-service:typecheck && pnpm run frontend:typecheck"
   },

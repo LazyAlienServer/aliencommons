@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { watch, onMounted, onBeforeUnmount } from "vue";
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-});
+const props = defineProps<{
+  modelValue: boolean;
+}>();
 
 const emit = defineEmits(["update:modelValue"]);
 

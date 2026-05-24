@@ -9,12 +9,14 @@ import { setRefreshToken, getRefreshToken, removeRefreshToken } from "~/utils";
 
 export const useUserStore = defineStore("user", () => {
   /* states */
-  const accessToken = ref(null);
-  const userInfo = ref(null);
+  const accessToken = ref<string | undefined>(undefined);
+  const userInfo = ref<Record<string, unknown> | undefined>(undefined);
   const isLoggedIn = computed(() => !!accessToken.value);
 
   /* Tools */
-  const refreshTimer = ref(null);
+  const refreshTimer = ref<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   function scheduleTokenRefresh(expiresInSeconds) {
     // 可能有问题
@@ -24,7 +26,7 @@ export const useUserStore = defineStore("user", () => {
     refreshTimer.value = setTimeout(() => {
       refreshAccessToken()
         .then(() => {
-          console.log("Access token successfully refreshed!");
+          return console.log("Access token successfully refreshed!");
         })
         .catch((error) => {
           console.warn(error);
@@ -67,8 +69,8 @@ export const useUserStore = defineStore("user", () => {
   function logout() {
     clearTimeout(refreshTimer.value);
 
-    accessToken.value = null;
-    userInfo.value = null;
+    accessToken.value = undefined;
+    userInfo.value = undefined;
 
     localStorage.removeItem("accessToken");
     removeRefreshToken();

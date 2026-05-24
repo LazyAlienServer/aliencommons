@@ -90,7 +90,7 @@ function parseCodeBlock(
   startIndex: number,
 ): { node: CodeBlockNode; nextIndex: number } {
   const openingLine = getLine(lines, startIndex).trim();
-  const language = openingLine.slice(3).trim() || null;
+  const language = openingLine.slice(3).trim() || undefined;
   const content: string[] = [];
   let index = startIndex + 1;
 
@@ -156,7 +156,7 @@ function parseList(
   const orderedMatch = firstLine.match(ORDERED_LIST_RE);
   const ordered = Boolean(orderedMatch);
   const items: ListItemNode[] = [];
-  const start = orderedMatch ? Number(orderedMatch[1] ?? "1") : null;
+  const start = orderedMatch ? Number(orderedMatch[1] ?? "1") : undefined;
   let index = startIndex;
 
   while (index < lines.length) {

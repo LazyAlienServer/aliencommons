@@ -32,7 +32,7 @@ export function renderHtml(node: DocumentNode | BlockNode): string {
 function renderList(node: ListNode): string {
   const tag = node.ordered ? "ol" : "ul";
   const startAttribute =
-    node.ordered && node.start !== null && node.start !== 1
+    node.ordered && node.start !== undefined && node.start !== 1
       ? ` start="${node.start}"`
       : "";
   return `<${tag}${startAttribute}>${node.items.map(renderListItem).join("")}</${tag}>`;

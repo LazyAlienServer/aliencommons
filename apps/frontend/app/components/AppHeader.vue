@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useUserStore, useThemeStore } from "~/features/users/stores";
@@ -70,7 +70,7 @@ async function createArticle() {
 // Create Dropdown
 
 const isCreateOpen = ref(false);
-const createRootElement = ref(null);
+const createRootElement = ref<HTMLElement | undefined>(undefined);
 
 function toggleCreate() {
   isCreateOpen.value = !isCreateOpen.value;

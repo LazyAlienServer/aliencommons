@@ -17,7 +17,7 @@ const avatarUrl = computed(
   () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar,
 );
 
-const fileInput = ref(null);
+const fileInput = ref<HTMLInputElement | undefined>(undefined);
 
 // Open File Select Window
 function triggerFileSelect() {

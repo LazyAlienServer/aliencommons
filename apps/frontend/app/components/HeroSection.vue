@@ -5,7 +5,7 @@ import { extractErrorMessage } from "@/core/utils";
 import { WebsiteIcon } from "~/assets/logos";
 
 const snapshot = ref({});
-let intervalId = null;
+let intervalId: ReturnType<typeof setInterval> | undefined;
 
 async function loadSnapshot() {
   try {

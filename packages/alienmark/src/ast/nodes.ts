@@ -33,7 +33,7 @@ export interface HeadingNode {
 
 export interface CodeBlockNode {
   type: "codeBlock";
-  language: string | null;
+  language: string | undefined;
   value: string;
 }
 
@@ -45,7 +45,7 @@ export interface BlockquoteNode {
 export interface ListNode {
   type: "list";
   ordered: boolean;
-  start: number | null;
+  start: number | undefined;
   items: ListItemNode[];
 }
 

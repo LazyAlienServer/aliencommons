@@ -9,8 +9,8 @@ const api = axios.create({
 
 // Do not call useUserStore() outside the interceptors
 let isRefreshing = false;
-let refreshPromise = null;
-const subscribers = [];
+let refreshPromise: Promise<void> | undefined;
+const subscribers: (() => void)[] = [];
 
 function onRefreshed() {
   subscribers.forEach(function (callback) {
@@ -85,7 +85,7 @@ api.interceptors.response.use(
       return Promise.reject(refreshErr);
     } finally {
       isRefreshing = false;
-      refreshPromise = null;
+      refreshPromise = undefined;
     }
   },
 );

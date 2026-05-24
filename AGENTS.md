@@ -13,6 +13,15 @@ This is a monorepo. The main areas are:
 
 Prefer the conventions already present in the area you are editing.
 
+## Nested Guides
+
+Read the closest applicable `AGENTS.md` before editing in these areas:
+
+| Area | Guide |
+|------|-------|
+| `apps/backend/` | `apps/backend/AGENTS.md` |
+| `docs/` (and each docs subproject) | `docs/AGENTS.md` |
+
 ## Tech Stacks
 
 - Monorepo tooling: pnpm workspaces, Make targets, Docker Compose, and GitHub Actions.
@@ -49,11 +58,21 @@ DNS is managed in Cloudflare for `aliencommons.com`.
 
 Run the smallest relevant checks for the change. If a check cannot be run, mention that in the final response.
 
+| Area | Command | Notes |
+|------|---------|-------|
+| Node workspace (frontend, alienmark, alienmark-service) | `pnpm run node:check` | Aggregate gate; matches the CI `node` job. |
+| Node single package | `pnpm --filter <name> check` | Runs lint, typecheck, and style for one package. |
+| Backend (in `apps/backend/`) | `uv run python manage.py test` | See `apps/backend/AGENTS.md` for ruff and per-app guidance. |
+| Backend via Compose | `make dev-backend-test` / `make dev-backend-check` | Uses `infra/compose/docker-compose.dev.yml`. |
+| Docs subproject (in `docs/<name>/`) | `uv run mkdocs build --strict` | Matches the CI `docs-*` jobs. |
+
+For the full local stack, use `make dev-up`. Other Make targets live in `make/docker.mk` and `make/node.mk`.
+
 ## Git
 
 - Use focused commits and clear commit messages.
-- Feature work should normally branch from the active development branch.
-- Production releases should be represented by tags, not by editing this file.
+- Feature work should normally branch from `dev`. `main` is the release branch.
+- Production releases are represented by git tags. Do not encode release versions in this file.
 - Do not include a `Verification` section in pull request descriptions unless the user explicitly asks for one.
 
 <!-- gitnexus:start -->

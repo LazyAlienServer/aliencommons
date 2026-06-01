@@ -20,7 +20,7 @@ The project is currently in its early stages, with a production-ready backend an
 
 ## Architecture
 
-```
+```plaintext
 ┌──────────────────────────────────────────────────────┐
 │                       Frontend                       │
 │           Nuxt 4 · Vue 3 · Tailwind CSS 4            │
@@ -43,19 +43,19 @@ The backend communicates with an internal **AlienMark** service (Fastify) for se
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Backend** | Python 3.14, Django 6, Django REST Framework, Django Channels |
-| **Database** | PostgreSQL 18 |
-| **Cache / Queue** | Redis 8, RQ (via django-tasks-rq) |
-| **Frontend** | Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia |
-| **Markdown** | AlienMark (custom TypeScript parser + Fastify HTTP service) |
-| **Observability** | Grafana, Loki, Grafana Alloy |
-| **Infrastructure** | Docker Compose, Traefik, AWS, Cloudflare DNS |
-| **Package Management** | pnpm (Node), uv (Python) |
-| **Monorepo** | pnpm workspaces, Turbo |
-| **CI/CD** | GitHub Actions |
-| **Documentation** | MkDocs + Material for MkDocs (English / 中文) |
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=py,django,postgres,redis,ts,nuxt,vue,tailwind,docker,grafana" alt="Tech stack icons" />
+  </a>
+</p>
+
+- Python 3.14, Django 6, Django REST Framework, Django Channels, Daphne
+- PostgreSQL 18, Redis 8, RQ (`django-tasks-rq`)
+- Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia
+- AlienMark — custom TypeScript Markdown parser, internal Fastify rendering service
+- Grafana, Loki, Grafana Alloy
+- Docker Compose, Traefik, AWS, Cloudflare DNS
+- pnpm workspaces, Turbo, uv, GitHub Actions
 
 ## Getting Started
 
@@ -121,11 +121,11 @@ aliencommons/
 
 ## Documentation
 
-| Audience | Description | Link |
-|---|---|---|
-| Users | Platform usage guide, community rules | [`docs/users/`](docs/users/) |
+| Audience     | Description                               | Link                                       |
+| ------------ | ----------------------------------------- | ------------------------------------------ |
+| Users        | Platform usage guide, community rules     | [`docs/users/`](docs/users/)               |
 | Contributors | Architecture, setup, development workflow | [`docs/contributors/`](docs/contributors/) |
-| AlienMark | Markdown syntax reference and API | [`docs/alienmark/`](docs/alienmark/) |
+| AlienMark    | Markdown syntax reference and API         | [`docs/alienmark/`](docs/alienmark/)       |
 
 All documentation is available in English and Chinese (中文) and built with [MkDocs](https://www.mkdocs.org/) using the [Material](https://squidfunk.github.io/mkdocs-material/) theme.
 

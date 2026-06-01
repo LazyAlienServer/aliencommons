@@ -6,23 +6,20 @@
   "type": "module",
   "main": "./dist/server.mjs",
   "scripts": {
-    "build": "tsdown src/server.ts --format esm --dts false",
+    "build": "vp pack src/server.ts --format esm --dts false",
     "check": "pnpm run lint:check && pnpm run typecheck && pnpm run style:check",
     "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.mjs",
     "lint": "pnpm run lint:check",
-    "lint:check": "oxlint src",
-    "lint:fix": "oxlint src --fix",
+    "lint:check": "vp lint src",
+    "lint:fix": "vp lint src --fix",
     "style": "pnpm run style:check",
-    "style:check": "prettier --check package.json src tsconfig.json --ignore-path ../../.prettierignore",
-    "style:fix": "prettier --write package.json src tsconfig.json --ignore-path ../../.prettierignore"
+    "style:check": "vp fmt --check package.json src tsconfig.json --ignore-path ../../.prettierignore",
+    "style:fix": "vp fmt package.json src tsconfig.json --ignore-path ../../.prettierignore"
   },
   "dependencies": {
     "alienmark": "workspace:*",
     "fastify": "^5.6.2"
-  },
-  "devDependencies": {
-    "tsdown": "^0.22.0"
   }
 }

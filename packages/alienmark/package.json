@@ -16,22 +16,19 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "vp pack",
     "check": "pnpm run lint:check && pnpm run typecheck && pnpm run style:check && pnpm run test",
     "typecheck": "tsc --noEmit",
-    "dev": "tsdown --watch",
+    "dev": "vp pack --watch",
     "lint": "pnpm run lint:check",
-    "lint:check": "oxlint src test",
-    "lint:fix": "oxlint src test --fix",
+    "lint:check": "vp lint src test",
+    "lint:fix": "vp lint src test --fix",
     "style": "pnpm run style:check",
-    "style:check": "prettier --check package.json README.md src test tsconfig.json --ignore-path ../../.prettierignore",
-    "style:fix": "prettier --write package.json README.md src test tsconfig.json --ignore-path ../../.prettierignore",
-    "test": "vitest run"
+    "style:check": "vp fmt --check package.json README.md src test tsconfig.json --ignore-path ../../.prettierignore",
+    "style:fix": "vp fmt package.json README.md src test tsconfig.json --ignore-path ../../.prettierignore",
+    "test": "vp test run"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "tsdown": "^0.22.0"
-  }
+  "license": "ISC"
 }

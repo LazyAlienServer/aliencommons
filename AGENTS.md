@@ -78,7 +78,7 @@ For the full local stack, use `make dev-up`. Other Make targets live in `make/do
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **aliencommons** (2937 symbols, 5444 relationships, 102 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **aliencommons** (2970 symbols, 5535 relationships, 106 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

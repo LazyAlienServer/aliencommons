@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const themeStore = useThemeStore();
 
 function applyTheme(mode) {

@@ -4,7 +4,7 @@ import { ref } from "vue";
 const useThemeStore = defineStore("theme", () => {
   const theme = ref("light");
 
-  function applyTheme(mode) {
+  function applyTheme(mode: string) {
     theme.value = mode;
     document.documentElement.setAttribute("data-theme", mode);
     localStorage.setItem("theme", mode);

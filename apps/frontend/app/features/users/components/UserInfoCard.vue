@@ -2,12 +2,7 @@
 import { ref, computed } from "vue";
 import { updateAvatar, updateUsername } from "@/features/users/api/user";
 import { useToast } from "vue-toastification";
-import {
-  PencilIcon,
-  PersonIcon,
-  MailIcon,
-  RocketIcon,
-} from "~/assets/icons";
+import { PencilIcon, PersonIcon, MailIcon, RocketIcon } from "~/assets/icons";
 
 const toast = useToast();
 const userStore = useUserStore();

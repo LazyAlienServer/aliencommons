@@ -6,7 +6,7 @@ nav:
   - Overview: overview.md
   - Architecture: architecture.md
   - Development:
-    - development/setup.md
+      - development/setup.md
 
 theme:
   name: material

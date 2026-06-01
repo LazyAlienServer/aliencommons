@@ -18,7 +18,7 @@ function onRefreshed() {
   subscribers.length = 0;
 }
 
-function addSubscriber(callback) {
+function addSubscriber(callback: () => void) {
   subscribers.push(callback);
 }
 

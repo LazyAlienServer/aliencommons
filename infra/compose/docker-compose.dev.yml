@@ -18,7 +18,7 @@ services:
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
     ports:
       - "6379:6379"
-  
+
   backend-init:
     <<: *stack-env
     build:
@@ -66,7 +66,7 @@ services:
     volumes:
       - ../../apps/backend:/code
       - /code/.venv
-  
+
   backend-task-worker:
     <<: *stack-env
     build:
@@ -106,7 +106,7 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8787
-  
+
   alloy:
     image: grafana/alloy:latest
     restart: unless-stopped
@@ -129,7 +129,7 @@ services:
       - ../../o11y/loki/data:/var/lib/loki/data
     ports:
       - "3100:3100"
-  
+
   grafana:
     image: grafana/grafana:latest
     restart: unless-stopped

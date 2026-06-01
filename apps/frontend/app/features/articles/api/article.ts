@@ -1,13 +1,13 @@
 import { api } from "~/composables/api/axiosInstance";
 
-function getMySourceArticles(query = undefined) {
+function getMySourceArticles(query?: Record<string, unknown>) {
   return api.get("/source_articles/", {
     withCredentials: true,
     params: query,
   });
 }
 
-function getTheSourceArticle(id) {
+function getTheSourceArticle(id: string | number) {
   return api.get(`/source_articles/${id}/`, { withCredentials: true });
 }
 
@@ -15,7 +15,11 @@ function createSourceArticle() {
   return api.post(`/source_articles/`, {}, { withCredentials: true });
 }
 
-function updateSourceArticle(id, title, markdown) {
+function updateSourceArticle(
+  id: string | number,
+  title: string,
+  markdown: string,
+) {
   return api.patch(
     `/source_articles/${id}/`,
     {
@@ -26,7 +30,7 @@ function updateSourceArticle(id, title, markdown) {
   );
 }
 
-function submitArticle(id) {
+function submitArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/submit/`,
     {},
@@ -34,7 +38,7 @@ function submitArticle(id) {
   );
 }
 
-function withdrawArticle(id) {
+function withdrawArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/withdraw/`,
     {},
@@ -42,7 +46,7 @@ function withdrawArticle(id) {
   );
 }
 
-function approveArticle(id) {
+function approveArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/approve/`,
     {},
@@ -50,7 +54,7 @@ function approveArticle(id) {
   );
 }
 
-function rejectArticle(id) {
+function rejectArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/reject/`,
     {},
@@ -58,7 +62,7 @@ function rejectArticle(id) {
   );
 }
 
-function unpublishArticle(id) {
+function unpublishArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/unpublish/`,
     {},
@@ -66,7 +70,7 @@ function unpublishArticle(id) {
   );
 }
 
-function deleteArticle(id) {
+function deleteArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/delete/`,
     {},
@@ -74,7 +78,7 @@ function deleteArticle(id) {
   );
 }
 
-function uploadArticleImage(formData) {
+function uploadArticleImage(formData: FormData) {
   return api.post(`/source_articles/images/`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
     withCredentials: true,
@@ -85,7 +89,7 @@ function getPendingArticles() {
   return api.get("/article_snapshots/pending_ones/", { withCredentials: true });
 }
 
-function getThePendingArticle(id) {
+function getThePendingArticle(id: string | number) {
   return api.get(`/article_snapshots/${id}/`, { withCredentials: true });
 }
 
@@ -93,7 +97,7 @@ function getPublishedArticles() {
   return api.get("/published_articles/");
 }
 
-function getThePublishedArticle(id) {
+function getThePublishedArticle(id: string | number) {
   return api.get(`/published_articles/${id}/`);
 }
 

@@ -14,7 +14,7 @@ services:
     <<: *stack-env
     command: >
       sh -c 'redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"'
-  
+
   backend-init:
     <<: *stack-env
     build:
@@ -46,7 +46,7 @@ services:
       - "traefik.http.services.backend-api-stg.loadbalancer.server.port=8000"
     volumes:
       - /srv/alien-commons/stg/static:/code/staticfiles
-    
+
   backend-task-scheduler:
     <<: *stack-env
     build:
@@ -56,7 +56,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py runscheduler"
-  
+
   backend-task-worker:
     <<: *stack-env
     build:
@@ -78,7 +78,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - loki
-  
+
   loki:
     image: grafana/loki:latest
     restart: unless-stopped
@@ -107,7 +107,7 @@ services:
       - loki
 
   frontend:
-    build: 
+    build:
       context: ../../apps/frontend
       dockerfile: Dockerfile
       args:
@@ -129,7 +129,7 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8787
-  
+
   static:
     image: nginx:alpine
     labels:

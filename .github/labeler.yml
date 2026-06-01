@@ -1,43 +1,43 @@
 README:
-- changed-files:
-  - any-glob-to-any-file: 'README.md'
+  - changed-files:
+      - any-glob-to-any-file: "README.md"
 
 SECURITY:
-- changed-files:
-  - any-glob-to-any-file: 'SECURITY.md'
+  - changed-files:
+      - any-glob-to-any-file: "SECURITY.md"
 
 .github:
-- changed-files:
-  - any-glob-to-any-file: '.github/**'
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"
 
 backend:
-- changed-files:
-  - any-glob-to-any-file: 'apps/backend/**'
+  - changed-files:
+      - any-glob-to-any-file: "apps/backend/**"
 
 frontend:
-- changed-files:
-  - any-glob-to-any-file: 'apps/frontend/**'
+  - changed-files:
+      - any-glob-to-any-file: "apps/frontend/**"
 
 docs:
-- changed-files:
-  - any-glob-to-any-file: 'docs/**'
+  - changed-files:
+      - any-glob-to-any-file: "docs/**"
 
 infra:
-- changed-files:
-  - any-glob-to-any-file: 'infra/**'
+  - changed-files:
+      - any-glob-to-any-file: "infra/**"
 
 o11y:
-- changed-files:
-  - any-glob-to-any-file: 'o11y/**'
+  - changed-files:
+      - any-glob-to-any-file: "o11y/**"
 
 feature:
- - head-branch: ['^feature', 'feature']
+  - head-branch: ["^feature", "feature"]
 
 refactor:
- - head-branch: ['^refactor', 'refactor']
+  - head-branch: ["^refactor", "refactor"]
 
 chore:
- - head-branch: ['^chore', 'chore']
+  - head-branch: ["^chore", "chore"]
 
 release:
- - base-branch: 'main'
+  - base-branch: "main"

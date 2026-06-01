@@ -1,11 +1,13 @@
 import Cookies from "js-cookie";
 
-const isHttps = window.location.protocol === "https:";
+function isHttps() {
+  return import.meta.client && window.location.protocol === "https:";
+}
 
 function setRefreshToken(token: string, expiresDays = 30) {
   Cookies.set(`${import.meta.env.MODE}_refreshToken`, token, {
     expires: expiresDays,
-    secure: isHttps,
+    secure: isHttps(),
     sameSite: "strict",
   });
 }

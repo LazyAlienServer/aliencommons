@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
-    "nuxt-mcp-dev": "^0.3.2"
+    "nuxt-mcp-dev": "^0.3.2",
+    "vite-svg-loader": "^5.1.1"
   }
 }

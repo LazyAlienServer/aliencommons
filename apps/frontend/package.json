@@ -12,8 +12,8 @@
     "lint:check": "oxlint .",
     "lint:fix": "oxlint . --fix",
     "style": "pnpm run style:check",
-    "style:check": "prettier --check package.json nuxt.config.ts app public README.md --ignore-path ../../.prettierignore",
-    "style:fix": "prettier --write package.json nuxt.config.ts app public README.md --ignore-path ../../.prettierignore",
+    "style:check": "vp fmt --check package.json nuxt.config.ts app public README.md",
+    "style:fix": "vp fmt package.json nuxt.config.ts app public README.md",
     "typecheck": "vue-tsc --noEmit",
     "postinstall": "nuxt prepare"
   },
@@ -21,13 +21,17 @@
     "@pinia/nuxt": "^0.11.3",
     "@tailwindcss/vite": "^4.3.0",
     "alienmark": "workspace:*",
+    "axios": "^1.16.1",
+    "js-cookie": "^3.0.8",
     "nuxt": "^4.4.5",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.34",
-    "vue-router": "^5.0.6"
+    "vue-router": "^5.0.6",
+    "vue-toastification": "2.0.0-rc.5"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "nuxt-mcp-dev": "^0.3.2",
     "vue-tsc": "^3.3.1"
   }

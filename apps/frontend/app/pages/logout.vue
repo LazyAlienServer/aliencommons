@@ -1,5 +1,5 @@
 <script setup>
-import { LogoutCard } from "@/features/user/components";
+import { LogoutCard } from "@/features/users/components";
 </script>
 
 <template>

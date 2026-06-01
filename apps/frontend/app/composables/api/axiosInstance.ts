@@ -1,6 +1,5 @@
 import axios from "axios";
-import { useUserStore } from "~/features/users/stores/useUserStore";
-import { getRefreshToken } from "@/core/utils";
+import { getRefreshToken } from "~/utils/cookie";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_BASE_URL}/v1`,

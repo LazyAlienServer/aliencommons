@@ -1,4 +1,4 @@
-import { api } from "@/core/api";
+import { api } from "~/composables/api/axiosInstance";
 
 function getMySourceArticles(query = undefined) {
   return api.get("/source_articles/", {

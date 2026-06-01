@@ -1,5 +1,5 @@
 <script setup>
-import { UserInfoCard, Profile } from "@/features/user/components";
+import { UserInfoCard, Profile } from "@/features/users/components";
 </script>
 
 <template>

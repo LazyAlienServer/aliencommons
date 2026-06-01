@@ -6,6 +6,9 @@ export default defineNuxtConfig({
   css: ["./app/assets/css/main.css"],
   modules: ["@pinia/nuxt", "nuxt-mcp-dev"],
   vite: {
+    build: {
+      sourcemap: false,
+    },
     plugins: [tailwindcss()],
   },
 });

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useUserStore } from "@/features/user/stores";
 import { useToast } from "vue-toastification";
-import { MailIcon, KeyIcon } from "@/core/assets/icons";
+import { MailIcon, KeyIcon } from "~/assets/icons";
 
 const toast = useToast();
 const router = useRouter();

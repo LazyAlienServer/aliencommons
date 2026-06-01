@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
-import { getChannelSnapshot } from "@/core/api";
-import { extractErrorMessage } from "@/core/utils";
-import { WebsiteIcon } from "~/assets/logos";
+import { getChannelSnapshot } from "~/composables/api";
+import { extractErrorMessage } from "~/utils/error";
+import { WebsiteIcon } from "~/assets";
 
 const snapshot = ref({});
 let intervalId: ReturnType<typeof setInterval> | undefined;

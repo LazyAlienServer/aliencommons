@@ -1,5 +1,5 @@
 <script setup>
-import { SettingSideBar, ThemeSetting } from "@/features/user/components";
+import { SettingSideBar, ThemeSetting } from "@/features/users/components";
 </script>
 
 <template>

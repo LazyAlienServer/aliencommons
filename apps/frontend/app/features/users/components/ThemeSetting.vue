@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useThemeStore } from "@/features/user/stores";
 
 const themeStore = useThemeStore();
 

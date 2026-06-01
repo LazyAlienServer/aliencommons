@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useUserStore } from "@/features/user/stores";
-import { handleLogout } from "@/features/user/utils";
+import { handleLogout } from "@/features/users/utils";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 

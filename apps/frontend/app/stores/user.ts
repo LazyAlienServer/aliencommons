@@ -5,7 +5,7 @@ import {
   loginUser,
   refreshUserLoginToken,
 } from "~/features/users/api";
-import { setRefreshToken, getRefreshToken, removeRefreshToken } from "~/utils";
+import { setRefreshToken, getRefreshToken, removeRefreshToken } from "~/utils/cookie";
 
 export const useUserStore = defineStore("user", () => {
   /* states */

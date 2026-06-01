@@ -1,4 +1,4 @@
-import { api, apiBare } from "@/core/api";
+import { api, apiBare } from "~/composables/api";
 
 function createProfile(email, password, confirmPassword) {
   return apiBare.post("/profiles/", {

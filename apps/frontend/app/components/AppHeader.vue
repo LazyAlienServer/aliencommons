@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import { useUserStore, useThemeStore } from "~/features/users/stores";
 import {
   YouTubeBlackIcon,
   GithubIcon,
@@ -17,7 +16,7 @@ import {
   PlusIcon,
   TriangleDownIcon,
 } from "~/assets/icons";
-import { WebsiteIcon, LasLogo } from "@/core/assets";
+import { WebsiteIcon, LasLogo } from "~/assets";
 import { createSourceArticle } from "@/features/articles/api";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";

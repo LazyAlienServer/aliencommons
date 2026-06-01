@@ -1,5 +1,5 @@
 <script setup>
-import { LoginForm } from "@/features/user/components";
+import { LoginForm } from "@/features/users/components";
 </script>
 
 <template>

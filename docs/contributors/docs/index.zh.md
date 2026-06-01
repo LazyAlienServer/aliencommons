@@ -10,5 +10,5 @@
 
 如果你第一次接触这个项目，请从以下链接开始：
 
-- [开发设置](development/setup.md)
-- [项目架构](architecture.md)
+- [开发设置](development/setup.zh.md)
+- [项目架构](architecture.zh.md)

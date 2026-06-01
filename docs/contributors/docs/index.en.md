@@ -11,5 +11,5 @@ translated by _**LazyAlienServer techMC Translation Team**_.
 
 If you are new to this project, start from the following links:
 
-- [Development Setup](development/setup.md)
-- [Project Architecture](architecture.md)
+- [Development Setup](development/setup.en.md)
+- [Project Architecture](architecture.en.md)

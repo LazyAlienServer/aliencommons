@@ -33,4 +33,4 @@ AlienMark 当前提供：
 
 ## 继续阅读
 
-- [语法参考](syntax.md)
+- [语法参考](syntax.zh.md)

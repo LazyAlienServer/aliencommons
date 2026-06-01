@@ -1,5 +1,4 @@
 /*  Custom editor styles  */
-@import "@tailwindcss";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
@@ -36,7 +35,7 @@
 /* Article Components */
 @layer components {
   .article-card {
-    @apply dark:bg-dark flex w-full flex-col items-start gap-2 rounded-lg border-1 border-gray-200 bg-white p-4 shadow hover:bg-gray-200 dark:border-gray-200 dark:hover:bg-gray-600;
+    @apply flex w-full flex-col items-start gap-2 rounded-lg border-1 border-gray-200 bg-white p-4 shadow hover:bg-gray-200 dark:border-gray-200 dark:bg-dark dark:hover:bg-gray-600;
   }
   .article-sidebar-filter-query {
     @apply flex flex-row items-center rounded-sm border border-gray-300 px-1.5 py-1 whitespace-nowrap hover:bg-gray-200;
@@ -48,7 +47,7 @@
     @apply absolute top-full right-0 z-10 mt-1 flex w-32 flex-col rounded-xl border border-gray-200 bg-white p-2 shadow;
   }
   .editor-actions-dropdown-btn {
-    @apply no-select flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left hover:bg-gray-100;
+    @apply flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left no-select hover:bg-gray-100;
   }
   .editor-toolbar-btn {
     @apply relative flex flex-row items-center rounded-sm border border-gray-200 p-1 hover:bg-gray-200;
@@ -60,13 +59,13 @@
     @apply stroke-purple-600;
   }
   .editor-toolbar-btn-tooltip {
-    @apply bg-dark text-dark dark:text-light dark:bg-light pointer-events-none absolute top-full left-1/2 mt-1 -translate-x-1/2 translate-y-1 rounded-md px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:translate-y-0 group-hover:opacity-100;
+    @apply pointer-events-none absolute top-full left-1/2 mt-1 -translate-x-1/2 translate-y-1 rounded-md bg-dark px-2 py-1 text-xs whitespace-nowrap text-dark opacity-0 group-hover:translate-y-0 group-hover:opacity-100 dark:bg-light dark:text-light;
   }
   .editor-toolbar-dropdown {
     @apply absolute top-full left-0 z-10 flex w-38 flex-col rounded-xl border border-gray-200 bg-white p-2 shadow;
   }
   .editor-toolbar-dropdown-btn {
-    @apply no-select flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left hover:bg-gray-100;
+    @apply flex h-auto w-full flex-row items-center gap-x-2 rounded px-3 py-2 text-left no-select hover:bg-gray-100;
   }
   .editor-toolbar-dropdown-btn.active {
     @apply bg-gray-100;

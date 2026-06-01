@@ -4,16 +4,9 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "check": "pnpm run lint:check && pnpm run typecheck && pnpm run style:check",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "pnpm run lint:check",
-    "lint:check": "vp lint .",
-    "lint:fix": "vp lint . --fix",
-    "style": "pnpm run style:check",
-    "style:check": "vp fmt --check package.json nuxt.config.ts app public README.md",
-    "style:fix": "vp fmt package.json nuxt.config.ts app public README.md",
     "typecheck": "vue-tsc --noEmit",
     "postinstall": "nuxt prepare"
   },
@@ -32,7 +25,6 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
-    "nuxt-mcp-dev": "^0.3.2",
-    "vue-tsc": "^3.3.1"
+    "nuxt-mcp-dev": "^0.3.2"
   }
 }

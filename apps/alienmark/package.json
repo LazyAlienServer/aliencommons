@@ -7,16 +7,9 @@
   "main": "./dist/server.mjs",
   "scripts": {
     "build": "vp pack src/server.ts --format esm --dts false",
-    "check": "pnpm run lint:check && pnpm run typecheck && pnpm run style:check",
     "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
-    "start": "node dist/server.mjs",
-    "lint": "pnpm run lint:check",
-    "lint:check": "vp lint src",
-    "lint:fix": "vp lint src --fix",
-    "style": "pnpm run style:check",
-    "style:check": "vp fmt --check package.json src tsconfig.json --ignore-path ../../.prettierignore",
-    "style:fix": "vp fmt package.json src tsconfig.json --ignore-path ../../.prettierignore"
+    "start": "node dist/server.mjs"
   },
   "dependencies": {
     "alienmark": "workspace:*",

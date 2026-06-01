@@ -22,21 +22,21 @@ The project is currently in its early stages, with a production-ready backend an
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│                     Frontend                          │
-│               Nuxt 4 · Vue 3 · Tailwind CSS 4        │
-│              (Server-Side Rendered SPA)               │
+│                       Frontend                       │
+│           Nuxt 4 · Vue 3 · Tailwind CSS 4            │
+│             (Server-Side Rendered SPA)               │
 └─────────────────┬────────────────────────────────────┘
                   │ HTTP / WebSocket
 ┌─────────────────▼────────────────────────────────────┐
-│                  Backend API                          │
-│          Django 6 · Django REST Framework             │
-│        Django Channels · Daphne (ASGI)                │
-└──────┬──────────┬──────────┬──────────┬──────────────┘
-       │          │          │          │
-┌──────▼──┐ ┌─────▼────┐ ┌──▼────┐ ┌──▼───────────────┐
-│PostgreSQL│ │  Redis   │ │  RQ   │ │  AlienMark       │
-│   18     │ │    8     │ │Workers│ │  (Fastify)       │
-└──────────┘ └──────────┘ └───────┘ └──────────────────┘
+│                     Backend API                      │
+│           Django 6 · Django REST Framework           │
+│            Django Channels · Daphne (ASGI)           │
+└────┬────────────┬────────────┬───────────────┬───────┘
+     │            │            │               │
+┌────▼─────┐ ┌────▼────┐ ┌─────▼─────┐ ┌───────▼───────┐
+│PostgreSQL│ │  Redis  │ │    RQ     │ │   AlienMark   │
+│    18    │ │    8    │ │  Workers  │ │   (Fastify)   │
+└──────────┘ └─────────┘ └───────────┘ └───────────────┘
 ```
 
 The backend communicates with an internal **AlienMark** service (Fastify) for server-side Markdown-to-HTML rendering. Real-time features are powered by Django Channels over WebSockets. Background processing (email, maintenance) runs through RQ task workers backed by Redis.

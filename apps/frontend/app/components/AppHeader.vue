@@ -268,7 +268,7 @@ onBeforeUnmount(() => {
               </router-link>
             </li>
 
-            <hr class="my-3" />
+            <li role="separator"><hr class="my-3" /></li>
 
             <li>
               <router-link

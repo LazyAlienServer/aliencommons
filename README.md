@@ -10,6 +10,12 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
 
+<!-- README-I18N:START -->
+
+**English** | [中文](./README.zh.md)
+
+<!-- README-I18N:END -->
+
 [Overview](#overview) • [Architecture](#architecture) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Project Structure](#project-structure) • [Documentation](#documentation)
 
 ## Overview

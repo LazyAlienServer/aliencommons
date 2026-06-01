@@ -1,5 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { UserInfoCard, Profile } from "@/features/users/components";
+
+definePageMeta({
+  name: "profile",
+});
 </script>
 
 <template>

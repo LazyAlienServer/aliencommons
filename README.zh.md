@@ -100,6 +100,19 @@ make node-check
 
 > 更多命令见 `make/docker.mk` 和 `make/node.mk`。
 
+### Vite+
+
+前端工具链统一使用 [Vite+](https://viteplus.dev) — 一个 `vp` CLI 可以替代 pnpm、Vite、Vitest 和代码检查命令：
+
+```bash
+vp dev          # 启动前端开发服务器
+vp check        # 格式化、代码检查和类型检查
+vp test         # 运行 JavaScript 测试
+vp build        # 构建前端生产版本
+```
+
+完整命令列表参见 [Vite+ 指南](https://viteplus.dev/guide/)。项目配置位于 [`vite.config.ts`](vite.config.ts)。
+
 ## 项目结构
 
 ```

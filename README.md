@@ -100,6 +100,19 @@ make node-check
 
 > For the full set of available commands, see `make/docker.mk` and `make/node.mk`.
 
+### Vite+
+
+The frontend toolchain is unified under [Vite+](https://viteplus.dev) — a single `vp` CLI that replaces pnpm, Vite, Vitest, and linting commands:
+
+```bash
+vp dev          # Start the frontend dev server
+vp check        # Format, lint, and type-check
+vp test         # Run JavaScript tests
+vp build        # Build the frontend for production
+```
+
+See the [Vite+ Guide](https://viteplus.dev/guide/) for the full list of commands. The project configuration lives in [`vite.config.ts`](vite.config.ts).
+
 ## Project Structure
 
 ```

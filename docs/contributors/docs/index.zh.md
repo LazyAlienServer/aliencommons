@@ -10,5 +10,6 @@
 
 如果你第一次接触这个项目，请从以下链接开始：
 
+- [产品设计](product/index.zh.md)
 - [开发设置](development/setup.zh.md)
 - [项目架构](architecture.zh.md)

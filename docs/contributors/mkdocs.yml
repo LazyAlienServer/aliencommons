@@ -4,6 +4,14 @@ site_url: https://lazyalienserver.github.io/alien-commons/
 nav:
   - Home: index.md
   - Overview: overview.md
+  - Product:
+    - product/index.md
+    - product/roles.md
+    - product/articles.md
+    - product/discovery.md
+    - product/community.md
+    - product/moderation.md
+    - product/open-questions.md
   - Architecture: architecture.md
   - Development:
       - development/setup.md
@@ -30,5 +38,6 @@ plugins:
           nav_translations:
             Home: 首页
             Overview: 概览
+            Product: 产品设计
             Architecture: 架构
             Development: 开发

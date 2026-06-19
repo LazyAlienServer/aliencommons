@@ -14,7 +14,7 @@ class NotificationEvent(UUIDPrimaryKeyMixin, TimeStampedMixin, models.Model):
 
     class Channel(models.IntegerChoices):
         MENTIONS = 1, _("mentions")
-        COMMENTS = 2, _("comments")
+        REPLIES = 2, _("replies")
         SYSTEM = 3, _("system")
         SUBSCRIPTIONS = 4, _("subscriptions")
 
@@ -65,7 +65,7 @@ class NotificationEvent(UUIDPrimaryKeyMixin, TimeStampedMixin, models.Model):
         reason = cls.Reason(reason)
         return {
             cls.Reason.MENTION: cls.Channel.MENTIONS,
-            cls.Reason.REPLY: cls.Channel.COMMENTS,
+            cls.Reason.REPLY: cls.Channel.REPLIES,
             cls.Reason.SYSTEM: cls.Channel.SYSTEM,
             cls.Reason.SUBSCRIPTION: cls.Channel.SUBSCRIPTIONS,
         }[reason]

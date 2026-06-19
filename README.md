@@ -1,6 +1,6 @@
 # AlienCommons
 
-> The common land for every TechMC player — a full-stack community platform for publishing, discussion, and discovery.
+> The common planet for all Minecraft players — a community platform for publishing, discussion, and discovery.
 
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=flat-square&logo=python)](https://python.org)

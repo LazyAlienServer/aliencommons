@@ -11,9 +11,9 @@ class NotificationViewTests(BaseAPITestCase):
         self.recipient = create_user(username="recipient")
         self.other_user = create_user(username="other")
         self.event = NotificationEvent.objects.create(
-            event_type=NotificationEvent.EventType.NEW_SUBSCRIBER,
+            reason=NotificationEvent.Reason.SYSTEM,
             actor=self.other_user,
-            data={"recipient_ids": [str(self.recipient.id)]},
+            recipients=[str(self.recipient.id)],
             dedupe_key="view-event",
         )
         self.delivery = NotificationDelivery.objects.create(
@@ -29,13 +29,28 @@ class NotificationViewTests(BaseAPITestCase):
 
         self.assert_success_response(response, status_code=status.HTTP_200_OK, code="listed")
         self.assertEqual(len(response.data["data"]["results"]), 1)
-        self.assertEqual(response.data["data"]["results"][0]["event_type"], self.event.event_type)
+        self.assertEqual(response.data["data"]["results"][0]["reason"], self.event.reason)
+        self.assertEqual(response.data["data"]["results"][0]["channel"], self.event.channel)
+        self.assertNotIn("recipients", response.data["data"]["results"][0])
+
+    def test_user_filters_notifications_by_channel(self):
+        NotificationDelivery.objects.create(event=self.event, recipient=self.other_user)
+        self.authenticate(self.recipient)
+
+        response = self.get_json(f"{reverse('notification-list')}?channel=system")
+
+        self.assert_success_response(response, status_code=status.HTTP_200_OK, code="listed")
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+        self.assertEqual(
+            response.data["data"]["results"][0]["channel"],
+            NotificationEvent.Channel.SYSTEM,
+        )
 
     def test_user_can_mark_one_and_all_notifications_read(self):
         second_event = NotificationEvent.objects.create(
-            event_type=NotificationEvent.EventType.MENTION,
+            reason=NotificationEvent.Reason.MENTION,
             actor=self.other_user,
-            data={"recipient_ids": [str(self.recipient.id)]},
+            recipients=[str(self.recipient.id)],
             dedupe_key="second-view-event",
         )
         second_delivery = NotificationDelivery.objects.create(

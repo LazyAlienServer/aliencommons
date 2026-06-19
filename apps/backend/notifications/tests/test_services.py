@@ -35,10 +35,17 @@ class NotificationServiceTests(BaseTestCase):
 
         self.assertEqual(comment.parent, parent)
         self.assertEqual(
-            set(NotificationEvent.objects.values_list("event_type", flat=True)),
+            set(NotificationEvent.objects.values_list("reason", flat=True)),
             {
-                NotificationEvent.EventType.MENTION,
-                NotificationEvent.EventType.COMMENT_REPLY,
+                NotificationEvent.Reason.MENTION,
+                NotificationEvent.Reason.REPLY,
+            },
+        )
+        self.assertEqual(
+            set(NotificationEvent.objects.values_list("channel", flat=True)),
+            {
+                NotificationEvent.Channel.MENTIONS,
+                NotificationEvent.Channel.COMMENTS,
             },
         )
 
@@ -52,10 +59,14 @@ class NotificationServiceTests(BaseTestCase):
             target=post.content_target,
             content_kind="community_post-extra",
         )
+        UserSubscription.objects.filter(subscriber=self.reader, subscribed_to=self.author).delete()
 
         result = fan_out_event(event_id=event.id)
 
         self.assertEqual(result["status"], "delivered")
+        self.assertEqual(event.reason, NotificationEvent.Reason.SUBSCRIPTION)
+        self.assertEqual(event.channel, NotificationEvent.Channel.SUBSCRIPTIONS)
+        self.assertEqual(event.payload, {"content_kind": "community_post-extra"})
         self.assertEqual(
             set(event.deliveries.values_list("recipient_id", flat=True)),
             {self.reader.id, own_subscription.id},

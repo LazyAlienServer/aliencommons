@@ -45,7 +45,7 @@ class NotificationServiceTests(BaseTestCase):
             set(NotificationEvent.objects.values_list("channel", flat=True)),
             {
                 NotificationEvent.Channel.MENTIONS,
-                NotificationEvent.Channel.COMMENTS,
+                NotificationEvent.Channel.REPLIES,
             },
         )
 

@@ -5,13 +5,13 @@ nav:
   - Home: index.md
   - Overview: overview.md
   - Product:
-    - product/index.md
-    - product/roles.md
-    - product/articles.md
-    - product/discovery.md
-    - product/community.md
-    - product/moderation.md
-    - product/open-questions.md
+      - product/index.md
+      - product/roles.md
+      - product/articles.md
+      - product/discovery.md
+      - product/community.md
+      - product/moderation.md
+      - product/open-questions.md
   - Architecture: architecture.md
   - Development:
       - development/setup.md

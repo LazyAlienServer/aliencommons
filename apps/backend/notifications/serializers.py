@@ -6,10 +6,11 @@ from .models import NotificationDelivery
 
 
 class NotificationDeliverySerializer(serializers.ModelSerializer):
-    event_type = serializers.IntegerField(source="event.event_type", read_only=True)
+    reason = serializers.IntegerField(source="event.reason", read_only=True)
+    channel = serializers.IntegerField(source="event.channel", read_only=True)
     actor = UserListSerializer(source="event.actor", read_only=True)
     target = serializers.SerializerMethodField()
-    data = serializers.JSONField(source="event.data", read_only=True)
+    payload = serializers.JSONField(source="event.payload", read_only=True)
 
     def get_target(self, obj):
         if obj.event.target_id is None:
@@ -21,12 +22,12 @@ class NotificationDeliverySerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "event",
-            "event_type",
+            "reason",
+            "channel",
             "actor",
             "target",
-            "data",
+            "payload",
             "read_at",
             "created_at",
         )
         read_only_fields = fields
-

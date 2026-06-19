@@ -5,8 +5,8 @@ from .models import NotificationDelivery, NotificationEvent
 
 @admin.register(NotificationEvent)
 class NotificationEventAdmin(admin.ModelAdmin):
-    list_display = ("id", "event_type", "actor", "target", "delivery_status", "created_at")
-    list_filter = ("event_type", "delivery_status", "created_at")
+    list_display = ("id", "reason", "channel", "actor", "target", "delivery_status", "created_at")
+    list_filter = ("reason", "channel", "delivery_status", "created_at")
     search_fields = ("dedupe_key", "actor__username")
     readonly_fields = ("id", "created_at", "updated_at", "delivered_at")
 
@@ -17,4 +17,3 @@ class NotificationDeliveryAdmin(admin.ModelAdmin):
     list_filter = ("read_at", "created_at")
     search_fields = ("recipient__username", "event__dedupe_key")
     readonly_fields = ("id", "created_at", "updated_at")
-

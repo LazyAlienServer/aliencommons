@@ -13,14 +13,15 @@ def _queue_fan_out(event):
     )
 
 
-def create_event(*, event_type, actor, target, data, dedupe_key):
+def create_event(*, reason, actor, target, payload=None, recipients=None, dedupe_key):
     event, created = NotificationEvent.objects.get_or_create(
         dedupe_key=dedupe_key,
         defaults={
-            "event_type": event_type,
+            "reason": reason,
             "actor": actor,
             "target": target,
-            "data": data,
+            "payload": payload or {},
+            "recipients": recipients or [],
         },
     )
     if created:
@@ -33,10 +34,10 @@ def notify_mentions(*, actor, target, mention_user_ids, dedupe_prefix):
     if not recipient_ids:
         return None
     return create_event(
-        event_type=NotificationEvent.EventType.MENTION,
+        reason=NotificationEvent.Reason.MENTION,
         actor=actor,
         target=target,
-        data={"recipient_ids": recipient_ids},
+        recipients=recipient_ids,
         dedupe_key=f"mention:{dedupe_prefix}:{','.join(recipient_ids)}",
     )
 
@@ -46,43 +47,36 @@ def notify_comment_reply(*, comment):
     if replied_to.author_id is None or replied_to.author_id == comment.author_id:
         return None
     return create_event(
-        event_type=NotificationEvent.EventType.COMMENT_REPLY,
+        reason=NotificationEvent.Reason.REPLY,
         actor=comment.author,
         target=comment.content_target,
-        data={"recipient_ids": [str(replied_to.author_id)]},
+        recipients=[str(replied_to.author_id)],
         dedupe_key=f"comment-reply:{comment.id}:{replied_to.id}",
     )
 
 
-def notify_new_subscriber(*, subscription):
-    return create_event(
-        event_type=NotificationEvent.EventType.NEW_SUBSCRIBER,
-        actor=subscription.subscriber,
-        target=None,
-        data={"recipient_ids": [str(subscription.subscribed_to_id)]},
-        dedupe_key=f"new-subscriber:{subscription.id}",
-    )
-
-
 def notify_subscribed_author_posted(*, actor, target, content_kind):
+    recipient_ids = sorted(
+        str(subscriber_id)
+        for subscriber_id in UserSubscription.objects.filter(
+            subscribed_to_id=actor.id,
+        ).values_list("subscriber_id", flat=True)
+        if str(subscriber_id) != str(actor.id)
+    )
+    if not recipient_ids:
+        return None
     return create_event(
-        event_type=NotificationEvent.EventType.SUBSCRIBED_AUTHOR_POSTED,
+        reason=NotificationEvent.Reason.SUBSCRIPTION,
         actor=actor,
         target=target,
-        data={"content_kind": content_kind},
+        payload={"content_kind": content_kind},
+        recipients=recipient_ids,
         dedupe_key=f"subscribed-author-posted:{content_kind}:{target.id}",
     )
 
 
 def _recipient_ids(event):
-    explicit_ids = event.data.get("recipient_ids")
-    if explicit_ids is not None:
-        return explicit_ids
-    if event.event_type == NotificationEvent.EventType.SUBSCRIBED_AUTHOR_POSTED:
-        return UserSubscription.objects.filter(
-            subscribed_to_id=event.actor_id,
-        ).values_list("subscriber_id", flat=True)
-    return []
+    return event.recipients
 
 
 def fan_out_event(*, event_id):

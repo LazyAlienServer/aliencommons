@@ -18,9 +18,9 @@ function applyTheme(mode) {
         @click="applyTheme('light')"
       >
         <div
-          class="bg-light flex h-45 w-75 flex-col items-center justify-center rounded-md border-1 border-gray-500"
+          class="flex h-45 w-75 flex-col items-center justify-center rounded-md border-1 border-gray-500 bg-light"
         >
-          <p class="text-light mr-1">This is a line.</p>
+          <p class="mr-1 text-light">This is a line.</p>
         </div>
         <p class="mr-1">Light Default</p>
       </div>
@@ -30,9 +30,9 @@ function applyTheme(mode) {
         @click="applyTheme('dark')"
       >
         <div
-          class="bg-dark flex h-45 w-75 flex-col items-center justify-center rounded-md border-1 border-gray-500"
+          class="flex h-45 w-75 flex-col items-center justify-center rounded-md border-1 border-gray-500 bg-dark"
         >
-          <p class="text-dark mr-1">This is a line.</p>
+          <p class="mr-1 text-dark">This is a line.</p>
         </div>
         <p class="mr-1">Dark Default</p>
       </div>

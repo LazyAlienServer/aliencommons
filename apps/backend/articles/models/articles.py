@@ -122,7 +122,7 @@ class ArticlePublication(UUIDPrimaryKeyMixin,
                          TimeStampedMixin,
                          models.Model):
     """
-    Current public reading projection of an approved article snapshot.
+    Stable public entry point for a published article.
 
     Mixin fields:
     - id
@@ -134,24 +134,10 @@ class ArticlePublication(UUIDPrimaryKeyMixin,
         verbose_name=_("article"),
         help_text=_("The article of the publication"),
     )
-    approved_snapshot = models.ForeignKey(
-        "ArticleSnapshot", on_delete=models.CASCADE, related_name="publications",
-        verbose_name=_("approved snapshot"),
-        help_text=_("The approved snapshot used to render this publication"),
-    )
-    title = models.CharField(
-        max_length=100, db_index=True,
-        verbose_name=_("title"),
-        help_text=_("The title of the article publication"),
-    )
-    html = models.TextField(
-        verbose_name=_("article in html"),
-        help_text=_("The article in HTML format"),
-    )
-    publication_at = models.DateTimeField(
+    published_at = models.DateTimeField(
         db_index=True,
-        verbose_name=_("published at"),
-        help_text=_("The DateTime of publication of the article publication"),
+        verbose_name=_("first published at"),
+        help_text=_("The DateTime when this article publication was first created"),
     )
 
     class Meta:
@@ -162,6 +148,73 @@ class ArticlePublication(UUIDPrimaryKeyMixin,
 
     def __str__(self):
         return f"Publication of article {self.article}"
+
+    def latest_version(self):
+        prefetched_versions = getattr(self, "_prefetched_objects_cache", {}).get("versions")
+        if prefetched_versions is not None:
+            return max(prefetched_versions, key=lambda version: version.version, default=None)
+        return self.versions.order_by("-version").first()
+
+
+class ArticlePublicationVersion(UUIDPrimaryKeyMixin,
+                                TimeStampedMixin,
+                                models.Model):
+    """
+    Immutable public content rendered from an approved article snapshot.
+
+    Mixin fields:
+    - id
+    - created_at
+    - updated_at
+    """
+    publication = models.ForeignKey(
+        ArticlePublication, on_delete=models.CASCADE, related_name="versions",
+        verbose_name=_("publication"),
+        help_text=_("The publication this version belongs to"),
+    )
+    approved_snapshot = models.OneToOneField(
+        "ArticleSnapshot", on_delete=models.CASCADE, related_name="publication_version",
+        verbose_name=_("approved snapshot"),
+        help_text=_("The approved snapshot used to render this publication version"),
+    )
+    version = models.PositiveIntegerField(
+        verbose_name=_("version"),
+        help_text=_("The publication version number, starting from 1"),
+    )
+    title = models.CharField(
+        max_length=100, db_index=True,
+        verbose_name=_("title"),
+        help_text=_("The title of the article publication version"),
+    )
+    html = models.TextField(
+        verbose_name=_("article in html"),
+        help_text=_("The article in HTML format"),
+    )
+    publication_at = models.DateTimeField(
+        db_index=True,
+        verbose_name=_("published at"),
+        help_text=_("The DateTime this publication version was created"),
+    )
+
+    class Meta:
+        verbose_name = _("article publication version")
+        verbose_name_plural = _("article publication versions")
+
+        ordering = ["-version"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["publication", "version"],
+                name="unique_article_publication_version",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["publication", "version"]),
+            models.Index(fields=["publication_at"]),
+            models.Index(fields=["title", "publication_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.publication} v{self.version}"
 
 
 class ArticleSnapshot(UUIDPrimaryKeyMixin,

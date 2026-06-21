@@ -21,14 +21,16 @@ def build_content_report_snapshot(target: ContentTarget):
 
     if target.target_type == ContentTarget.TargetType.ARTICLE_PUBLICATION:
         publication = target.article_publication
+        latest_version = publication.latest_version()
         snapshot.update(
             {
                 "target_object_id": str(publication.id),
-                "title": publication.title,
+                "title": latest_version.title if latest_version else None,
                 "article_id": str(publication.article_id),
                 "author_id": str(publication.article.author_id) if publication.article.author_id else None,
-                "html": publication.html,
-                "publication_at": publication.publication_at.isoformat(),
+                "html": latest_version.html if latest_version else None,
+                "publication_at": latest_version.publication_at.isoformat() if latest_version else None,
+                "publication_version": latest_version.version if latest_version else None,
             }
         )
         return snapshot

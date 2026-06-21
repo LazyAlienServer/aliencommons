@@ -13,6 +13,6 @@ class ContentTargetAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("target_type", "created_at")
-    search_fields = ("article_publication__title", "comment__body")
+    search_fields = ("article_publication__versions__title", "comment__body")
     ordering = ("-created_at",)
     readonly_fields = ("id", "created_at")

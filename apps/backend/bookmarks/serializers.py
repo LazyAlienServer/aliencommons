@@ -61,7 +61,7 @@ class BookmarkFolderWriteSerializer(serializers.ModelSerializer):
 
 class BookmarkReadSerializer(serializers.ModelSerializer):
     folder_name = serializers.CharField(source="folder.name", read_only=True)
-    article_publication_title = serializers.CharField(source="article_publication.title", read_only=True)
+    article_publication_title = serializers.SerializerMethodField()
     article_id = serializers.UUIDField(source="article_publication.article_id", read_only=True)
 
     class Meta:
@@ -77,6 +77,10 @@ class BookmarkReadSerializer(serializers.ModelSerializer):
             "created_at",
         )
         read_only_fields = fields
+
+    def get_article_publication_title(self, obj):
+        latest_version = obj.article_publication.latest_version()
+        return latest_version.title if latest_version else None
 
 
 class BookmarkWriteSerializer(serializers.ModelSerializer):

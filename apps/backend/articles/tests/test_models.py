@@ -6,6 +6,7 @@ from articles.models import (
     Collection,
     CollectionItem,
     ArticlePublication,
+    ArticlePublicationVersion,
     Article,
 )
 from articles.services.articles import ArticleWorkflow
@@ -65,6 +66,21 @@ class ArticleModelTests(BaseTestCase):
 
         self.assertEqual(published.content_target.target_type, ContentTarget.TargetType.ARTICLE_PUBLICATION)
         self.assertEqual(published.content_target.article_publication, published)
+
+    def test_article_publication_version_string_representation_references_version(self):
+        article = create_article(author=self.author, title="Ship log")
+        published = create_article_publication(article)
+        published_version = ArticlePublicationVersion.objects.get(publication=published)
+
+        self.assertEqual(str(published_version), "Publication of article Ship log v1")
+
+    def test_article_publication_latest_version_returns_highest_version(self):
+        article = create_article(author=self.author, title="Ship log")
+        published = create_article_publication(article, version=1, title="First")
+        create_article_publication(article, version=2, title="Second")
+
+        self.assertEqual(published.latest_version().version, 2)
+        self.assertEqual(published.latest_version().title, "Second")
 
     def test_article_snapshot_string_representation_uses_article_id(self):
         article = create_article(author=self.author)

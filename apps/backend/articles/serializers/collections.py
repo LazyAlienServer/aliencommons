@@ -54,7 +54,7 @@ class CollectionWriteSerializer(serializers.ModelSerializer):
 
 class CollectionItemReadSerializer(serializers.ModelSerializer):
     collection_title = serializers.CharField(source="collection.title", read_only=True)
-    article_publication_title = serializers.CharField(source="article_publication.title", read_only=True)
+    article_publication_title = serializers.SerializerMethodField()
     article_id = serializers.UUIDField(source="article_publication.article_id", read_only=True)
 
     class Meta:
@@ -70,6 +70,10 @@ class CollectionItemReadSerializer(serializers.ModelSerializer):
             "created_at",
         )
         read_only_fields = fields
+
+    def get_article_publication_title(self, obj):
+        latest_version = obj.article_publication.latest_version()
+        return latest_version.title if latest_version else None
 
 
 class CollectionItemWriteSerializer(serializers.ModelSerializer):

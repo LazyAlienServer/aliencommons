@@ -7,6 +7,7 @@ from articles.models import (
     ArticleEvent,
     ArticleSnapshot,
     ArticlePublication,
+    ArticlePublicationVersion,
     Article,
 )
 from articles.services.articles import (
@@ -242,35 +243,45 @@ class ArticleServiceTests(BaseTestCase):
             snapshot.moderation_status,
             ArticleSnapshot.SnapshotStatus.APPROVED,
         )
-        self.assertEqual(published.title, snapshot.title)
-        self.assertEqual(published.html, "<p>Hello</p>")
-        self.assertIsNotNone(published.publication_at)
+        self.assertIsNotNone(published.published_at)
+        published_version = ArticlePublicationVersion.objects.get(publication=published)
+        self.assertEqual(published_version.version, 1)
+        self.assertEqual(published_version.approved_snapshot, snapshot)
+        self.assertEqual(published_version.title, snapshot.title)
+        self.assertEqual(published_version.html, "<p>Hello</p>")
+        self.assertIsNotNone(published_version.publication_at)
         self.assertEqual(event.event_type, ArticleEvent.EventType.APPROVE)
         self.assertEqual(result["event_id"], event.id)
         render_mock.assert_called_once_with(snapshot.markdown)
 
     @patch("articles.services.articles.render_md_to_html", return_value="<p>Updated</p>")
-    def test_approve_updates_existing_article_publication(self, render_mock):
+    def test_approve_adds_next_article_publication_version(self, render_mock):
         article = create_article(
             author=self.author,
             status=Article.ArticleStatus.PENDING,
             title="Updated title",
             markdown="Updated",
         )
-        snapshot = create_article_snapshot(article)
+        old_snapshot = create_article_snapshot(article, title="Old title", markdown="Old")
         published = create_article_publication(
             article,
+            approved_snapshot=old_snapshot,
             title="Old title",
             html="<p>Old</p>",
         )
+        snapshot = create_article_snapshot(article)
 
         approve(article_id=article.id, actor=self.moderator)
 
         published.refresh_from_db()
         self.assertEqual(ArticlePublication.objects.filter(article=article).count(), 1)
         self.assertEqual(published.id, ArticlePublication.objects.get(article=article).id)
-        self.assertEqual(published.title, snapshot.title)
-        self.assertEqual(published.html, "<p>Updated</p>")
+        self.assertEqual(ArticlePublicationVersion.objects.filter(publication=published).count(), 2)
+        latest_version = published.latest_version()
+        self.assertEqual(latest_version.version, 2)
+        self.assertEqual(latest_version.approved_snapshot, snapshot)
+        self.assertEqual(latest_version.title, snapshot.title)
+        self.assertEqual(latest_version.html, "<p>Updated</p>")
         render_mock.assert_called_once_with(snapshot.markdown)
 
     def test_reject_restores_draft_and_marks_snapshot_rejected(self):
@@ -300,6 +311,7 @@ class ArticleServiceTests(BaseTestCase):
             status=Article.ArticleStatus.PUBLISHED,
         )
         snapshot = create_article_snapshot(article)
+        publication = create_article_publication(article)
 
         unpublish(article_id=article.id, actor=self.moderator)
 
@@ -311,8 +323,9 @@ class ArticleServiceTests(BaseTestCase):
         self.assertIsNotNone(article.last_moderation_at)
         self.assertEqual(
             snapshot.moderation_status,
-            ArticleSnapshot.SnapshotStatus.PENDING,
+            ArticleSnapshot.SnapshotStatus.APPROVED,
         )
+        self.assertFalse(ArticlePublication.objects.filter(id=publication.id).exists())
         self.assertEqual(event.event_type, ArticleEvent.EventType.UNPUBLISH)
 
     def test_soft_delete_marks_article_deleted_and_removes_article_publication(self):

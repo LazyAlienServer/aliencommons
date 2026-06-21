@@ -362,3 +362,46 @@ class ArticleViewTests(BaseAPITestCase):
         )
         self.assertFalse(Collection.objects.filter(id=collection_id).exists())
         self.assertFalse(CollectionItem.objects.filter(collection_id=collection_id).exists())
+
+
+class ArticlePublicationViewTests(BaseAPITestCase):
+    def setUp(self):
+        self.author = create_user(username="publication-author")
+        self.viewer = create_user(username="publication-viewer")
+
+    def test_publication_list_only_returns_published_articles(self):
+        published_article = create_article(author=self.author, title="Visible")
+        visible_publication = create_article_publication(published_article)
+        create_article_publication(published_article, title="Visible v2", html="<p>Visible v2</p>")
+        unpublished_article = create_article(author=self.author, title="Hidden")
+        hidden_publication = create_article_publication(unpublished_article)
+        unpublished_article.status = Article.ArticleStatus.UNPUBLISHED
+        unpublished_article.save(update_fields=["status"])
+
+        self.authenticate(self.viewer)
+        response = self.get_json(reverse("article_publication-list"))
+
+        self.assert_success_response(
+            response,
+            status_code=status.HTTP_200_OK,
+            code="listed",
+            message="listed",
+        )
+        result_ids = {item["id"] for item in response.data["data"]["results"]}
+        self.assertIn(str(visible_publication.id), result_ids)
+        self.assertNotIn(str(hidden_publication.id), result_ids)
+        visible_result = next(item for item in response.data["data"]["results"] if item["id"] == str(visible_publication.id))
+        self.assertEqual(visible_result["title"], "Visible v2")
+        self.assertEqual(visible_result["latest_version"]["version"], 2)
+        self.assertEqual(len(visible_result["versions"]), 2)
+
+    def test_publication_detail_returns_404_after_article_is_unpublished(self):
+        article = create_article(author=self.author)
+        publication = create_article_publication(article)
+        article.status = Article.ArticleStatus.UNPUBLISHED
+        article.save(update_fields=["status"])
+
+        self.authenticate(self.viewer)
+        response = self.get_json(reverse("article_publication-detail", args=[publication.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

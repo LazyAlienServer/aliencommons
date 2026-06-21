@@ -230,7 +230,7 @@ class ArticleViewSet(MyModelViewSet):
 
 
 class ArticlePublicationViewSet(MyReadOnlyModelViewSet):
-    queryset = ArticlePublication.objects.select_related("article", "approved_snapshot")
+    queryset = ArticlePublication.objects.select_related("article").prefetch_related("versions")
     serializer_class = ArticlePublicationSerializer
     permission_classes = [IsAuthenticated]
 
@@ -239,7 +239,10 @@ class ArticlePublicationViewSet(MyReadOnlyModelViewSet):
         from reactions.querysets import with_article_publication_reaction_summary
 
         queryset = with_article_publication_reaction_summary(
-            super().get_queryset(),
+            super()
+            .get_queryset()
+            .filter(article__status=Article.ArticleStatus.PUBLISHED)
+            .order_by("-published_at", "-created_at"),
             user=self.request.user,
         )
         return with_article_publication_comment_count(queryset)

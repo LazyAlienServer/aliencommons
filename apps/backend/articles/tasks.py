@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 from urllib.parse import urlparse
 
-from articles.models import SourceArticle
+from articles.models import ArticleSource
 
 
 MARKDOWN_IMAGE_RE = re.compile(r"!\[[^\]]*]\(\s*(<[^>]+>|[^)\s]+)")
@@ -64,7 +64,7 @@ def _iter_article_image_files():
 @task
 def cleanup_unreferenced_article_images(grace_days=1):
     """
-    Delete article_images/* files that are not referenced by any SourceArticle.markdown.
+    Delete article_images/* files that are not referenced by any ArticleSource.markdown.
 
     grace_days:
       - Only delete files older than N days to avoid removing images uploaded
@@ -73,7 +73,7 @@ def cleanup_unreferenced_article_images(grace_days=1):
     # 1) Build a set of all referenced storage-relative paths
     referenced = set()
 
-    qs = SourceArticle.objects.filter(is_deleted=False).values_list("markdown", flat=True)
+    qs = ArticleSource.objects.filter(article__is_deleted=False).values_list("markdown", flat=True)
     for markdown in qs:
         if not markdown:
             continue

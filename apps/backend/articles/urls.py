@@ -1,8 +1,8 @@
 from rest_framework import routers
 
 from .views import (
-    SourceArticleViewSet,
-    PublishedArticleViewSet,
+    ArticleViewSet,
+    ArticlePublicationViewSet,
     ArticleSnapshotViewSet,
     ArticleEventReadViewset,
     CollectionViewSet,
@@ -12,8 +12,8 @@ from .views import (
 
 router = routers.SimpleRouter()
 
-router.register(r'source_articles', SourceArticleViewSet, basename='source_article')
-router.register(r'published_articles', PublishedArticleViewSet, basename='published_article')
+router.register(r'articles', ArticleViewSet, basename='article')
+router.register(r'article_publications', ArticlePublicationViewSet, basename='article_publication')
 router.register(r'article_snapshots', ArticleSnapshotViewSet, basename='article_snapshot')
 router.register(r'article_events', ArticleEventReadViewset, basename='article_event')
 router.register(r'collections', CollectionViewSet, basename='collection')

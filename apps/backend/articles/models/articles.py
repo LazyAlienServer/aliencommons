@@ -9,49 +9,29 @@ from core.model_mixins import TimeStampedMixin, UUIDPrimaryKeyMixin, SoftDeleteM
 User = get_user_model()
 
 
-class SourceArticle(UUIDPrimaryKeyMixin,
-                    TimeStampedMixin,
-                    SoftDeleteMixin,
-                    models.Model):
+class Article(UUIDPrimaryKeyMixin,
+              TimeStampedMixin,
+              SoftDeleteMixin,
+              models.Model):
     """
-    Model for all articles
+    Stable article identity and workflow state.
+
     Mixin fields:
     - created_at
     - updated_at
     - id
     - is_deleted
     """
-    default_title = "Untitled"
-    default_markdown = "# Untitled"
-
     class ArticleStatus(models.IntegerChoices):
-        """
-        4 different source article status
-        """
         DRAFT = 0, "Draft"
         PENDING = 1, "Pending"
         PUBLISHED = 2, "Published"
         UNPUBLISHED = 3, "Unpublished"
 
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="source_articles",
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="articles",
         verbose_name=_("author"),
         help_text=_("The author of the article"),
-    )
-    title = models.CharField(
-        max_length=100, db_index=True, blank=True, default=default_title,
-        verbose_name=_("title"),
-        help_text=_("The title of the article"),
-    )
-    markdown = models.TextField(
-        blank=True, default=default_markdown,
-        verbose_name=_("article in markdown"),
-        help_text=_("The article in Markdown format"),
-    )
-    version = models.PositiveIntegerField(
-        default=1,
-        verbose_name=_("version"),
-        help_text=_("The current draft version of the source article"),
     )
     status = models.IntegerField(
         choices=ArticleStatus.choices, default=ArticleStatus.DRAFT, db_index=True,
@@ -66,12 +46,12 @@ class SourceArticle(UUIDPrimaryKeyMixin,
     last_moderation_at = models.DateTimeField(
         blank=True, null=True,
         verbose_name=_("last moderation at"),
-        help_text=_("The last moderation DateTime of the source article"),
+        help_text=_("The last moderation DateTime of the article"),
     )
 
     class Meta:
-        verbose_name = _("source article")
-        verbose_name_plural = _("source articles")
+        verbose_name = _("article")
+        verbose_name_plural = _("articles")
 
         ordering = ['-created_at']
         indexes = [
@@ -81,33 +61,88 @@ class SourceArticle(UUIDPrimaryKeyMixin,
         ]
 
     def __str__(self):
-        return self.title
+        return self.source.title
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
         if self.is_deleted:
-            PublishedArticle.objects.filter(source_article=self).delete()
+            ArticlePublication.objects.filter(article=self).delete()
 
 
-class PublishedArticle(UUIDPrimaryKeyMixin,
-                       TimeStampedMixin,
-                       models.Model):
+class ArticleSource(UUIDPrimaryKeyMixin,
+                    TimeStampedMixin,
+                    models.Model):
     """
+    Current editable source content for an article.
+
     Mixin fields:
     - id
     - created_at
     - updated_at
     """
-    source_article = models.OneToOneField(
-        SourceArticle, on_delete=models.CASCADE, related_name="published_version",
-        verbose_name=_("source article"),
-        help_text=_("The source article of the published version"),
+    default_title = "Untitled"
+    default_markdown = "# Untitled"
+
+    article = models.OneToOneField(
+        Article, on_delete=models.CASCADE, related_name="source",
+        verbose_name=_("article"),
+        help_text=_("The article this source content belongs to"),
+    )
+    title = models.CharField(
+        max_length=100, db_index=True, blank=True, default=default_title,
+        verbose_name=_("title"),
+        help_text=_("The current source title of the article"),
+    )
+    markdown = models.TextField(
+        blank=True, default=default_markdown,
+        verbose_name=_("article in markdown"),
+        help_text=_("The current article in Markdown format"),
+    )
+    version = models.PositiveIntegerField(
+        default=1,
+        verbose_name=_("version"),
+        help_text=_("The current draft version of the article source"),
+    )
+
+    class Meta:
+        verbose_name = _("article source")
+        verbose_name_plural = _("article sources")
+
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['title', 'created_at']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+
+class ArticlePublication(UUIDPrimaryKeyMixin,
+                         TimeStampedMixin,
+                         models.Model):
+    """
+    Current public reading projection of an approved article snapshot.
+
+    Mixin fields:
+    - id
+    - created_at
+    - updated_at
+    """
+    article = models.OneToOneField(
+        Article, on_delete=models.CASCADE, related_name="publication",
+        verbose_name=_("article"),
+        help_text=_("The article of the publication"),
+    )
+    approved_snapshot = models.ForeignKey(
+        "ArticleSnapshot", on_delete=models.CASCADE, related_name="publications",
+        verbose_name=_("approved snapshot"),
+        help_text=_("The approved snapshot used to render this publication"),
     )
     title = models.CharField(
         max_length=100, db_index=True,
         verbose_name=_("title"),
-        help_text=_("The title of the published article"),
+        help_text=_("The title of the article publication"),
     )
     html = models.TextField(
         verbose_name=_("article in html"),
@@ -116,17 +151,17 @@ class PublishedArticle(UUIDPrimaryKeyMixin,
     publication_at = models.DateTimeField(
         db_index=True,
         verbose_name=_("published at"),
-        help_text=_("Th DateTime of publication of the published article"),
+        help_text=_("The DateTime of publication of the article publication"),
     )
 
     class Meta:
-        verbose_name = _("published article")
-        verbose_name_plural = _("published articles")
+        verbose_name = _("article publication")
+        verbose_name_plural = _("article publications")
 
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Published version of article {self.source_article}"
+        return f"Publication of article {self.article}"
 
 
 class ArticleSnapshot(UUIDPrimaryKeyMixin,
@@ -146,10 +181,10 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
         APPROVED = 3, "Approved"
         REJECTED = 4, "Rejected"
 
-    source_article = models.ForeignKey(
-        SourceArticle, on_delete=models.CASCADE, related_name="article_snapshots",
-        verbose_name=_("source article"),
-        help_text=_("The source article of the article snapshot"),
+    article = models.ForeignKey(
+        Article, on_delete=models.CASCADE, related_name="article_snapshots",
+        verbose_name=_("article"),
+        help_text=_("The article of the article snapshot"),
     )
     title = models.CharField(
         max_length=100, db_index=True,
@@ -181,13 +216,13 @@ class ArticleSnapshot(UUIDPrimaryKeyMixin,
 
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['source_article', 'created_at']),
+            models.Index(fields=['article', 'created_at']),
             models.Index(fields=['moderation_status', 'created_at']),
-            models.Index(fields=['source_article', 'hash']),
+            models.Index(fields=['article', 'hash']),
         ]
 
     def __str__(self):
-        return f"Snapshot of article {self.source_article_id}"
+        return f"Snapshot of article {self.article_id}"
 
 
 class ArticleEvent(UUIDPrimaryKeyMixin,
@@ -202,6 +237,7 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
     """
 
     class EventType(models.IntegerChoices):
+        CREATE = 0, "Create"
         SUBMIT = 1, "Submit"
         WITHDRAW = 2, "Withdraw"
         APPROVE = 3, "Approve"
@@ -209,10 +245,10 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
         UNPUBLISH = 5, "Unpublish"
         DELETE = 6, "Delete"
 
-    source_article = models.ForeignKey(
-        SourceArticle, on_delete=models.CASCADE, related_name="article_events",
-        verbose_name=_("source articles"),
-        help_text=_("The source article of the article event"),
+    article = models.ForeignKey(
+        Article, on_delete=models.CASCADE, related_name="article_events",
+        verbose_name=_("article"),
+        help_text=_("The article of the article event"),
     )
     article_snapshot = models.ForeignKey(
         ArticleSnapshot, on_delete=models.SET_NULL, null=True, related_name="article_events",
@@ -236,7 +272,7 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
 
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['source_article', 'created_at']),
+            models.Index(fields=['article', 'created_at']),
             models.Index(fields=['actor', 'created_at']),
             models.Index(fields=['article_snapshot', 'created_at']),
             models.Index(fields=['event_type', 'created_at']),
@@ -246,5 +282,5 @@ class ArticleEvent(UUIDPrimaryKeyMixin,
         return (
             f"Operation {self.get_event_type_display()} "
             f"by {self.actor_id} "
-            f"on article {self.source_article_id}"
+            f"on article {self.article_id}"
         )

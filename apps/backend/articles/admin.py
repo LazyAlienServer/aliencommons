@@ -1,11 +1,11 @@
 from django.contrib import admin, messages
 
-from .models import Collection, CollectionItem, SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from .models import Collection, CollectionItem, Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
 
 
-@admin.register(SourceArticle)
-class SourceArticleAdmin(admin.ModelAdmin):
-    model = SourceArticle
+@admin.register(Article)
+class ArticleAdmin(admin.ModelAdmin):
+    model = Article
     list_display = (
         "title",
         "author",
@@ -21,7 +21,7 @@ class SourceArticleAdmin(admin.ModelAdmin):
         "created_at",
     )
 
-    search_fields = ("title", "author__username")
+    search_fields = ("source__title", "author__username")
     ordering = ("-created_at",)
     list_per_page = 25
     date_hierarchy = "created_at"
@@ -29,7 +29,7 @@ class SourceArticleAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "created_at", "updated_at", "last_moderation_at")
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "title", "markdown")}),
+        ("Basic", {"fields": ("id",)}),
         ("Ownership & Status", {"fields": ("author", "status", "is_deleted")}),
         ("Timestamps", {"fields": ("created_at", "updated_at")}),
     ]
@@ -39,6 +39,10 @@ class SourceArticleAdmin(admin.ModelAdmin):
     def status_display(self, obj):
         return obj.get_status_display()
     status_display.short_description = "Status"
+
+    def title(self, obj):
+        return obj.source.title
+    title.short_description = "Title"
 
     def action_soft_delete(self, request, queryset):
         count = 0
@@ -64,9 +68,34 @@ class SourceArticleAdmin(admin.ModelAdmin):
     action_hard_delete.short_description = "Hard delete selected (cannot be undone)"
 
 
-@admin.register(PublishedArticle)
-class PublishedArticleAdmin(admin.ModelAdmin):
-    model = PublishedArticle
+@admin.register(ArticleSource)
+class ArticleSourceAdmin(admin.ModelAdmin):
+    model = ArticleSource
+    list_display = (
+        "title",
+        "article",
+        "version",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = (
+        "created_at",
+    )
+    search_fields = ("title", "article__author__username")
+    ordering = ("-created_at",)
+    list_per_page = 25
+    date_hierarchy = "created_at"
+    readonly_fields = ("id", "article", "created_at", "updated_at")
+
+    fieldsets = [
+        ("Basic", {"fields": ("id", "article", "title", "markdown", "version")}),
+        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+    ]
+
+
+@admin.register(ArticlePublication)
+class ArticlePublicationAdmin(admin.ModelAdmin):
+    model = ArticlePublication
     list_display = (
         "title",
         "created_at",
@@ -80,11 +109,11 @@ class PublishedArticleAdmin(admin.ModelAdmin):
     list_per_page = 25
     date_hierarchy = "created_at"
 
-    readonly_fields = ("id", "created_at", "source_article", "title", "html")
+    readonly_fields = ("id", "created_at", "article", "approved_snapshot", "title", "html")
 
     fieldsets = [
         ("Basic", {"fields": ("id", "title", "html")}),
-        ("Key Info", {"fields": ("source_article", )}),
+        ("Key Info", {"fields": ("article", "approved_snapshot")}),
         ("Timestamps", {"fields": ("created_at",)}),
     ]
 
@@ -108,13 +137,13 @@ class ArticleSnapshotAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
     readonly_fields = (
-        "id", "created_at", "source_article", "title", "markdown", "hash",
+        "id", "created_at", "article", "title", "markdown", "hash",
         "moderation_status", "moderation_status_display",
     )
 
     fieldsets = [
         ("Basic", {"fields": ("id", "title", "markdown", "hash")}),
-        ("Key Info", {"fields": ("source_article", "moderation_status", "moderation_status_display")}),
+        ("Key Info", {"fields": ("article", "moderation_status", "moderation_status_display")}),
         ("Timestamps", {"fields": ("created_at",)}),
     ]
 
@@ -142,11 +171,11 @@ class ArticleEventAdmin(admin.ModelAdmin):
     list_per_page = 25
     date_hierarchy = "created_at"
 
-    readonly_fields = ("id", "source_article", "article_snapshot", "event_type", "actor", "created_at")
+    readonly_fields = ("id", "article", "article_snapshot", "event_type", "actor", "created_at")
 
     fieldsets = [
         ("Key Info", {
-            "fields": ("id", "event_type", "actor", "source_article", "article_snapshot")
+            "fields": ("id", "event_type", "actor", "article", "article_snapshot")
         }),
         ("Timestamps", {
             "fields": ("created_at",)
@@ -189,7 +218,7 @@ class CollectionItemAdmin(admin.ModelAdmin):
     model = CollectionItem
     list_display = (
         "collection",
-        "published_article",
+        "article_publication",
         "position",
         "created_at",
     )
@@ -197,13 +226,13 @@ class CollectionItemAdmin(admin.ModelAdmin):
         "collection",
         "created_at",
     )
-    search_fields = ("collection__title", "published_article__title")
+    search_fields = ("collection__title", "article_publication__title")
     ordering = ("collection", "position")
     list_per_page = 25
     date_hierarchy = "created_at"
     readonly_fields = ("id", "created_at")
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "collection", "published_article", "position")}),
+        ("Basic", {"fields": ("id", "collection", "article_publication", "position")}),
         ("Timestamps", {"fields": ("created_at",)}),
     ]

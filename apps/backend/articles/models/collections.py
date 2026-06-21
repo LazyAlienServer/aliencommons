@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.model_mixins import CreatedAtMixin, TimeStampedMixin, UUIDPrimaryKeyMixin
 
-from .articles import PublishedArticle
+from .articles import ArticlePublication
 
 
 class Collection(UUIDPrimaryKeyMixin,
@@ -53,10 +53,10 @@ class CollectionItem(UUIDPrimaryKeyMixin,
         verbose_name=_("collection"),
         help_text=_("The collection that contains this item"),
     )
-    published_article = models.ForeignKey(
-        PublishedArticle, on_delete=models.CASCADE, related_name="collection_items",
-        verbose_name=_("published article"),
-        help_text=_("The published article in the collection"),
+    article_publication = models.ForeignKey(
+        ArticlePublication, on_delete=models.CASCADE, related_name="collection_items",
+        verbose_name=_("article publication"),
+        help_text=_("The article publication in the collection"),
     )
     position = models.PositiveIntegerField(
         verbose_name=_("position"),
@@ -70,8 +70,8 @@ class CollectionItem(UUIDPrimaryKeyMixin,
         ordering = ["collection", "position", "created_at"]
         constraints = [
             models.UniqueConstraint(
-                fields=["collection", "published_article"],
-                name="unique_collection_published_article",
+                fields=["collection", "article_publication"],
+                name="unique_collection_article_publication",
             ),
             models.UniqueConstraint(
                 fields=["collection", "position"],
@@ -80,8 +80,8 @@ class CollectionItem(UUIDPrimaryKeyMixin,
         ]
         indexes = [
             models.Index(fields=["collection", "position"]),
-            models.Index(fields=["published_article", "created_at"]),
+            models.Index(fields=["article_publication", "created_at"]),
         ]
 
     def __str__(self):
-        return f"{self.published_article} in {self.collection}"
+        return f"{self.article_publication} in {self.collection}"

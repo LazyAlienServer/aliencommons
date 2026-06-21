@@ -2,12 +2,12 @@ from django.urls import reverse
 
 from rest_framework import status
 
-from core.services.content_targets import get_or_create_published_article_target
+from core.services.content_targets import get_or_create_article_publication_target
 from core.tests.factories import (
     create_content_report,
     create_moderator,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
     create_user_report,
 )
@@ -20,9 +20,9 @@ class ContentReportViewTests(BaseAPITestCase):
         self.reporter = create_user(username="reporter")
         self.other_user = create_user(username="other-user")
         self.moderator = create_moderator(username="moderator")
-        self.article = create_source_article(title="Guide")
-        self.published = create_published_article(self.article, title=self.article.title)
-        self.target = get_or_create_published_article_target(self.published)
+        self.article = create_article(title="Guide")
+        self.published = create_article_publication(self.article, title=self.article.source.title)
+        self.target = get_or_create_article_publication_target(self.published)
 
     def test_user_can_create_content_report(self):
         self.authenticate(self.reporter)

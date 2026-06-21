@@ -2,14 +2,14 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.utils import timezone
 
-from articles.models import ArticleSnapshot, Collection, CollectionItem, PublishedArticle, SourceArticle
+from articles.models import ArticleSnapshot, ArticleSource, Collection, CollectionItem, ArticlePublication, Article
 from articles.services.articles import ArticleWorkflow
 from bookmarks.models import Bookmark, BookmarkFolder
 from comments.models import Comment
 from core.models import ContentTarget
 from core.services.content_targets import (
     get_or_create_comment_target,
-    get_or_create_published_article_target,
+    get_or_create_article_publication_target,
 )
 from reactions.models import Reaction
 from reports.models import ContentReport, UserReport
@@ -40,42 +40,59 @@ def create_moderator(**kwargs):
     return create_user(**kwargs)
 
 
-def create_source_article(**kwargs):
+def create_article(**kwargs):
+    title = kwargs.pop("title", "First draft")
+    markdown = kwargs.pop("markdown", "# First draft\n\nHello")
+    version = kwargs.pop("version", 1)
     defaults = {
         "author": kwargs.pop("author", create_user()),
-        "title": "First draft",
-        "markdown": "# First draft\n\nHello",
-        "status": SourceArticle.ArticleStatus.DRAFT,
+        "status": Article.ArticleStatus.DRAFT,
     }
     defaults.update(kwargs)
-    return SourceArticle.objects.create(**defaults)
+    article = Article.objects.create(**defaults)
+    ArticleSource.objects.create(
+        article=article,
+        title=title,
+        markdown=markdown,
+        version=version,
+    )
+    return article
 
 
 def create_article_snapshot(article, **kwargs):
     defaults = {
-        "source_article": article,
-        "title": article.title,
-        "markdown": article.markdown,
+        "article": article,
+        "title": article.source.title,
+        "markdown": article.source.markdown,
         "hash": ArticleWorkflow._hash_and_normalize(
-            article.title,
-            article.markdown,
+            article.source.title,
+            article.source.markdown,
         ),
-        "source_version": article.version,
+        "source_version": article.source.version,
         "moderation_status": ArticleSnapshot.SnapshotStatus.PENDING,
     }
     defaults.update(kwargs)
     return ArticleSnapshot.objects.create(**defaults)
 
 
-def create_published_article(article, **kwargs):
+def create_article_publication(article, **kwargs):
+    approved_snapshot = kwargs.pop("approved_snapshot", None)
+    if approved_snapshot is None:
+        approved_snapshot = article.article_snapshots.order_by("-created_at").first()
+        if approved_snapshot is None:
+            approved_snapshot = create_article_snapshot(article)
+        if approved_snapshot.moderation_status != ArticleSnapshot.SnapshotStatus.APPROVED:
+            approved_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.APPROVED
+            approved_snapshot.save(update_fields=["moderation_status"])
     defaults = {
-        "source_article": article,
-        "title": article.title,
-        "html": article.markdown,
+        "article": article,
+        "approved_snapshot": approved_snapshot,
+        "title": article.source.title,
+        "html": article.source.markdown,
         "publication_at": timezone.now(),
     }
     defaults.update(kwargs)
-    return PublishedArticle.objects.create(**defaults)
+    return ArticlePublication.objects.create(**defaults)
 
 
 def create_collection(**kwargs):
@@ -88,10 +105,10 @@ def create_collection(**kwargs):
     return Collection.objects.create(**defaults)
 
 
-def create_collection_item(collection, published_article, **kwargs):
+def create_collection_item(collection, article_publication, **kwargs):
     defaults = {
         "collection": collection,
-        "published_article": published_article,
+        "article_publication": article_publication,
         "position": 1,
     }
     defaults.update(kwargs)
@@ -107,30 +124,30 @@ def create_bookmark_folder(**kwargs):
     return BookmarkFolder.objects.create(**defaults)
 
 
-def create_bookmark(user, published_article, folder=None, **kwargs):
+def create_bookmark(user, article_publication, folder=None, **kwargs):
     defaults = {
         "user": user,
         "folder": folder or create_bookmark_folder(user=user),
-        "published_article": published_article,
+        "article_publication": article_publication,
     }
     defaults.update(kwargs)
     return Bookmark.objects.create(**defaults)
 
 
-def create_content_target(published_article, **kwargs):
+def create_content_target(article_publication, **kwargs):
     if not kwargs:
-        return get_or_create_published_article_target(published_article)
+        return get_or_create_article_publication_target(article_publication)
 
     defaults = {
-        "target_type": ContentTarget.TargetType.PUBLISHED_ARTICLE,
-        "published_article": published_article,
+        "target_type": ContentTarget.TargetType.ARTICLE_PUBLICATION,
+        "article_publication": article_publication,
     }
     defaults.update(kwargs)
     return ContentTarget.objects.create(**defaults)
 
 
-def create_reaction(user, published_article, **kwargs):
-    target = kwargs.pop("target", None) or get_or_create_published_article_target(published_article)
+def create_reaction(user, article_publication, **kwargs):
+    target = kwargs.pop("target", None) or get_or_create_article_publication_target(article_publication)
     defaults = {
         "user": user,
         "target": target,
@@ -140,7 +157,7 @@ def create_reaction(user, published_article, **kwargs):
     return Reaction.objects.create(**defaults)
 
 
-def create_comment(author, published_article, **kwargs):
+def create_comment(author, article_publication, **kwargs):
     reply_to = kwargs.pop("reply_to", None)
     if reply_to is not None:
         target = kwargs.pop("target", get_or_create_comment_target(reply_to))
@@ -149,7 +166,7 @@ def create_comment(author, published_article, **kwargs):
         parent = kwargs.pop("parent", None)
         target = kwargs.pop(
             "target",
-            get_or_create_comment_target(parent) if parent else get_or_create_published_article_target(published_article),
+            get_or_create_comment_target(parent) if parent else get_or_create_article_publication_target(article_publication),
         )
     body = kwargs.pop("body", "A thoughtful comment")
     mentions = kwargs.pop("mentions", [])

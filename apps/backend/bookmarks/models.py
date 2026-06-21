@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from articles.models import PublishedArticle
+from articles.models import ArticlePublication
 from core.model_mixins import CreatedAtMixin, TimeStampedMixin, UUIDPrimaryKeyMixin
 
 
@@ -46,7 +46,7 @@ class Bookmark(UUIDPrimaryKeyMixin,
                CreatedAtMixin,
                models.Model):
     """
-    A user's bookmark for one published article.
+    A user's bookmark for one article publication.
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="article_bookmarks",
@@ -58,10 +58,10 @@ class Bookmark(UUIDPrimaryKeyMixin,
         verbose_name=_("folder"),
         help_text=_("The folder that contains the bookmark"),
     )
-    published_article = models.ForeignKey(
-        PublishedArticle, on_delete=models.CASCADE, related_name="bookmarks",
-        verbose_name=_("published article"),
-        help_text=_("The published article being bookmarked"),
+    article_publication = models.ForeignKey(
+        ArticlePublication, on_delete=models.CASCADE, related_name="bookmarks",
+        verbose_name=_("article publication"),
+        help_text=_("The article publication being bookmarked"),
     )
 
     class Meta:
@@ -71,15 +71,15 @@ class Bookmark(UUIDPrimaryKeyMixin,
         ordering = ["-created_at"]
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "published_article"],
-                name="unique_bookmark_published_article_per_user",
+                fields=["user", "article_publication"],
+                name="unique_bookmark_article_publication_per_user",
             ),
         ]
         indexes = [
             models.Index(fields=["user", "created_at"]),
             models.Index(fields=["folder", "created_at"]),
-            models.Index(fields=["published_article", "created_at"]),
+            models.Index(fields=["article_publication", "created_at"]),
         ]
 
     def __str__(self):
-        return f"{self.user} bookmarked {self.published_article}"
+        return f"{self.user} bookmarked {self.article_publication}"

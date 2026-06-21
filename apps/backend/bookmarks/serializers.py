@@ -61,8 +61,8 @@ class BookmarkFolderWriteSerializer(serializers.ModelSerializer):
 
 class BookmarkReadSerializer(serializers.ModelSerializer):
     folder_name = serializers.CharField(source="folder.name", read_only=True)
-    published_article_title = serializers.CharField(source="published_article.title", read_only=True)
-    source_article_id = serializers.UUIDField(source="published_article.source_article_id", read_only=True)
+    article_publication_title = serializers.CharField(source="article_publication.title", read_only=True)
+    article_id = serializers.UUIDField(source="article_publication.article_id", read_only=True)
 
     class Meta:
         model = Bookmark
@@ -71,9 +71,9 @@ class BookmarkReadSerializer(serializers.ModelSerializer):
             "user",
             "folder",
             "folder_name",
-            "published_article",
-            "published_article_title",
-            "source_article_id",
+            "article_publication",
+            "article_publication_title",
+            "article_id",
             "created_at",
         )
         read_only_fields = fields
@@ -82,15 +82,15 @@ class BookmarkReadSerializer(serializers.ModelSerializer):
 class BookmarkWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
-        fields = ("folder", "published_article")
+        fields = ("folder", "article_publication")
         validators = []
 
     def validate(self, attrs):
         user = self.context["request"].user
         folder = attrs.get("folder", getattr(self.instance, "folder", None))
-        published_article = attrs.get(
-            "published_article",
-            getattr(self.instance, "published_article", None),
+        article_publication = attrs.get(
+            "article_publication",
+            getattr(self.instance, "article_publication", None),
         )
 
         if folder is None:
@@ -105,15 +105,15 @@ class BookmarkWriteSerializer(serializers.ModelSerializer):
                 code="bookmark_folder_not_owned",
             )
 
-        if published_article is None:
+        if article_publication is None:
             raise serializers.ValidationError(
-                detail={"published_article": "A published article is required"},
-                code="published_article_required",
+                detail={"article_publication": "An article publication is required"},
+                code="article_publication_required",
             )
 
         duplicate = Bookmark.objects.filter(
             user=user,
-            published_article=published_article,
+            article_publication=article_publication,
         )
         if self.instance is not None:
             duplicate = duplicate.exclude(pk=self.instance.pk)

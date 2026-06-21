@@ -16,7 +16,7 @@ The Django API service for AlienCommons.
 ## Apps
 
 - `users`: users, sessions, emails, and subscriptions
-- `articles`: source articles, published articles, collections, and article workflows
+- `articles`: articles, published articles, collections, and article workflows
 - `bookmarks`: bookmark folders and article bookmarks
 - `comments`: article comments and replies
 - `notifications`: user notification events, fan-out deliveries, and inbox APIs

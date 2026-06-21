@@ -6,8 +6,9 @@ from rest_framework import serializers, status
 from rest_framework.test import APIRequestFactory
 from rest_framework.viewsets import GenericViewSet
 
-from articles.models import SourceArticle
+from articles.models import Article
 from core.pagination import StandardPagination
+from core.tests.factories import create_article
 from core.tests.testcases import BaseTestCase
 from core.views.mixins import FormattedResponseMixin, MyListModelMixin
 
@@ -15,19 +16,21 @@ from core.views.mixins import FormattedResponseMixin, MyListModelMixin
 User = get_user_model()
 
 
-class _SourceArticleSerializer(serializers.ModelSerializer):
+class _ArticleSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="source.title", read_only=True)
+
     class Meta:
-        model = SourceArticle
+        model = Article
         fields = ["id", "title"]
 
 
 class _PaginatedArticleViewSet(FormattedResponseMixin, MyListModelMixin, GenericViewSet):
-    serializer_class = _SourceArticleSerializer
+    serializer_class = _ArticleSerializer
     pagination_class = StandardPagination
     permission_classes = []
 
     def get_queryset(self):
-        return SourceArticle.objects.order_by("created_at")
+        return Article.objects.order_by("created_at")
 
 
 urlpatterns = [
@@ -45,7 +48,7 @@ class MyListModelMixinTests(BaseTestCase):
         self.factory = APIRequestFactory()
         self.user = User.objects.create_user(username="viewer", password="secret123")
         for index in range(25):
-            SourceArticle.objects.create(
+            create_article(
                 author=self.user,
                 title=f"Article {index}",
                 markdown=f"Article {index}",

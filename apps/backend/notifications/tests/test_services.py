@@ -2,8 +2,8 @@ from comments.services import create_comment
 from core.tests.factories import (
     create_comment as create_comment_record,
     create_community_post,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
 )
 from core.tests.testcases import BaseTestCase
@@ -20,8 +20,8 @@ class NotificationServiceTests(BaseTestCase):
     def setUp(self):
         self.author = create_user(username="author")
         self.reader = create_user(username="reader")
-        self.article = create_source_article(author=self.author, title="Guide")
-        self.published = create_published_article(self.article, title=self.article.title)
+        self.article = create_article(author=self.author, title="Guide")
+        self.published = create_article_publication(self.article, title=self.article.source.title)
 
     def test_comment_mentions_and_reply_create_outbox_events(self):
         parent = create_comment_record(self.reader, self.published, body="Top")
@@ -77,7 +77,7 @@ class NotificationServiceTests(BaseTestCase):
         event = notify_subscribed_author_posted(
             actor=self.author,
             target=self.published.content_target,
-            content_kind="published-article-extra",
+            content_kind="article-publication-extra",
         )
 
         result = fan_out_pending_events()

@@ -72,8 +72,8 @@ class ContentReportWriteSerializer(serializers.Serializer):
     def validate_target(self, value):
         try:
             return ContentTarget.objects.select_related(
-                "published_article",
-                "published_article__source_article",
+                "article_publication",
+                "article_publication__article",
                 "comment",
                 "comment__author",
                 "comment__parent",
@@ -112,4 +112,3 @@ class UserReportWriteSerializer(serializers.Serializer):
 class ReportModerationSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=BaseReport.ReportStatus.choices)
     resolution_note = serializers.CharField(required=False, allow_blank=True, default="")
-

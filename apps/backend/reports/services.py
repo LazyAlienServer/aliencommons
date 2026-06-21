@@ -19,16 +19,16 @@ def build_content_report_snapshot(target: ContentTarget):
         "target_type_display": target.get_target_type_display(),
     }
 
-    if target.target_type == ContentTarget.TargetType.PUBLISHED_ARTICLE:
-        article = target.published_article
+    if target.target_type == ContentTarget.TargetType.ARTICLE_PUBLICATION:
+        publication = target.article_publication
         snapshot.update(
             {
-                "target_object_id": str(article.id),
-                "title": article.title,
-                "source_article_id": str(article.source_article_id),
-                "author_id": str(article.source_article.author_id) if article.source_article.author_id else None,
-                "html": article.html,
-                "publication_at": article.publication_at.isoformat(),
+                "target_object_id": str(publication.id),
+                "title": publication.title,
+                "article_id": str(publication.article_id),
+                "author_id": str(publication.article.author_id) if publication.article.author_id else None,
+                "html": publication.html,
+                "publication_at": publication.publication_at.isoformat(),
             }
         )
         return snapshot

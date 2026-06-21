@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from core.utils.permissions import is_moderator
 from core.views.viewsets import MyModelViewSet, MyReadOnlyModelViewSet
-from ..filters import SourceArticleFilter
-from ..models import ArticleEvent, ArticleSnapshot, PublishedArticle, SourceArticle
+from ..filters import ArticleFilter
+from ..models import Article, ArticleEvent, ArticleSnapshot, ArticlePublication
 from ..permissions import (
     ArticleEventPermission,
     AuthorOnly,
@@ -18,19 +18,19 @@ from ..serializers import (
     ArticleEventSerializer,
     ArticleSnapshotSerializer,
     ImageUploadSerializer,
-    PublishedArticleSerializer,
-    SourceArticleReadSerializer,
-    SourceArticleWriteSerializer,
+    ArticlePublicationSerializer,
+    ArticleReadSerializer,
+    ArticleWriteSerializer,
 )
 from ..services.articles import (
-    approve, reject, save_draft, soft_delete, submit, unpublish, withdraw
+    approve, create_article, reject, save_draft, soft_delete, submit, unpublish, withdraw
 )
 
 
-class SourceArticleViewSet(MyModelViewSet):
-    queryset = SourceArticle.objects.select_related("author")
+class ArticleViewSet(MyModelViewSet):
+    queryset = Article.objects.select_related("author", "source")
     filter_backends = [filters.DjangoFilterBackend]
-    filterset_class = SourceArticleFilter
+    filterset_class = ArticleFilter
 
     permission_class_mapping = {
         'create': [IsAuthenticated],
@@ -52,8 +52,8 @@ class SourceArticleViewSet(MyModelViewSet):
         # Author - Write Serializer | Moderators - Read Serializer
         self.action: str
         if self.action in ('create', 'update', 'partial_update'):
-            return SourceArticleWriteSerializer
-        return SourceArticleReadSerializer
+            return ArticleWriteSerializer
+        return ArticleReadSerializer
 
     def get_permissions(self):
         self.action: str
@@ -72,28 +72,31 @@ class SourceArticleViewSet(MyModelViewSet):
         queryset = queryset.filter(author=user)
         last_snapshot_id = (
             ArticleSnapshot.objects
-            .filter(source_article_id=OuterRef("pk"))
+            .filter(article_id=OuterRef("pk"))
             .order_by("-created_at")
             .values("id")[:1]
         )
-        published_version_id = PublishedArticle.objects.filter(source_article_id=OuterRef("pk")).values("id")
+        publication_id = ArticlePublication.objects.filter(article_id=OuterRef("pk")).values("id")
 
         return queryset.annotate(
             last_snapshot_id=Subquery(last_snapshot_id),
-            published_version_id=Subquery(published_version_id),
+            publication_id=Subquery(publication_id),
         )
 
     def create(self, request, *args, **kwargs):
-        input_serializer = SourceArticleWriteSerializer(
+        input_serializer = ArticleWriteSerializer(
             data=request.data,
             context=self.get_serializer_context(),
         )
         input_serializer.is_valid(raise_exception=True)
 
-        source_article = input_serializer.save(author=self.request.user)
+        article = create_article(
+            actor=self.request.user,
+            markdown=input_serializer.validated_data.get("markdown"),
+        )
 
-        output_serializer = SourceArticleReadSerializer(
-            instance=source_article,
+        output_serializer = ArticleReadSerializer(
+            instance=article,
             context=self.get_serializer_context(),
         )
 
@@ -107,7 +110,7 @@ class SourceArticleViewSet(MyModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         article = self.get_object()
-        input_serializer = SourceArticleWriteSerializer(
+        input_serializer = ArticleWriteSerializer(
             article,
             data=request.data,
             partial=partial,
@@ -115,15 +118,15 @@ class SourceArticleViewSet(MyModelViewSet):
         )
         input_serializer.is_valid(raise_exception=True)
 
-        source_article = save_draft(
-            source_article_id=article.id,
+        article = save_draft(
+            article_id=article.id,
             actor=request.user,
             title=input_serializer.validated_data.get("title"),
             markdown=input_serializer.validated_data.get("markdown"),
         )
 
-        output_serializer = SourceArticleReadSerializer(
-            instance=source_article,
+        output_serializer = ArticleReadSerializer(
+            instance=article,
             context=self.get_serializer_context(),
         )
 
@@ -154,7 +157,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def submit(self, request, pk=None):
-        result = submit(source_article_id=pk, actor=request.user)
+        result = submit(article_id=pk, actor=request.user)
         output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
@@ -166,7 +169,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def withdraw(self, request, pk=None):
-        result = withdraw(source_article_id=pk, actor=request.user)
+        result = withdraw(article_id=pk, actor=request.user)
         output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
@@ -178,7 +181,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
-        result = approve(source_article_id=pk, actor=request.user)
+        result = approve(article_id=pk, actor=request.user)
         output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
@@ -190,7 +193,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def reject(self, request, pk=None):
-        result = reject(source_article_id=pk, actor=request.user)
+        result = reject(article_id=pk, actor=request.user)
         output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
@@ -202,7 +205,7 @@ class SourceArticleViewSet(MyModelViewSet):
 
     @action(detail=True, methods=['post'])
     def unpublish(self, request, pk=None):
-        result = unpublish(source_article_id=pk, actor=request.user)
+        result = unpublish(article_id=pk, actor=request.user)
         output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
@@ -215,7 +218,7 @@ class SourceArticleViewSet(MyModelViewSet):
     @action(detail=True, methods=['post'], url_path="delete")
     def trash(self, request, pk=None):
         """Soft delete the article"""
-        result = soft_delete(source_article_id=pk, actor=request.user)
+        result = soft_delete(article_id=pk, actor=request.user)
         output_serializer = ArticleActionResponseSerializer(instance=result)
 
         return self.format_success_response(
@@ -226,20 +229,20 @@ class SourceArticleViewSet(MyModelViewSet):
         )
 
 
-class PublishedArticleViewSet(MyReadOnlyModelViewSet):
-    queryset = PublishedArticle.objects.select_related("source_article")
-    serializer_class = PublishedArticleSerializer
+class ArticlePublicationViewSet(MyReadOnlyModelViewSet):
+    queryset = ArticlePublication.objects.select_related("article", "approved_snapshot")
+    serializer_class = ArticlePublicationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        from comments.querysets import with_published_article_comment_count
-        from reactions.querysets import with_published_article_reaction_summary
+        from comments.querysets import with_article_publication_comment_count
+        from reactions.querysets import with_article_publication_reaction_summary
 
-        queryset = with_published_article_reaction_summary(
+        queryset = with_article_publication_reaction_summary(
             super().get_queryset(),
             user=self.request.user,
         )
-        return with_published_article_comment_count(queryset)
+        return with_article_publication_comment_count(queryset)
 
 
 class ArticleSnapshotViewSet(MyReadOnlyModelViewSet):
@@ -272,4 +275,4 @@ class ArticleEventReadViewset(MyReadOnlyModelViewSet):
         user = self.request.user
         if is_moderator(user):
             return ArticleEvent.objects.all()
-        return ArticleEvent.objects.filter(source_article__author=user)
+        return ArticleEvent.objects.filter(article__author=user)

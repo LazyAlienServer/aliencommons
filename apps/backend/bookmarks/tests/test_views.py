@@ -7,8 +7,8 @@ from bookmarks.models import Bookmark, BookmarkFolder
 from core.tests.factories import (
     create_bookmark,
     create_bookmark_folder,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
 )
 from core.tests.testcases import BaseAPITestCase
@@ -26,8 +26,8 @@ class BookmarkViewTests(BaseAPITestCase):
             user=self.other_user,
             name=settings.DEFAULT_BOOKMARK_FOLDER_NAME,
         )
-        self.article = create_source_article(title="Guide")
-        self.published = create_published_article(self.article, title=self.article.title)
+        self.article = create_article(title="Guide")
+        self.published = create_article_publication(self.article, title=self.article.source.title)
 
     def test_user_can_create_bookmark_folder(self):
         self.authenticate(self.user)
@@ -79,13 +79,13 @@ class BookmarkViewTests(BaseAPITestCase):
         self.assertFalse(BookmarkFolder.objects.filter(id=folder_id).exists())
         self.assertFalse(Bookmark.objects.filter(id=bookmark.id).exists())
 
-    def test_user_can_create_bookmark_for_published_article(self):
+    def test_user_can_create_bookmark_for_article_publication(self):
         self.authenticate(self.user)
         response = self.post_json(
             reverse("bookmark-list"),
             {
                 "folder": str(self.folder.id),
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
             },
         )
 
@@ -96,7 +96,7 @@ class BookmarkViewTests(BaseAPITestCase):
         )
         self.assert_uuid_equal(response.data["data"]["user"], self.user.id)
         self.assert_uuid_equal(response.data["data"]["folder"], self.folder.id)
-        self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
+        self.assert_uuid_equal(response.data["data"]["article_publication"], self.published.id)
         self.assertEqual(Bookmark.objects.count(), 1)
 
     def test_bookmark_requires_folder(self):
@@ -104,7 +104,7 @@ class BookmarkViewTests(BaseAPITestCase):
         response = self.post_json(
             reverse("bookmark-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
             },
         )
 
@@ -120,7 +120,7 @@ class BookmarkViewTests(BaseAPITestCase):
             reverse("bookmark-list"),
             {
                 "folder": str(self.other_folder.id),
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
             },
         )
 
@@ -138,7 +138,7 @@ class BookmarkViewTests(BaseAPITestCase):
             reverse("bookmark-list"),
             {
                 "folder": str(self.folder.id),
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
             },
         )
 
@@ -170,8 +170,8 @@ class BookmarkViewTests(BaseAPITestCase):
 
     def test_user_only_lists_own_bookmarks(self):
         own_bookmark = create_bookmark(self.user, self.published, folder=self.folder)
-        other_article = create_source_article(title="Other")
-        other_published = create_published_article(other_article, title=other_article.title)
+        other_article = create_article(title="Other")
+        other_published = create_article_publication(other_article, title=other_article.source.title)
         create_bookmark(self.other_user, other_published, folder=self.other_folder)
 
         self.authenticate(self.user)
@@ -188,8 +188,8 @@ class BookmarkViewTests(BaseAPITestCase):
     def test_user_can_filter_bookmarks_by_folder(self):
         own_bookmark = create_bookmark(self.user, self.published, folder=self.folder)
         other_folder = create_bookmark_folder(user=self.user, name="Other")
-        other_article = create_source_article(title="Other")
-        other_published = create_published_article(other_article, title=other_article.title)
+        other_article = create_article(title="Other")
+        other_published = create_article_publication(other_article, title=other_article.source.title)
         create_bookmark(self.user, other_published, folder=other_folder)
 
         self.authenticate(self.user)

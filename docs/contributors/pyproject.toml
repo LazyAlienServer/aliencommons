@@ -1,5 +1,5 @@
 [project]
-name = "alien-commons-contributor-docs"
+name = "aliencommons-contributor-docs"
 version = "0.0.1"
 requires-python = ">=3.14"
 dependencies = [

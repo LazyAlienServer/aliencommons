@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "docs/contributors/**"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/contributors-docs-deploy.yml"
 
 permissions:
@@ -38,17 +40,17 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          working-directory: docs/contributors
+          working-directory: .
           cache-suffix: contributors-docs-deploy
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
       - name: Install documentation dependencies
-        run: uv sync --locked
+        run: uv sync --project ../.. --locked --package alien-commons-contributor-docs
 
       - name: Build MkDocs site
-        run: uv run mkdocs build --strict
+        run: uv run --project ../.. --package alien-commons-contributor-docs mkdocs build --strict
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

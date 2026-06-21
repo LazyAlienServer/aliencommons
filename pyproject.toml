@@ -1,0 +1,5 @@
+[tool.uv]
+add-bounds = "exact"
+
+[tool.uv.workspace]
+members = ["apps/backend", "docs/alienmark", "docs/contributors", "docs/users"]

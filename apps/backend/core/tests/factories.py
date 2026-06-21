@@ -1,8 +1,17 @@
-from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.models import Max
 from django.utils import timezone
 
-from articles.models import ArticleSnapshot, ArticleSource, Collection, CollectionItem, ArticlePublication, Article
+from articles.models import (
+    Article,
+    ArticlePublication,
+    ArticlePublicationVersion,
+    ArticleSnapshot,
+    ArticleSource,
+    Collection,
+    CollectionItem,
+)
 from articles.services.articles import ArticleWorkflow
 from bookmarks.models import Bookmark, BookmarkFolder
 from comments.models import Comment
@@ -77,22 +86,44 @@ def create_article_snapshot(article, **kwargs):
 
 def create_article_publication(article, **kwargs):
     approved_snapshot = kwargs.pop("approved_snapshot", None)
+    publication_at = kwargs.pop("publication_at", timezone.now())
+    version = kwargs.pop("version", None)
+    title = kwargs.pop("title", article.source.title)
+    html = kwargs.pop("html", article.source.markdown)
     if approved_snapshot is None:
-        approved_snapshot = article.article_snapshots.order_by("-created_at").first()
+        approved_snapshot = (
+            article.article_snapshots
+            .filter(publication_version__isnull=True)
+            .order_by("-created_at")
+            .first()
+        )
         if approved_snapshot is None:
             approved_snapshot = create_article_snapshot(article)
         if approved_snapshot.moderation_status != ArticleSnapshot.SnapshotStatus.APPROVED:
             approved_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.APPROVED
             approved_snapshot.save(update_fields=["moderation_status"])
-    defaults = {
-        "article": article,
+    if article.status == Article.ArticleStatus.DRAFT:
+        article.status = Article.ArticleStatus.PUBLISHED
+        article.save(update_fields=["status"])
+
+    publication, _ = ArticlePublication.objects.get_or_create(
+        article=article,
+        defaults={"published_at": publication_at},
+    )
+    if version is None:
+        version = (publication.versions.aggregate(max_version=Max("version"))["max_version"] or 0) + 1
+
+    version_defaults = {
+        "publication": publication,
         "approved_snapshot": approved_snapshot,
-        "title": article.source.title,
-        "html": article.source.markdown,
-        "publication_at": timezone.now(),
+        "version": version,
+        "title": title,
+        "html": html,
+        "publication_at": publication_at,
     }
-    defaults.update(kwargs)
-    return ArticlePublication.objects.create(**defaults)
+    version_defaults.update(kwargs)
+    ArticlePublicationVersion.objects.create(**version_defaults)
+    return publication
 
 
 def create_collection(**kwargs):

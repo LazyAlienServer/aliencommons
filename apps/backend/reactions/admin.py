@@ -15,7 +15,7 @@ class ReactionAdmin(admin.ModelAdmin):
     list_filter = ("reaction_type", "created_at")
     search_fields = (
         "user__username",
-        "target__article_publication__title",
+        "target__article_publication__versions__title",
         "target__comment__body",
     )
     ordering = ("-created_at",)

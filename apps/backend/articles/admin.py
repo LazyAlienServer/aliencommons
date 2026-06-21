@@ -1,6 +1,15 @@
 from django.contrib import admin, messages
 
-from .models import Collection, CollectionItem, Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
+from .models import (
+    Collection,
+    CollectionItem,
+    Article,
+    ArticleSource,
+    ArticlePublication,
+    ArticlePublicationVersion,
+    ArticleSnapshot,
+    ArticleEvent,
+)
 
 
 @admin.register(Article)
@@ -97,24 +106,75 @@ class ArticleSourceAdmin(admin.ModelAdmin):
 class ArticlePublicationAdmin(admin.ModelAdmin):
     model = ArticlePublication
     list_display = (
-        "title",
+        "article",
+        "latest_title",
+        "latest_version_number",
+        "published_at",
         "created_at",
     )
     list_filter = (
         "created_at",
     )
 
-    search_fields = ("title",)
+    search_fields = ("versions__title", "article__source__title", "article__author__username")
     ordering = ("-created_at",)
     list_per_page = 25
     date_hierarchy = "created_at"
 
-    readonly_fields = ("id", "created_at", "article", "approved_snapshot", "title", "html")
+    readonly_fields = ("id", "created_at", "updated_at", "article", "published_at")
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "title", "html")}),
-        ("Key Info", {"fields": ("article", "approved_snapshot")}),
-        ("Timestamps", {"fields": ("created_at",)}),
+        ("Basic", {"fields": ("id", "article")}),
+        ("Timestamps", {"fields": ("published_at", "created_at", "updated_at")}),
+    ]
+
+    def latest_title(self, obj):
+        latest_version = obj.latest_version()
+        return latest_version.title if latest_version else None
+    latest_title.short_description = "Latest title"
+
+    def latest_version_number(self, obj):
+        latest_version = obj.latest_version()
+        return latest_version.version if latest_version else None
+    latest_version_number.short_description = "Latest version"
+
+
+@admin.register(ArticlePublicationVersion)
+class ArticlePublicationVersionAdmin(admin.ModelAdmin):
+    model = ArticlePublicationVersion
+    list_display = (
+        "publication",
+        "version",
+        "title",
+        "publication_at",
+        "created_at",
+    )
+    list_filter = (
+        "publication_at",
+        "created_at",
+    )
+
+    search_fields = ("title", "publication__article__source__title", "publication__article__author__username")
+    ordering = ("-publication_at",)
+    list_per_page = 25
+    date_hierarchy = "publication_at"
+
+    readonly_fields = (
+        "id",
+        "publication",
+        "approved_snapshot",
+        "version",
+        "title",
+        "html",
+        "publication_at",
+        "created_at",
+        "updated_at",
+    )
+
+    fieldsets = [
+        ("Basic", {"fields": ("id", "publication", "version", "title", "html")}),
+        ("Key Info", {"fields": ("approved_snapshot",)}),
+        ("Timestamps", {"fields": ("publication_at", "created_at", "updated_at")}),
     ]
 
 
@@ -226,7 +286,7 @@ class CollectionItemAdmin(admin.ModelAdmin):
         "collection",
         "created_at",
     )
-    search_fields = ("collection__title", "article_publication__title")
+    search_fields = ("collection__title", "article_publication__versions__title")
     ordering = ("collection", "position")
     list_per_page = 25
     date_hierarchy = "created_at"

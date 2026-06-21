@@ -26,7 +26,7 @@ class BookmarkAdmin(admin.ModelAdmin):
     search_fields = (
         "user__username",
         "folder__name",
-        "article_publication__title",
+        "article_publication__versions__title",
     )
     ordering = ("-created_at",)
     readonly_fields = ("id", "created_at")

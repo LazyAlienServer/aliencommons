@@ -4,6 +4,7 @@ from .articles import (
     ArticleSnapshotSerializer,
     ImageUploadSerializer,
     ArticlePublicationSerializer,
+    ArticlePublicationVersionSerializer,
     ArticleReadSerializer,
     ArticleWriteSerializer,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "CollectionWriteSerializer",
     "ImageUploadSerializer",
     "ArticlePublicationSerializer",
+    "ArticlePublicationVersionSerializer",
     "ArticleReadSerializer",
     "ArticleWriteSerializer",
 ]

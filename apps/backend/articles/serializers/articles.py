@@ -14,7 +14,14 @@ from core.validators import (
     FileTypeValidator, FileSizeValidator
 )
 from core.exceptions import ServiceError
-from ..models import Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
+from ..models import (
+    Article,
+    ArticleSource,
+    ArticlePublication,
+    ArticlePublicationVersion,
+    ArticleSnapshot,
+    ArticleEvent,
+)
 from ..services.markdown import extract_title_from_markdown
 
 
@@ -148,10 +155,35 @@ class ImageUploadSerializer(serializers.Serializer):
         }
 
 
+class ArticlePublicationVersionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for immutable article publication versions.
+    """
+
+    class Meta:
+        model = ArticlePublicationVersion
+        fields = (
+            "id",
+            "approved_snapshot",
+            "version",
+            "title",
+            "html",
+            "publication_at",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = fields
+
+
 class ArticlePublicationSerializer(serializers.ModelSerializer):
     """
     Serializer for article publications. All fields are ready-only.
     """
+    latest_version = serializers.SerializerMethodField()
+    versions = ArticlePublicationVersionSerializer(many=True, read_only=True)
+    title = serializers.SerializerMethodField()
+    html = serializers.SerializerMethodField()
+    publication_at = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
     dislike_count = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
@@ -162,10 +194,12 @@ class ArticlePublicationSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "article",
-            "approved_snapshot",
+            "latest_version",
+            "versions",
             "title",
             "html",
             "publication_at",
+            "published_at",
             "like_count",
             "dislike_count",
             "my_reaction",
@@ -176,10 +210,12 @@ class ArticlePublicationSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
             'article',
-            'approved_snapshot',
+            'latest_version',
+            'versions',
             'title',
             'html',
             'publication_at',
+            'published_at',
             'like_count',
             'dislike_count',
             'my_reaction',
@@ -187,6 +223,27 @@ class ArticlePublicationSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         )
+
+    def _get_latest_version(self, obj):
+        return obj.latest_version()
+
+    def get_latest_version(self, obj):
+        latest_version = self._get_latest_version(obj)
+        if latest_version is None:
+            return None
+        return ArticlePublicationVersionSerializer(latest_version).data
+
+    def get_title(self, obj):
+        latest_version = self._get_latest_version(obj)
+        return latest_version.title if latest_version else None
+
+    def get_html(self, obj):
+        latest_version = self._get_latest_version(obj)
+        return latest_version.html if latest_version else None
+
+    def get_publication_at(self, obj):
+        latest_version = self._get_latest_version(obj)
+        return latest_version.publication_at if latest_version else None
 
     def get_like_count(self, obj):
         annotated_value = getattr(obj, "like_count", None)

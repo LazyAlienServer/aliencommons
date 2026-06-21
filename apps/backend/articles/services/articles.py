@@ -1,11 +1,19 @@
 from django.db import transaction
+from django.db.models import Max
 from django.utils import timezone
 
 from datetime import timedelta
 import json
 import hashlib
 
-from articles.models import Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
+from articles.models import (
+    Article,
+    ArticleSource,
+    ArticlePublication,
+    ArticlePublicationVersion,
+    ArticleSnapshot,
+    ArticleEvent,
+)
 from core.exceptions import ServiceError
 from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
@@ -161,37 +169,40 @@ class ArticleWorkflow:
 
         return is_within
 
-    def _create_or_update_publication(self) -> ArticlePublication:
+    def _create_publication_version(self) -> ArticlePublicationVersion:
         """
-        Create or update the article's public version.
-        Return the article publication.
+        Create the next public version from the approved snapshot.
+        Return the article publication version.
         """
         article_publication = self._get_the_publication()
+        publication_at = timezone.now()
         html = render_md_to_html(self.article_snapshot.markdown)
 
-        if article_publication:
-            article_publication.approved_snapshot = self.article_snapshot
-            article_publication.title = self.article_snapshot.title
-            article_publication.html = html
-            article_publication.publication_at = timezone.now()
-            article_publication.save(update_fields=['approved_snapshot', 'title', 'html', 'publication_at'])
-
-            return article_publication
-
-        article_publication = ArticlePublication.objects.create(
+        article_publication, created = ArticlePublication.objects.get_or_create(
             article=self.article,
+            defaults={"published_at": publication_at},
+        )
+        next_version = (
+            article_publication.versions.aggregate(max_version=Max("version"))["max_version"] or 0
+        ) + 1
+
+        article_publication_version = ArticlePublicationVersion.objects.create(
+            publication=article_publication,
             approved_snapshot=self.article_snapshot,
+            version=next_version,
             title=self.article_snapshot.title,
             html=html,
-            publication_at=timezone.now(),
-        )
-        notify_subscribed_author_posted(
-            actor=self.article.author,
-            target=article_publication.content_target,
-            content_kind="article_publication",
+            publication_at=publication_at,
         )
 
-        return article_publication
+        if created:
+            notify_subscribed_author_posted(
+                actor=self.article.author,
+                target=article_publication.content_target,
+                content_kind="article_publication",
+            )
+
+        return article_publication_version
 
     def _create_article_event(self, event_type: ArticleEvent.EventType) -> ArticleEvent:
         """
@@ -364,7 +375,7 @@ class ArticleWorkflow:
         self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.APPROVED
         self.article_snapshot.save(update_fields=['moderation_status'])
 
-        self._create_or_update_publication()
+        self._create_publication_version()
 
         self.article.status = Article.ArticleStatus.PUBLISHED
         self.article.last_moderation_at = timezone.now()
@@ -408,6 +419,10 @@ class ArticleWorkflow:
                 detail="There are no snapshots for this article!",
                 code='no_snapshot_error'
             )
+
+        article_publication = self._get_the_publication()
+        if article_publication:
+            article_publication.delete()
 
         self.article.status = Article.ArticleStatus.UNPUBLISHED
         self.article.last_moderation_at = timezone.now()

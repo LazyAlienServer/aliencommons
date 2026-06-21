@@ -1,10 +1,10 @@
 from django.db import transaction
 
-from articles.models import PublishedArticle
+from articles.models import ArticlePublication
 from core.models import ContentTarget
 from core.services.content_targets import (
     get_or_create_community_post_target,
-    get_or_create_published_article_target,
+    get_or_create_article_publication_target,
 )
 from posts.models import CommunityPost
 
@@ -12,8 +12,8 @@ from .models import Reaction
 
 
 @transaction.atomic
-def set_published_article_reaction(*, user, published_article: PublishedArticle, reaction_type: int):
-    target = get_or_create_published_article_target(published_article)
+def set_article_publication_reaction(*, user, article_publication: ArticlePublication, reaction_type: int):
+    target = get_or_create_article_publication_target(article_publication)
     reaction, created = Reaction.objects.update_or_create(
         user=user,
         target=target,
@@ -39,11 +39,11 @@ def update_reaction_type(*, reaction: Reaction, reaction_type: int):
     return reaction
 
 
-def clear_published_article_reaction(*, user, published_article: PublishedArticle):
+def clear_article_publication_reaction(*, user, article_publication: ArticlePublication):
     deleted_count, _ = Reaction.objects.filter(
         user=user,
-        target__target_type=ContentTarget.TargetType.PUBLISHED_ARTICLE,
-        target__published_article=published_article,
+        target__target_type=ContentTarget.TargetType.ARTICLE_PUBLICATION,
+        target__article_publication=article_publication,
     ).delete()
     return deleted_count > 0
 

@@ -87,8 +87,8 @@ class BookmarkViewSet(MyModelViewSet):
     queryset = Bookmark.objects.select_related(
         "user",
         "folder",
-        "published_article",
-        "published_article__source_article",
+        "article_publication",
+        "article_publication__article",
     )
     permission_classes = [BookmarkOwnerOnly]
     default_serializer_class = BookmarkReadSerializer

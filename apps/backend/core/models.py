@@ -11,7 +11,7 @@ class ContentTarget(UUIDPrimaryKeyMixin,
     A strongly referenced target that can receive comments and reactions.
     """
     class TargetType(models.IntegerChoices):
-        PUBLISHED_ARTICLE = 1, "Published Article"
+        ARTICLE_PUBLICATION = 1, "Article Publication"
         COMMENT = 2, "Comment"
         COMMUNITY_POST = 3, "Community Post"
 
@@ -21,14 +21,14 @@ class ContentTarget(UUIDPrimaryKeyMixin,
         verbose_name=_("target type"),
         help_text=_("The type of object this content target points to"),
     )
-    published_article = models.OneToOneField(
-        "articles.PublishedArticle",
+    article_publication = models.OneToOneField(
+        "articles.ArticlePublication",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="content_target",
-        verbose_name=_("published article"),
-        help_text=_("The published article this content target points to"),
+        verbose_name=_("article publication"),
+        help_text=_("The article publication this content target points to"),
     )
     comment = models.OneToOneField(
         "comments.Comment",
@@ -59,19 +59,19 @@ class ContentTarget(UUIDPrimaryKeyMixin,
                 condition=(
                     models.Q(
                         target_type=1,
-                        published_article__isnull=False,
+                        article_publication__isnull=False,
                         comment__isnull=True,
                         community_post__isnull=True,
                     )
                     | models.Q(
                         target_type=2,
-                        published_article__isnull=True,
+                        article_publication__isnull=True,
                         comment__isnull=False,
                         community_post__isnull=True,
                     )
                     | models.Q(
                         target_type=3,
-                        published_article__isnull=True,
+                        article_publication__isnull=True,
                         comment__isnull=True,
                         community_post__isnull=False,
                     )

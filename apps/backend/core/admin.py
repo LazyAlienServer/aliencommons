@@ -8,11 +8,11 @@ class ContentTargetAdmin(admin.ModelAdmin):
     model = ContentTarget
     list_display = (
         "target_type",
-        "published_article",
+        "article_publication",
         "comment",
         "created_at",
     )
     list_filter = ("target_type", "created_at")
-    search_fields = ("published_article__title", "comment__body")
+    search_fields = ("article_publication__title", "comment__body")
     ordering = ("-created_at",)
     readonly_fields = ("id", "created_at")

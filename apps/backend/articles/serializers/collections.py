@@ -54,8 +54,8 @@ class CollectionWriteSerializer(serializers.ModelSerializer):
 
 class CollectionItemReadSerializer(serializers.ModelSerializer):
     collection_title = serializers.CharField(source="collection.title", read_only=True)
-    published_article_title = serializers.CharField(source="published_article.title", read_only=True)
-    source_article_id = serializers.UUIDField(source="published_article.source_article_id", read_only=True)
+    article_publication_title = serializers.CharField(source="article_publication.title", read_only=True)
+    article_id = serializers.UUIDField(source="article_publication.article_id", read_only=True)
 
     class Meta:
         model = CollectionItem
@@ -63,9 +63,9 @@ class CollectionItemReadSerializer(serializers.ModelSerializer):
             "id",
             "collection",
             "collection_title",
-            "published_article",
-            "published_article_title",
-            "source_article_id",
+            "article_publication",
+            "article_publication_title",
+            "article_id",
             "position",
             "created_at",
         )
@@ -75,7 +75,7 @@ class CollectionItemReadSerializer(serializers.ModelSerializer):
 class CollectionItemWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollectionItem
-        fields = ("collection", "published_article", "position")
+        fields = ("collection", "article_publication", "position")
         validators = []
         extra_kwargs = {
             "position": {"required": False},
@@ -83,7 +83,7 @@ class CollectionItemWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         collection = attrs.get("collection", getattr(self.instance, "collection", None))
-        published_article = attrs.get("published_article", getattr(self.instance, "published_article", None))
+        article_publication = attrs.get("article_publication", getattr(self.instance, "article_publication", None))
 
         if collection is None:
             raise serializers.ValidationError(
@@ -91,21 +91,21 @@ class CollectionItemWriteSerializer(serializers.ModelSerializer):
                 code="collection_required",
             )
 
-        if published_article is None:
+        if article_publication is None:
             raise serializers.ValidationError(
-                detail={"published_article": "A published article is required"},
-                code="published_article_required",
+                detail={"article_publication": "An article publication is required"},
+                code="article_publication_required",
             )
 
-        if published_article.source_article.author_id != collection.author_id:
+        if article_publication.article.author_id != collection.author_id:
             raise serializers.ValidationError(
                 detail="Only the collection author's articles can be added",
-                code="published_article_not_owned",
+                code="article_publication_not_owned",
             )
 
         duplicate_article = CollectionItem.objects.filter(
             collection=collection,
-            published_article=published_article,
+            article_publication=article_publication,
         )
         if self.instance is not None:
             duplicate_article = duplicate_article.exclude(pk=self.instance.pk)

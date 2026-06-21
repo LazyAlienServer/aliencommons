@@ -5,7 +5,7 @@ from datetime import timedelta
 import json
 import hashlib
 
-from articles.models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from articles.models import Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
 from core.exceptions import ServiceError
 from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
@@ -15,84 +15,107 @@ from .markdown import extract_title_from_markdown, validate_article_markdown
 logger = get_logger(__name__)
 
 
-def _get_locked_source_article(source_article_id):
+def _get_locked_article(article_id):
     """
-    Return a locked SourceArticle for business logic.
-    If the SourceArticle does not exist, a ServiceError will be raised.
+    Return a locked Article for business logic.
+    If the Article does not exist, a ServiceError will be raised.
     """
     try:
-        source_article = SourceArticle.objects.select_for_update().get(id=source_article_id)
-        return source_article
+        article = Article.objects.select_for_update().select_related("source", "author").get(id=article_id)
+        return article
 
-    except SourceArticle.DoesNotExist:
+    except Article.DoesNotExist:
         raise ServiceError(
-            detail="Source article not found", code='source_article_not_found'
+            detail="Article not found", code='article_not_found'
         )
 
 
 @transaction.atomic
-def save_draft(*, source_article_id, actor, title=None, markdown=None):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def create_article(*, actor, markdown=None):
+    markdown = markdown if markdown is not None else str(ArticleSource.default_markdown)
+    title = extract_title_from_markdown(
+        markdown,
+        max_length=ArticleSource._meta.get_field("title").max_length,
+    )
+    article = Article.objects.create(author=actor)
+    ArticleSource.objects.create(
+        article=article,
+        title=title,
+        markdown=markdown,
+    )
+    ArticleEvent.objects.create(
+        article=article,
+        article_snapshot=None,
+        event_type=ArticleEvent.EventType.CREATE,
+        actor=actor,
+    )
+    return article
+
+
+@transaction.atomic
+def save_draft(*, article_id, actor, title=None, markdown=None):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.save_draft(title=title, markdown=markdown)
 
 
 @transaction.atomic
-def submit(*, source_article_id, actor):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def submit(*, article_id, actor):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.submit()
 
 
 @transaction.atomic
-def withdraw(*, source_article_id, actor):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def withdraw(*, article_id, actor):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.withdraw()
 
 
 @transaction.atomic
-def approve(*, source_article_id, actor):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def approve(*, article_id, actor):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.approve()
 
 
 @transaction.atomic
-def reject(*, source_article_id, actor):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def reject(*, article_id, actor):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.reject()
 
 
 @transaction.atomic
-def unpublish(*, source_article_id, actor):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def unpublish(*, article_id, actor):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.unpublish()
 
 
 @transaction.atomic
-def soft_delete(*, source_article_id, actor):
-    source_article = _get_locked_source_article(source_article_id)
-    workflow = ArticleWorkflow(source_article=source_article, actor=actor)
+def soft_delete(*, article_id, actor):
+    article = _get_locked_article(article_id)
+    workflow = ArticleWorkflow(article=article, actor=actor)
     return workflow.soft_delete()
 
 
 class ArticleWorkflow:
-    def __init__(self, *, source_article, actor):
-        self.source_article = source_article
+    def __init__(self, *, article, actor):
+        self.article = article
+        self.article_source = article.source
         self.article_snapshot = self._get_last_snapshot()
         self.actor = actor
 
     def _get_last_snapshot(self):
         """
-        Return the most recent snapshot of the source article.
+        Return the most recent snapshot of the article.
         'None' will be returned if no snapshot is available.
         """
         return (
             ArticleSnapshot.objects
-            .filter(source_article=self.source_article)
+            .filter(article=self.article)
             .order_by('-created_at')
             .first()
         )
@@ -110,16 +133,16 @@ class ArticleWorkflow:
 
         return hash_value
 
-    def _get_the_published_article(self) -> PublishedArticle:
+    def _get_the_publication(self) -> ArticlePublication:
         """
-        Return the published version of the article
+        Return the current publication of the article
         """
-        return PublishedArticle.objects.filter(source_article=self.source_article).first()
+        return ArticlePublication.objects.filter(article=self.article).first()
 
     @staticmethod
     def _assert(*, condition, error_message):
         """
-        Check whether the source article's status is legal.
+        Check whether the article's status is legal.
         """
         if not condition:
             raise ServiceError(detail=error_message, code='state_transition_error')
@@ -127,7 +150,7 @@ class ArticleWorkflow:
     @staticmethod
     def _within_submit_cooldown(last_moderation_at, hours=12):
         """
-        Check if the source article is within the submit cooldown.
+        Check if the article is within the submit cooldown.
         Return is_within
         """
         if not last_moderation_at:  # First time submit
@@ -138,42 +161,44 @@ class ArticleWorkflow:
 
         return is_within
 
-    def _create_or_update_published_article(self) -> PublishedArticle:
+    def _create_or_update_publication(self) -> ArticlePublication:
         """
-        Create or update the source article's published version.
-        Return the published_article.
+        Create or update the article's public version.
+        Return the article publication.
         """
-        published_article = self._get_the_published_article()
+        article_publication = self._get_the_publication()
         html = render_md_to_html(self.article_snapshot.markdown)
 
-        if published_article:
-            published_article.title = self.article_snapshot.title
-            published_article.html = html
-            published_article.publication_at = timezone.now()
-            published_article.save(update_fields=['title', 'html', 'publication_at'])
+        if article_publication:
+            article_publication.approved_snapshot = self.article_snapshot
+            article_publication.title = self.article_snapshot.title
+            article_publication.html = html
+            article_publication.publication_at = timezone.now()
+            article_publication.save(update_fields=['approved_snapshot', 'title', 'html', 'publication_at'])
 
-            return published_article
+            return article_publication
 
-        published_article = PublishedArticle.objects.create(
-            source_article=self.source_article,
+        article_publication = ArticlePublication.objects.create(
+            article=self.article,
+            approved_snapshot=self.article_snapshot,
             title=self.article_snapshot.title,
             html=html,
             publication_at=timezone.now(),
         )
         notify_subscribed_author_posted(
-            actor=self.source_article.author,
-            target=published_article.content_target,
-            content_kind="published_article",
+            actor=self.article.author,
+            target=article_publication.content_target,
+            content_kind="article_publication",
         )
 
-        return published_article
+        return article_publication
 
     def _create_article_event(self, event_type: ArticleEvent.EventType) -> ArticleEvent:
         """
         Return an article event.
         """
         return ArticleEvent.objects.create(
-            source_article=self.source_article,
+            article=self.article,
             article_snapshot=self.article_snapshot,
             event_type=event_type,
             actor=self.actor,
@@ -187,7 +212,7 @@ class ArticleWorkflow:
         """
         event_type: ArticleEvent.EventType = ArticleEvent.EventType(event.event_type)
         actor_id = event.actor_id
-        source_article_id = event.source_article_id
+        article_id = event.article_id
         article_snapshot_id = event.article_snapshot_id if event.article_snapshot else None
         event_id = event.id
 
@@ -196,7 +221,7 @@ class ArticleWorkflow:
             extra={
                 'event_type': event_type,
                 'actor_id': actor_id,
-                'source_article_id': source_article_id,
+                'article_id': article_id,
                 'article_snapshot_id': article_snapshot_id,
                 'event_id': event_id,
             }
@@ -205,7 +230,7 @@ class ArticleWorkflow:
         return {
             "event_type": event_type,
             "actor_id": actor_id,
-            "source_article_id": source_article_id,
+            "article_id": article_id,
             "article_snapshot_id": article_snapshot_id,
             "event_id": event_id,
         }
@@ -219,46 +244,50 @@ class ArticleWorkflow:
         saved, so it can enter the submission flow normally.
         """
         self._assert(
-            condition=self.source_article.status in (
-                SourceArticle.ArticleStatus.DRAFT,
-                SourceArticle.ArticleStatus.UNPUBLISHED,
+            condition=self.article.status in (
+                Article.ArticleStatus.DRAFT,
+                Article.ArticleStatus.UNPUBLISHED,
             ),
             error_message="Only draft or unpublished articles can be edited."
         )
 
         has_changed = False
 
-        if markdown is not None and markdown != self.source_article.markdown:
+        if markdown is not None and markdown != self.article_source.markdown:
             title = extract_title_from_markdown(
                 markdown,
-                max_length=SourceArticle._meta.get_field("title").max_length,
+                max_length=ArticleSource._meta.get_field("title").max_length,
             )
-            self.source_article.markdown = markdown
-            self.source_article.title = title
+            self.article_source.markdown = markdown
+            self.article_source.title = title
             has_changed = True
 
-        update_fields = []
+        source_update_fields = []
+        article_update_fields = []
         if has_changed:
-            self.source_article.version += 1
-            self.source_article.last_saved_at = timezone.now()
-            update_fields.extend(["title", "markdown", "version", "last_saved_at"])
+            self.article_source.version += 1
+            self.article.last_saved_at = timezone.now()
+            source_update_fields.extend(["title", "markdown", "version", "updated_at"])
+            article_update_fields.append("last_saved_at")
 
-        if self.source_article.status == SourceArticle.ArticleStatus.UNPUBLISHED:
-            self.source_article.status = SourceArticle.ArticleStatus.DRAFT
-            update_fields.append("status")
+        if self.article.status == Article.ArticleStatus.UNPUBLISHED:
+            self.article.status = Article.ArticleStatus.DRAFT
+            article_update_fields.append("status")
 
-        if update_fields:
-            self.source_article.save(update_fields=update_fields)
+        if source_update_fields:
+            self.article_source.save(update_fields=source_update_fields)
+        if article_update_fields:
+            self.article.save(update_fields=article_update_fields)
 
-        return self.source_article
+        return self.article
 
     def submit(self):
         validate_article_markdown(
-            self.source_article.markdown,
-            max_length=SourceArticle._meta.get_field("title").max_length,
+            self.article_source.markdown,
+            max_length=ArticleSource._meta.get_field("title").max_length,
         )
 
-        last_moderation_at = self.source_article.last_moderation_at
+        last_moderation_at = self.article.last_moderation_at
         if last_moderation_at and self._within_submit_cooldown(last_moderation_at, hours=6):
             raise ServiceError(
                 detail="Submission has a cooldown of 6 hours.",
@@ -266,13 +295,13 @@ class ArticleWorkflow:
             )
 
         self._assert(
-            condition=self.source_article.status == SourceArticle.ArticleStatus.DRAFT,
+            condition=self.article.status == Article.ArticleStatus.DRAFT,
             error_message="You can only submit an article draft!"
         )
 
         current_hash = self._hash_and_normalize(
-            self.source_article.title,
-            self.source_article.markdown
+            self.article_source.title,
+            self.article_source.markdown
         )
 
         if self.article_snapshot and self.article_snapshot.hash == current_hash:
@@ -282,17 +311,17 @@ class ArticleWorkflow:
             )
 
         new_snapshot = ArticleSnapshot.objects.create(
-            source_article=self.source_article,
-            title=self.source_article.title,
-            markdown=self.source_article.markdown,
+            article=self.article,
+            title=self.article_source.title,
+            markdown=self.article_source.markdown,
             hash=current_hash,
-            source_version=self.source_article.version,
+            source_version=self.article_source.version,
             moderation_status=ArticleSnapshot.SnapshotStatus.PENDING
         )
         self.article_snapshot = new_snapshot
 
-        self.source_article.status = SourceArticle.ArticleStatus.PENDING
-        self.source_article.save(update_fields=['status'])
+        self.article.status = Article.ArticleStatus.PENDING
+        self.article.save(update_fields=['status'])
 
         article_event = self._create_article_event(event_type=ArticleEvent.EventType.SUBMIT)
 
@@ -300,18 +329,18 @@ class ArticleWorkflow:
 
     def withdraw(self):
         self._assert(
-            condition=self.source_article.status == SourceArticle.ArticleStatus.PENDING,
+            condition=self.article.status == Article.ArticleStatus.PENDING,
             error_message="You can only withdraw a pending article!"
         )
 
         if not self.article_snapshot:
             raise ServiceError(
-                detail="A article snapshot is required!",
+                detail="An article snapshot is required!",
                 code='article_snapshot_required'
             )
 
-        self.source_article.status = SourceArticle.ArticleStatus.DRAFT
-        self.source_article.save(update_fields=['status'])
+        self.article.status = Article.ArticleStatus.DRAFT
+        self.article.save(update_fields=['status'])
 
         self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.WITHDRAWN
         self.article_snapshot.save(update_fields=['moderation_status'])
@@ -322,7 +351,7 @@ class ArticleWorkflow:
 
     def approve(self):
         self._assert(
-            condition=self.source_article.status == SourceArticle.ArticleStatus.PENDING,
+            condition=self.article.status == Article.ArticleStatus.PENDING,
             error_message="You can only approve a pending article!"
         )
 
@@ -332,14 +361,14 @@ class ArticleWorkflow:
                 code='no_snapshot_error'
             )
 
-        self._create_or_update_published_article()
-
-        self.source_article.status = SourceArticle.ArticleStatus.PUBLISHED
-        self.source_article.last_moderation_at = timezone.now()
-        self.source_article.save(update_fields=['status', 'last_moderation_at'])
-
         self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.APPROVED
         self.article_snapshot.save(update_fields=['moderation_status'])
+
+        self._create_or_update_publication()
+
+        self.article.status = Article.ArticleStatus.PUBLISHED
+        self.article.last_moderation_at = timezone.now()
+        self.article.save(update_fields=['status', 'last_moderation_at'])
 
         article_event = self._create_article_event(event_type=ArticleEvent.EventType.APPROVE)
 
@@ -347,7 +376,7 @@ class ArticleWorkflow:
 
     def reject(self):
         self._assert(
-            condition=self.source_article.status == SourceArticle.ArticleStatus.PENDING,
+            condition=self.article.status == Article.ArticleStatus.PENDING,
             error_message="You can only reject a pending article!"
         )
 
@@ -357,9 +386,9 @@ class ArticleWorkflow:
                 code='no_snapshot_error'
             )
 
-        self.source_article.status = SourceArticle.ArticleStatus.DRAFT
-        self.source_article.last_moderation_at = timezone.now()
-        self.source_article.save(update_fields=['status', 'last_moderation_at'])
+        self.article.status = Article.ArticleStatus.DRAFT
+        self.article.last_moderation_at = timezone.now()
+        self.article.save(update_fields=['status', 'last_moderation_at'])
 
         self.article_snapshot.moderation_status = ArticleSnapshot.SnapshotStatus.REJECTED
         self.article_snapshot.save(update_fields=['moderation_status'])
@@ -370,7 +399,7 @@ class ArticleWorkflow:
 
     def unpublish(self):
         self._assert(
-            condition=self.source_article.status == SourceArticle.ArticleStatus.PUBLISHED,
+            condition=self.article.status == Article.ArticleStatus.PUBLISHED,
             error_message="You can only unpublish a published article!"
         )
 
@@ -380,9 +409,9 @@ class ArticleWorkflow:
                 code='no_snapshot_error'
             )
 
-        self.source_article.status = SourceArticle.ArticleStatus.UNPUBLISHED
-        self.source_article.last_moderation_at = timezone.now()
-        self.source_article.save(update_fields=['status', 'last_moderation_at'])
+        self.article.status = Article.ArticleStatus.UNPUBLISHED
+        self.article.last_moderation_at = timezone.now()
+        self.article.save(update_fields=['status', 'last_moderation_at'])
 
         article_event = self._create_article_event(event_type=ArticleEvent.EventType.UNPUBLISH)
 
@@ -394,17 +423,17 @@ class ArticleWorkflow:
         as user may delete an article that has never been submitted.
         """
         self._assert(
-            condition=self.source_article.status != SourceArticle.ArticleStatus.PENDING,
+            condition=self.article.status != Article.ArticleStatus.PENDING,
             error_message="A pending article cannot be deleted! Please withdraw it first."
         )
 
-        published_article = self._get_the_published_article()
+        article_publication = self._get_the_publication()
 
-        if published_article:
-            published_article.delete()
+        if article_publication:
+            article_publication.delete()
 
-        self.source_article.is_deleted = True  # Soft delete source article
-        self.source_article.save(update_fields=['is_deleted'])
+        self.article.is_deleted = True
+        self.article.save(update_fields=['is_deleted'])
 
         article_event = self._create_article_event(event_type=ArticleEvent.EventType.DELETE)
 

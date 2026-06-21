@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from articles.models import PublishedArticle
+from articles.models import ArticlePublication
 from core.exceptions import ServiceError
 from core.models import ContentTarget
 from core.utils.markdown import (
@@ -17,7 +17,7 @@ class CommentReadSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source="author.username", read_only=True)
     render_body = serializers.SerializerMethodField()
     mention_users = serializers.SerializerMethodField()
-    published_article = serializers.SerializerMethodField()
+    article_publication = serializers.SerializerMethodField()
     community_post = serializers.SerializerMethodField()
     reply_count = serializers.SerializerMethodField()
 
@@ -28,7 +28,7 @@ class CommentReadSerializer(serializers.ModelSerializer):
             "author",
             "author_username",
             "target",
-            "published_article",
+            "article_publication",
             "community_post",
             "parent",
             "body",
@@ -41,10 +41,10 @@ class CommentReadSerializer(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
-    def get_published_article(self, obj):
+    def get_article_publication(self, obj):
         if obj.parent_id is not None:
-            return obj.parent.target.published_article_id
-        return obj.target.published_article_id
+            return obj.parent.target.article_publication_id
+        return obj.target.article_publication_id
 
     def get_community_post(self, obj):
         if obj.parent_id is not None:
@@ -65,7 +65,7 @@ class CommentReadSerializer(serializers.ModelSerializer):
 
 
 class CommentWriteSerializer(serializers.Serializer):
-    published_article = serializers.UUIDField(required=False)
+    article_publication = serializers.UUIDField(required=False)
     community_post = serializers.UUIDField(required=False)
     target = serializers.UUIDField(required=False)
     body = serializers.CharField(allow_blank=False, trim_whitespace=True)
@@ -75,13 +75,13 @@ class CommentWriteSerializer(serializers.Serializer):
         allow_empty=True,
     )
 
-    def validate_published_article(self, value):
+    def validate_article_publication(self, value):
         try:
-            return PublishedArticle.objects.get(pk=value)
-        except PublishedArticle.DoesNotExist as exc:
+            return ArticlePublication.objects.get(pk=value)
+        except ArticlePublication.DoesNotExist as exc:
             raise serializers.ValidationError(
-                detail="Published article does not exist",
-                code="published_article_not_found",
+                detail="Article publication does not exist",
+                code="article_publication_not_found",
             ) from exc
 
     def validate_community_post(self, value):
@@ -112,7 +112,7 @@ class CommentWriteSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         target = attrs.get("target")
-        published_article = attrs.get("published_article")
+        article_publication = attrs.get("article_publication")
         community_post = attrs.get("community_post")
         body = attrs.get("body", getattr(self.instance, "body", ""))
         mentions = attrs.get("mentions", getattr(self.instance, "mentions", []))
@@ -122,23 +122,23 @@ class CommentWriteSerializer(serializers.Serializer):
             raise serializers.ValidationError(detail=exc.detail, code=exc.code) from exc
 
         if self.instance is not None:
-            if target is not None or published_article is not None or community_post is not None:
+            if target is not None or article_publication is not None or community_post is not None:
                 raise serializers.ValidationError(
                     detail="Comment target cannot be changed",
                     code="comment_target_immutable",
                 )
             return attrs
 
-        direct_targets = [target, published_article, community_post]
+        direct_targets = [target, article_publication, community_post]
         if sum(item is not None for item in direct_targets) > 1:
             raise serializers.ValidationError(
                 detail="Provide only one comment target",
                 code="ambiguous_comment_target",
             )
 
-        if target is None and published_article is None and community_post is None:
+        if target is None and article_publication is None and community_post is None:
             raise serializers.ValidationError(
-                detail="A published article, community post, or content target is required",
+                detail="An article publication, community post, or content target is required",
                 code="comment_target_required",
             )
 

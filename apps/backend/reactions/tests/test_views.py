@@ -4,9 +4,9 @@ from rest_framework import status
 
 from core.tests.factories import (
     create_community_post,
-    create_published_article,
+    create_article_publication,
     create_reaction,
-    create_source_article,
+    create_article,
     create_user,
 )
 from core.tests.testcases import BaseAPITestCase
@@ -18,15 +18,15 @@ class ReactionViewTests(BaseAPITestCase):
     def setUp(self):
         self.user = create_user(username="reader")
         self.other_user = create_user(username="other-reader")
-        self.article = create_source_article(title="Guide")
-        self.published = create_published_article(self.article, title=self.article.title)
+        self.article = create_article(title="Guide")
+        self.published = create_article_publication(self.article, title=self.article.source.title)
 
-    def test_user_can_like_published_article(self):
+    def test_user_can_like_article_publication(self):
         self.authenticate(self.user)
         response = self.post_json(
             reverse("reaction-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
                 "reaction_type": Reaction.ReactionType.LIKE,
             },
         )
@@ -37,7 +37,7 @@ class ReactionViewTests(BaseAPITestCase):
             code="created",
         )
         self.assert_uuid_equal(response.data["data"]["user"], self.user.id)
-        self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
+        self.assert_uuid_equal(response.data["data"]["article_publication"], self.published.id)
         self.assertEqual(response.data["data"]["reaction_type"], Reaction.ReactionType.LIKE)
         self.assertEqual(Reaction.objects.count(), 1)
         self.assertEqual(ContentTarget.objects.count(), 1)
@@ -61,7 +61,7 @@ class ReactionViewTests(BaseAPITestCase):
         )
         self.assert_uuid_equal(response.data["data"]["user"], self.user.id)
         self.assert_uuid_equal(response.data["data"]["community_post"], post.id)
-        self.assertIsNone(response.data["data"]["published_article"])
+        self.assertIsNone(response.data["data"]["article_publication"])
         self.assertEqual(Reaction.objects.count(), 1)
 
     def test_posting_same_target_switches_existing_reaction(self):
@@ -75,7 +75,7 @@ class ReactionViewTests(BaseAPITestCase):
         response = self.post_json(
             reverse("reaction-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
                 "reaction_type": Reaction.ReactionType.DISLIKE,
             },
         )
@@ -92,8 +92,8 @@ class ReactionViewTests(BaseAPITestCase):
 
     def test_user_only_lists_own_reactions(self):
         own_reaction = create_reaction(self.user, self.published)
-        other_article = create_source_article(title="Other")
-        other_published = create_published_article(other_article, title=other_article.title)
+        other_article = create_article(title="Other")
+        other_published = create_article_publication(other_article, title=other_article.source.title)
         create_reaction(self.other_user, other_published)
 
         self.authenticate(self.user)
@@ -120,13 +120,13 @@ class ReactionViewTests(BaseAPITestCase):
         )
         self.assertFalse(Reaction.objects.filter(id=reaction.id).exists())
 
-    def test_user_can_clear_own_reaction_by_published_article(self):
+    def test_user_can_clear_own_reaction_by_article_publication(self):
         reaction = create_reaction(self.user, self.published)
 
         self.authenticate(self.user)
         response = self.delete_json(
             reverse(
-                "reaction-clear-published-article",
+                "reaction-clear-article-publication",
                 args=[self.published.id],
             ),
         )
@@ -139,11 +139,11 @@ class ReactionViewTests(BaseAPITestCase):
         self.assertTrue(response.data["data"]["deleted"])
         self.assertFalse(Reaction.objects.filter(id=reaction.id).exists())
 
-    def test_clear_published_article_reaction_is_idempotent(self):
+    def test_clear_article_publication_reaction_is_idempotent(self):
         self.authenticate(self.user)
         response = self.delete_json(
             reverse(
-                "reaction-clear-published-article",
+                "reaction-clear-article-publication",
                 args=[self.published.id],
             ),
         )
@@ -188,12 +188,12 @@ class ReactionViewTests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Reaction.objects.filter(id=reaction.id).exists())
 
-    def test_published_article_response_includes_reaction_counts_and_my_reaction(self):
+    def test_article_publication_response_includes_reaction_counts_and_my_reaction(self):
         create_reaction(self.user, self.published, reaction_type=Reaction.ReactionType.LIKE)
         create_reaction(self.other_user, self.published, reaction_type=Reaction.ReactionType.DISLIKE)
 
         self.authenticate(self.user)
-        response = self.get_json(reverse("published_article-detail", args=[self.published.id]))
+        response = self.get_json(reverse("article_publication-detail", args=[self.published.id]))
 
         self.assert_success_response(
             response,

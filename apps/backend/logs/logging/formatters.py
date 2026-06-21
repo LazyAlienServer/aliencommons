@@ -14,7 +14,7 @@ class RuntimeFormatter(logging.Formatter):
     EXTRA_FIELDS_WHITELIST = (
         'event_type',
         'actor_id',
-        'source_article_id',
+        'article_id',
         'article_snapshot_id',
         'event_id',
         'task_id',

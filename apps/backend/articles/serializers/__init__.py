@@ -3,9 +3,9 @@ from .articles import (
     ArticleEventSerializer,
     ArticleSnapshotSerializer,
     ImageUploadSerializer,
-    PublishedArticleSerializer,
-    SourceArticleReadSerializer,
-    SourceArticleWriteSerializer,
+    ArticlePublicationSerializer,
+    ArticleReadSerializer,
+    ArticleWriteSerializer,
 )
 from .collections import (
     CollectionItemReadSerializer,
@@ -23,7 +23,7 @@ __all__ = [
     "CollectionReadSerializer",
     "CollectionWriteSerializer",
     "ImageUploadSerializer",
-    "PublishedArticleSerializer",
-    "SourceArticleReadSerializer",
-    "SourceArticleWriteSerializer",
+    "ArticlePublicationSerializer",
+    "ArticleReadSerializer",
+    "ArticleWriteSerializer",
 ]

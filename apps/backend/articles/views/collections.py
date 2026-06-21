@@ -86,8 +86,8 @@ class CollectionItemViewSet(MyModelViewSet):
     queryset = CollectionItem.objects.select_related(
         "collection",
         "collection__author",
-        "published_article",
-        "published_article__source_article",
+        "article_publication",
+        "article_publication__article",
     )
     permission_classes = [CollectionItemPermission]
     default_serializer_class = CollectionItemReadSerializer

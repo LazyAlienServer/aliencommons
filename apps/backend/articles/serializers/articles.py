@@ -14,25 +14,44 @@ from core.validators import (
     FileTypeValidator, FileSizeValidator
 )
 from core.exceptions import ServiceError
-from ..models import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from ..models import Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
 from ..services.markdown import extract_title_from_markdown
 
 
 User = get_user_model()
 
 
-class SourceArticleReadSerializer(serializers.ModelSerializer):
+class ArticleReadSerializer(serializers.ModelSerializer):
     """
     Serializer for moderators
     """
     author_username = serializers.CharField(source='author.username')
+    title = serializers.CharField(source="source.title", read_only=True)
+    markdown = serializers.CharField(source="source.markdown", read_only=True)
+    version = serializers.IntegerField(source="source.version", read_only=True)
     status_display = serializers.SerializerMethodField()
     last_snapshot_id = serializers.SerializerMethodField()
-    published_version_id = serializers.SerializerMethodField()
+    publication_id = serializers.SerializerMethodField()
 
     class Meta:
-        model = SourceArticle
-        fields = '__all__'
+        model = Article
+        fields = (
+            "id",
+            "author",
+            "title",
+            "markdown",
+            "version",
+            "status",
+            "last_saved_at",
+            "last_moderation_at",
+            "created_at",
+            "updated_at",
+            "is_deleted",
+            "author_username",
+            "status_display",
+            "last_snapshot_id",
+            "publication_id",
+        )
         read_only_fields = [
             'id',
             'author',
@@ -48,7 +67,7 @@ class SourceArticleReadSerializer(serializers.ModelSerializer):
             'author_username',
             'status_display',
             'last_snapshot_id',
-            'published_version_id',
+            'publication_id',
         ]
 
     def get_status_display(self, obj):
@@ -67,40 +86,30 @@ class SourceArticleReadSerializer(serializers.ModelSerializer):
         )
         return last_snapshot_id
 
-    def get_published_version_id(self, obj):
-        annotated_value = getattr(obj, "published_version_id", None)
+    def get_publication_id(self, obj):
+        annotated_value = getattr(obj, "publication_id", None)
         if annotated_value is not None:
             return annotated_value
 
         return (
-            PublishedArticle.objects
-            .filter(source_article=obj)
+            ArticlePublication.objects
+            .filter(article=obj)
             .values_list("id", flat=True)
             .first()
         )
 
 
-class SourceArticleWriteSerializer(serializers.ModelSerializer):
+class ArticleWriteSerializer(serializers.Serializer):
     """
     Serializer for the author, can be used to create/update
     """
-    class Meta:
-        model = SourceArticle
-        fields = ['markdown']
-
-    def create(self, validated_data):
-        validated_data.setdefault("markdown", str(SourceArticle.default_markdown))
-        validated_data["title"] = extract_title_from_markdown(
-            validated_data["markdown"],
-            max_length=SourceArticle._meta.get_field("title").max_length,
-        )
-        return super().create(validated_data)
+    markdown = serializers.CharField(required=False, allow_blank=True)
 
     def validate_markdown(self, value):
         try:
             extract_title_from_markdown(
                 value,
-                max_length=SourceArticle._meta.get_field("title").max_length,
+                max_length=ArticleSource._meta.get_field("title").max_length,
             )
         except ServiceError as exc:
             raise serializers.ValidationError(detail=exc.detail, code=exc.code)
@@ -139,9 +148,9 @@ class ImageUploadSerializer(serializers.Serializer):
         }
 
 
-class PublishedArticleSerializer(serializers.ModelSerializer):
+class ArticlePublicationSerializer(serializers.ModelSerializer):
     """
-    Serializer for published articles. All fields are ready-only.
+    Serializer for article publications. All fields are ready-only.
     """
     like_count = serializers.SerializerMethodField()
     dislike_count = serializers.SerializerMethodField()
@@ -149,13 +158,28 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
     comment_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = PublishedArticle
-        fields = '__all__'
+        model = ArticlePublication
+        fields = (
+            "id",
+            "article",
+            "approved_snapshot",
+            "title",
+            "html",
+            "publication_at",
+            "like_count",
+            "dislike_count",
+            "my_reaction",
+            "comment_count",
+            "created_at",
+            "updated_at",
+        )
         read_only_fields = (
             'id',
-            'source_article',
+            'article',
+            'approved_snapshot',
             'title',
             'html',
+            'publication_at',
             'like_count',
             'dislike_count',
             'my_reaction',
@@ -230,20 +254,19 @@ class PublishedArticleSerializer(serializers.ModelSerializer):
             | models.Q(parent__target=content_target)
         ).count()
 
-
 class ArticleSnapshotSerializer(serializers.ModelSerializer):
     """
     Serializer for article snapshots. All fields are ready-only.
     """
     moderation_status_display = serializers.SerializerMethodField()
-    source_article_id = serializers.SerializerMethodField()
+    article_id = serializers.SerializerMethodField()
 
     class Meta:
         model = ArticleSnapshot
         fields = '__all__'
         read_only_fields = (
             'id',
-            'source_article',
+            'article',
             'title',
             'markdown',
             'hash',
@@ -255,9 +278,9 @@ class ArticleSnapshotSerializer(serializers.ModelSerializer):
     def get_moderation_status_display(self, obj):
         return obj.get_moderation_status_display()
 
-    def get_source_article_id(self, obj):
+    def get_article_id(self, obj):
         obj: ArticleSnapshot
-        return obj.source_article_id
+        return obj.article_id
 
 
 class ArticleEventSerializer(serializers.ModelSerializer):
@@ -270,7 +293,7 @@ class ArticleEventSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = [
             'id',
-            'source_article',
+            'article',
             'article_snapshot',
             'event_type',
             'actor',
@@ -284,8 +307,8 @@ class ArticleEventSerializer(serializers.ModelSerializer):
 class ArticleActionResponseSerializer(serializers.Serializer):
     event_type = serializers.IntegerField()
     actor_id = serializers.UUIDField()
-    source_article_id = serializers.UUIDField()
-    article_snapshot_id = serializers.UUIDField()
+    article_id = serializers.UUIDField()
+    article_snapshot_id = serializers.UUIDField(allow_null=True)
     event_id = serializers.UUIDField()
 
     def to_representation(self, instance):

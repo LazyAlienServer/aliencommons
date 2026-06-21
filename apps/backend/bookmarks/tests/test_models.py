@@ -4,8 +4,8 @@ from bookmarks.models import Bookmark, BookmarkFolder
 from core.tests.factories import (
     create_bookmark,
     create_bookmark_folder,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
 )
 from core.tests.testcases import BaseTestCase
@@ -29,13 +29,13 @@ class BookmarkModelTests(BaseTestCase):
         self.assertEqual(str(folder), "Research")
 
     def test_bookmark_string_representation_references_user_and_article(self):
-        article = create_source_article(title="Guide")
-        published = create_published_article(article, title=article.title)
+        article = create_article(title="Guide")
+        published = create_article_publication(article, title=article.source.title)
         bookmark = create_bookmark(self.user, published)
 
         self.assertEqual(
             str(bookmark),
-            f"{self.user} bookmarked Published version of article Guide",
+            f"{self.user} bookmarked Publication of article Guide",
         )
 
     def test_bookmark_folder_rejects_duplicate_name_per_user(self):
@@ -45,9 +45,9 @@ class BookmarkModelTests(BaseTestCase):
             with transaction.atomic():
                 create_bookmark_folder(user=self.user, name="Research")
 
-    def test_bookmark_rejects_duplicate_published_article_per_user(self):
-        article = create_source_article()
-        published = create_published_article(article)
+    def test_bookmark_rejects_duplicate_article_publication_per_user(self):
+        article = create_article()
+        published = create_article_publication(article)
         create_bookmark(self.user, published)
 
         with self.assertRaises(IntegrityError):
@@ -55,8 +55,8 @@ class BookmarkModelTests(BaseTestCase):
                 create_bookmark(self.user, published)
 
     def test_bookmark_folder_delete_removes_bookmarks(self):
-        article = create_source_article()
-        published = create_published_article(article)
+        article = create_article()
+        published = create_article_publication(article)
         folder = create_bookmark_folder(user=self.user)
         bookmark = create_bookmark(self.user, published, folder=folder)
         folder_id = folder.id

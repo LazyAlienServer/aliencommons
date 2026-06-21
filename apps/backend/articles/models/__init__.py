@@ -1,9 +1,10 @@
-from .articles import SourceArticle, PublishedArticle, ArticleSnapshot, ArticleEvent
+from .articles import Article, ArticleSource, ArticlePublication, ArticleSnapshot, ArticleEvent
 from .collections import Collection, CollectionItem
 
 __all__ = [
-    "SourceArticle",
-    "PublishedArticle",
+    "Article",
+    "ArticleSource",
+    "ArticlePublication",
     "ArticleSnapshot",
     "ArticleEvent",
     "Collection",

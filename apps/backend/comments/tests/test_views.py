@@ -6,8 +6,8 @@ from comments.models import Comment
 from core.tests.factories import (
     create_comment,
     create_community_post,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
 )
 from core.tests.testcases import BaseAPITestCase
@@ -17,15 +17,15 @@ class CommentViewTests(BaseAPITestCase):
     def setUp(self):
         self.author = create_user(username="commenter")
         self.other_user = create_user(username="other-commenter")
-        self.article = create_source_article(title="Guide")
-        self.published = create_published_article(self.article, title=self.article.title)
+        self.article = create_article(title="Guide")
+        self.published = create_article_publication(self.article, title=self.article.source.title)
 
-    def test_user_can_comment_on_published_article(self):
+    def test_user_can_comment_on_article_publication(self):
         self.authenticate(self.author)
         response = self.post_json(
             reverse("comment-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
                 "body": "This is useful",
             },
         )
@@ -36,7 +36,7 @@ class CommentViewTests(BaseAPITestCase):
             code="created",
         )
         self.assert_uuid_equal(response.data["data"]["author"], self.author.id)
-        self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
+        self.assert_uuid_equal(response.data["data"]["article_publication"], self.published.id)
         self.assertIsNone(response.data["data"]["parent"])
         self.assertEqual(response.data["data"]["body"], "This is useful")
         self.assertEqual(Comment.objects.count(), 1)
@@ -60,7 +60,7 @@ class CommentViewTests(BaseAPITestCase):
         )
         self.assert_uuid_equal(response.data["data"]["target"], post.content_target.id)
         self.assert_uuid_equal(response.data["data"]["community_post"], post.id)
-        self.assertIsNone(response.data["data"]["published_article"])
+        self.assertIsNone(response.data["data"]["article_publication"])
         self.assertEqual(Comment.objects.count(), 1)
 
     def test_user_can_reply_to_top_level_comment(self):
@@ -82,7 +82,7 @@ class CommentViewTests(BaseAPITestCase):
         )
         self.assert_uuid_equal(response.data["data"]["parent"], parent.id)
         self.assert_uuid_equal(response.data["data"]["target"], parent.content_target.id)
-        self.assert_uuid_equal(response.data["data"]["published_article"], self.published.id)
+        self.assert_uuid_equal(response.data["data"]["article_publication"], self.published.id)
         self.assertEqual(Comment.objects.count(), 2)
 
     def test_reply_to_reply_is_flattened_under_top_level_parent(self):
@@ -112,7 +112,7 @@ class CommentViewTests(BaseAPITestCase):
         response = self.post_json(
             reverse("comment-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
                 "body": "{{mention:0}} and {{mention:1}}",
                 "mentions": [str(self.other_user.id), str(self.author.id)],
             },
@@ -147,7 +147,7 @@ class CommentViewTests(BaseAPITestCase):
         response = self.post_json(
             reverse("comment-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
                 "body": "{{mention:0}}",
                 "mentions": [str(self.other_user.id), str(self.author.id)],
             },
@@ -215,18 +215,18 @@ class CommentViewTests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Comment.objects.filter(id=comment.id).exists())
 
-    def test_list_filters_comments_by_published_article(self):
+    def test_list_filters_comments_by_article_publication(self):
         top_level = create_comment(self.author, self.published, body="Top level")
         reply = create_comment(self.other_user, self.published, reply_to=top_level, body="Reply")
-        other_article = create_source_article(title="Other")
-        other_published = create_published_article(other_article, title=other_article.title)
+        other_article = create_article(title="Other")
+        other_published = create_article_publication(other_article, title=other_article.source.title)
         create_comment(self.author, other_published, body="Other")
 
         self.authenticate(self.author)
         response = self.get_json(
             reverse("comment-list"),
             {
-                "published_article": str(self.published.id),
+                "article_publication": str(self.published.id),
             },
         )
 
@@ -269,7 +269,7 @@ class CommentViewTests(BaseAPITestCase):
         comment_ids = {item["id"] for item in response.data["data"]["results"]}
         self.assertEqual(comment_ids, {str(top_level.id), str(reply.id)})
 
-    def test_published_article_response_includes_comment_count(self):
+    def test_article_publication_response_includes_comment_count(self):
         top_level = create_comment(self.author, self.published, body="Top level")
         create_comment(self.other_user, self.published, reply_to=top_level, body="Reply")
         deleted = create_comment(self.author, self.published, body="Deleted")
@@ -277,7 +277,7 @@ class CommentViewTests(BaseAPITestCase):
         deleted.save(update_fields=["is_deleted"])
 
         self.authenticate(self.author)
-        response = self.get_json(reverse("published_article-detail", args=[self.published.id]))
+        response = self.get_json(reverse("article_publication-detail", args=[self.published.id]))
 
         self.assert_success_response(
             response,

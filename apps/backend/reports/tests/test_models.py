@@ -1,9 +1,9 @@
-from core.services.content_targets import get_or_create_published_article_target
+from core.services.content_targets import get_or_create_article_publication_target
 from core.tests.factories import (
     create_community_post,
     create_content_report,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
     create_user_report,
 )
@@ -15,11 +15,11 @@ class ReportModelTests(BaseTestCase):
     def setUp(self):
         self.reporter = create_user(username="reporter")
         self.reported_user = create_user(username="reported")
-        self.article = create_source_article(title="Guide")
-        self.published = create_published_article(self.article, title=self.article.title)
+        self.article = create_article(title="Guide")
+        self.published = create_article_publication(self.article, title=self.article.source.title)
 
     def test_content_report_string_representation(self):
-        target = get_or_create_published_article_target(self.published)
+        target = get_or_create_article_publication_target(self.published)
         report = create_content_report(self.reporter, target)
 
         self.assertEqual(str(report), f"Content report {report.id}")
@@ -30,7 +30,7 @@ class ReportModelTests(BaseTestCase):
         self.assertEqual(str(report), f"User report {report.id}")
 
     def test_content_report_keeps_snapshot_when_target_is_deleted(self):
-        target = get_or_create_published_article_target(self.published)
+        target = get_or_create_article_publication_target(self.published)
         report = create_content_report(self.reporter, target)
 
         self.published.delete()

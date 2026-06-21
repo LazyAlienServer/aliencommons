@@ -21,17 +21,17 @@ class BookmarkFolderAdmin(admin.ModelAdmin):
 @admin.register(Bookmark)
 class BookmarkAdmin(admin.ModelAdmin):
     model = Bookmark
-    list_display = ("user", "folder", "published_article", "created_at")
+    list_display = ("user", "folder", "article_publication", "created_at")
     list_filter = (("user", admin.RelatedOnlyFieldListFilter), "folder", "created_at")
     search_fields = (
         "user__username",
         "folder__name",
-        "published_article__title",
+        "article_publication__title",
     )
     ordering = ("-created_at",)
     readonly_fields = ("id", "created_at")
 
     fieldsets = [
-        ("Basic", {"fields": ("id", "user", "folder", "published_article")}),
+        ("Basic", {"fields": ("id", "user", "folder", "article_publication")}),
         ("Timestamps", {"fields": ("created_at",)}),
     ]

@@ -3,7 +3,7 @@ from django.db.models import Count, OuterRef, Q, Subquery
 from .models import Reaction
 
 
-def with_published_article_reaction_summary(queryset, *, user=None):
+def with_article_publication_reaction_summary(queryset, *, user=None):
     queryset = queryset.annotate(
         like_count=Count(
             "content_target__reactions",
@@ -24,7 +24,7 @@ def with_published_article_reaction_summary(queryset, *, user=None):
             Reaction.objects
             .filter(
                 user=user,
-                target__published_article_id=OuterRef("pk"),
+                target__article_publication_id=OuterRef("pk"),
             )
             .values("reaction_type")[:1]
         )

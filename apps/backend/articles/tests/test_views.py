@@ -8,8 +8,8 @@ from core.tests.factories import (
     create_collection,
     create_collection_item,
     create_moderator,
-    create_published_article,
-    create_source_article,
+    create_article_publication,
+    create_article,
     create_user,
 )
 from core.tests.testcases import BaseAPITestCase
@@ -18,8 +18,8 @@ from articles.models import (
     ArticleSnapshot,
     Collection,
     CollectionItem,
-    PublishedArticle,
-    SourceArticle,
+    ArticlePublication,
+    Article,
 )
 
 
@@ -29,10 +29,10 @@ class ArticleViewTests(BaseAPITestCase):
         self.other_author = create_user(username="other-author")
         self.moderator = create_moderator(username="moderator")
 
-    def test_create_source_article_returns_formatted_response(self):
+    def test_create_article_returns_formatted_response(self):
         self.authenticate(self.author)
         response = self.post_json(
-            reverse("source_article-list"),
+            reverse("article-list"),
             {
                 "title": "Ignored title",
                 "markdown": "# Draft title\n\nHello from Markdown",
@@ -48,12 +48,12 @@ class ArticleViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["title"], "Draft title")
         self.assertEqual(response.data["data"]["markdown"], "# Draft title\n\nHello from Markdown")
         self.assert_uuid_equal(response.data["data"]["author"], self.author.id)
-        self.assertEqual(SourceArticle.objects.count(), 1)
+        self.assertEqual(Article.objects.count(), 1)
 
-    def test_create_source_article_rejects_markdown_without_first_line_h1(self):
+    def test_create_article_rejects_markdown_without_first_line_h1(self):
         self.authenticate(self.author)
         response = self.post_json(
-            reverse("source_article-list"),
+            reverse("article-list"),
             {
                 "markdown": "Hello from Markdown\n\n# Draft title",
             },
@@ -64,10 +64,10 @@ class ArticleViewTests(BaseAPITestCase):
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    def test_create_source_article_rejects_markdown_with_multiple_h1_headings(self):
+    def test_create_article_rejects_markdown_with_multiple_h1_headings(self):
         self.authenticate(self.author)
         response = self.post_json(
-            reverse("source_article-list"),
+            reverse("article-list"),
             {
                 "markdown": "# Draft title\n\nHello\n\n# Another title",
             },
@@ -78,18 +78,18 @@ class ArticleViewTests(BaseAPITestCase):
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    def test_source_article_list_only_returns_articles_owned_by_authenticated_author(self):
-        own_article = create_source_article(author=self.author, title="Mine")
-        other_article = create_source_article(
+    def test_article_list_only_returns_articles_owned_by_authenticated_author(self):
+        own_article = create_article(author=self.author, title="Mine")
+        other_article = create_article(
             author=self.other_author,
             title="Not mine",
         )
         create_article_snapshot(own_article)
-        create_published_article(own_article)
+        create_article_publication(own_article)
         create_article_snapshot(other_article)
 
         self.authenticate(self.author)
-        response = self.get_json(reverse("source_article-list"))
+        response = self.get_json(reverse("article-list"))
 
         self.assert_success_response(
             response,
@@ -102,23 +102,23 @@ class ArticleViewTests(BaseAPITestCase):
         self.assert_uuid_equal(response.data["data"]["results"][0]["id"], own_article.id)
         self.assert_uuid_equal(
             response.data["data"]["results"][0]["last_snapshot_id"],
-            ArticleSnapshot.objects.get(source_article=own_article).id,
+            ArticleSnapshot.objects.get(article=own_article).id,
         )
         self.assert_uuid_equal(
-            response.data["data"]["results"][0]["published_version_id"],
-            PublishedArticle.objects.get(source_article=own_article).id,
+            response.data["data"]["results"][0]["publication_id"],
+            ArticlePublication.objects.get(article=own_article).id,
         )
 
-    def test_retrieve_source_article_returns_404_for_non_author(self):
-        article = create_source_article(author=self.author)
+    def test_retrieve_article_returns_404_for_non_author(self):
+        article = create_article(author=self.author)
 
         self.authenticate(self.other_author)
-        response = self.get_json(reverse("source_article-detail", args=[article.id]))
+        response = self.get_json(reverse("article-detail", args=[article.id]))
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_author_can_save_draft_source_article(self):
-        article = create_source_article(
+    def test_author_can_save_draft_article(self):
+        article = create_article(
             author=self.author,
             title="Old title",
             markdown="# Old title\n\nOld Markdown",
@@ -126,7 +126,7 @@ class ArticleViewTests(BaseAPITestCase):
 
         self.authenticate(self.author)
         response = self.patch_json(
-            reverse("source_article-detail", args=[article.id]),
+            reverse("article-detail", args=[article.id]),
             {
                 "title": "New title",
                 "markdown": "# New title\n\nNew Markdown",
@@ -144,19 +144,19 @@ class ArticleViewTests(BaseAPITestCase):
         self.assertEqual(response.data["data"]["markdown"], "# New title\n\nNew Markdown")
         self.assertEqual(response.data["data"]["version"], 2)
         self.assertIsNotNone(response.data["data"]["last_saved_at"])
-        self.assertEqual(article.version, 2)
+        self.assertEqual(article.source.version, 2)
         self.assertIsNotNone(article.last_saved_at)
 
-    def test_author_cannot_save_pending_source_article(self):
-        article = create_source_article(
+    def test_author_cannot_save_pending_article(self):
+        article = create_article(
             author=self.author,
-            status=SourceArticle.ArticleStatus.PENDING,
+            status=Article.ArticleStatus.PENDING,
         )
         create_article_snapshot(article)
 
         self.authenticate(self.author)
         response = self.patch_json(
-            reverse("source_article-detail", args=[article.id]),
+            reverse("article-detail", args=[article.id]),
             {
                 "markdown": "# Edited while pending\n\nBody",
             },
@@ -168,36 +168,36 @@ class ArticleViewTests(BaseAPITestCase):
             status_code=status.HTTP_400_BAD_REQUEST,
             code="state_transition_error",
         )
-        self.assertEqual(article.markdown, "# First draft\n\nHello")
-        self.assertEqual(article.version, 1)
+        self.assertEqual(article.source.markdown, "# First draft\n\nHello")
+        self.assertEqual(article.source.version, 1)
 
     def test_approve_endpoint_requires_moderator(self):
-        article = create_source_article(
+        article = create_article(
             author=self.author,
-            status=SourceArticle.ArticleStatus.PENDING,
+            status=Article.ArticleStatus.PENDING,
         )
         create_article_snapshot(article)
 
         self.authenticate(self.author)
         response = self.post_json(
-            reverse("source_article-approve", args=[article.id]),
+            reverse("article-approve", args=[article.id]),
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertFalse(PublishedArticle.objects.filter(source_article=article).exists())
-        self.assertEqual(ArticleEvent.objects.filter(source_article=article).count(), 0)
+        self.assertFalse(ArticlePublication.objects.filter(article=article).exists())
+        self.assertEqual(ArticleEvent.objects.filter(article=article).count(), 0)
 
     @patch("articles.services.articles.render_md_to_html", return_value="<p>Hello</p>")
     def test_moderator_can_approve_pending_article(self, render_mock):
-        article = create_source_article(
+        article = create_article(
             author=self.author,
-            status=SourceArticle.ArticleStatus.PENDING,
+            status=Article.ArticleStatus.PENDING,
         )
         snapshot = create_article_snapshot(article)
 
         self.authenticate(self.moderator)
         response = self.post_json(
-            reverse("source_article-approve", args=[article.id]),
+            reverse("article-approve", args=[article.id]),
         )
 
         article.refresh_from_db()
@@ -210,22 +210,22 @@ class ArticleViewTests(BaseAPITestCase):
         )
         self.assertEqual(response.data["data"]["event_type"], ArticleEvent.EventType.APPROVE)
         self.assert_uuid_equal(response.data["data"]["article_snapshot_id"], snapshot.id)
-        self.assertEqual(article.status, SourceArticle.ArticleStatus.PUBLISHED)
+        self.assertEqual(article.status, Article.ArticleStatus.PUBLISHED)
         self.assertEqual(
             snapshot.moderation_status,
             ArticleSnapshot.SnapshotStatus.APPROVED,
         )
-        self.assertTrue(PublishedArticle.objects.filter(source_article=article).exists())
+        self.assertTrue(ArticlePublication.objects.filter(article=article).exists())
         render_mock.assert_called_once_with(snapshot.markdown)
 
     def test_pending_snapshots_endpoint_only_lists_pending_ones_for_moderator(self):
-        pending_article = create_source_article(
+        pending_article = create_article(
             author=self.author,
-            status=SourceArticle.ArticleStatus.PENDING,
+            status=Article.ArticleStatus.PENDING,
         )
-        rejected_article = create_source_article(
+        rejected_article = create_article(
             author=self.other_author,
-            status=SourceArticle.ArticleStatus.DRAFT,
+            status=Article.ArticleStatus.DRAFT,
             title="Rejected draft",
         )
         pending_snapshot = create_article_snapshot(pending_article)
@@ -302,15 +302,15 @@ class ArticleViewTests(BaseAPITestCase):
 
     def test_author_can_add_owned_article_to_collection(self):
         collection = create_collection(author=self.author)
-        article = create_source_article(author=self.author)
-        published = create_published_article(article)
+        article = create_article(author=self.author)
+        published = create_article_publication(article)
 
         self.authenticate(self.author)
         response = self.post_json(
             reverse("collection_item-list"),
             {
                 "collection": str(collection.id),
-                "published_article": str(published.id),
+                "article_publication": str(published.id),
             },
         )
 
@@ -320,22 +320,22 @@ class ArticleViewTests(BaseAPITestCase):
             code="created",
         )
         self.assert_uuid_equal(response.data["data"]["collection"], collection.id)
-        self.assert_uuid_equal(response.data["data"]["published_article"], published.id)
-        self.assert_uuid_equal(response.data["data"]["source_article_id"], article.id)
+        self.assert_uuid_equal(response.data["data"]["article_publication"], published.id)
+        self.assert_uuid_equal(response.data["data"]["article_id"], article.id)
         self.assertEqual(response.data["data"]["position"], 1)
         self.assertEqual(CollectionItem.objects.count(), 1)
 
     def test_author_cannot_add_another_authors_article_to_collection(self):
         collection = create_collection(author=self.author)
-        article = create_source_article(author=self.other_author)
-        published = create_published_article(article)
+        article = create_article(author=self.other_author)
+        published = create_article_publication(article)
 
         self.authenticate(self.author)
         response = self.post_json(
             reverse("collection_item-list"),
             {
                 "collection": str(collection.id),
-                "published_article": str(published.id),
+                "article_publication": str(published.id),
             },
         )
 
@@ -347,8 +347,8 @@ class ArticleViewTests(BaseAPITestCase):
 
     def test_author_can_delete_collection_and_its_items(self):
         collection = create_collection(author=self.author)
-        article = create_source_article(author=self.author)
-        published = create_published_article(article)
+        article = create_article(author=self.author)
+        published = create_article_publication(article)
         create_collection_item(collection, published)
         collection_id = collection.id
 

@@ -41,7 +41,7 @@ class ArticleEventPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         obj: ArticleEvent
-        return is_moderator(request.user) or is_the_author(request.user, obj.source_article)
+        return is_moderator(request.user) or is_the_author(request.user, obj.article)
 
 
 class CollectionPermission(permissions.BasePermission):

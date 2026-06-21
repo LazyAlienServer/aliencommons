@@ -3,16 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
-from articles.models import PublishedArticle
+from articles.models import ArticlePublication
 from core.views.viewsets import MyModelViewSet
 from posts.models import CommunityPost
 from .models import Reaction
 from .serializers import ReactionReadSerializer, ReactionWriteSerializer
 from .services import (
     clear_community_post_reaction,
-    clear_published_article_reaction,
+    clear_article_publication_reaction,
     set_community_post_reaction,
-    set_published_article_reaction,
+    set_article_publication_reaction,
     update_reaction_type,
 )
 
@@ -21,7 +21,7 @@ class ReactionViewSet(MyModelViewSet):
     queryset = Reaction.objects.select_related(
         "user",
         "target",
-        "target__published_article",
+        "target__article_publication",
         "target__community_post",
     )
     permission_classes = [IsAuthenticated]
@@ -45,10 +45,10 @@ class ReactionViewSet(MyModelViewSet):
             context=self.get_serializer_context(),
         )
         input_serializer.is_valid(raise_exception=True)
-        if "published_article" in input_serializer.validated_data:
-            reaction, created = set_published_article_reaction(
+        if "article_publication" in input_serializer.validated_data:
+            reaction, created = set_article_publication_reaction(
                 user=request.user,
-                published_article=input_serializer.validated_data["published_article"],
+                article_publication=input_serializer.validated_data["article_publication"],
                 reaction_type=input_serializer.validated_data["reaction_type"],
             )
         else:
@@ -105,13 +105,13 @@ class ReactionViewSet(MyModelViewSet):
     @action(
         detail=False,
         methods=["delete"],
-        url_path=r"published_articles/(?P<published_article_id>[^/.]+)",
+        url_path=r"article_publications/(?P<article_publication_id>[^/.]+)",
     )
-    def clear_published_article(self, request, published_article_id=None):
-        published_article = get_object_or_404(PublishedArticle, pk=published_article_id)
-        deleted = clear_published_article_reaction(
+    def clear_article_publication(self, request, article_publication_id=None):
+        article_publication = get_object_or_404(ArticlePublication, pk=article_publication_id)
+        deleted = clear_article_publication_reaction(
             user=request.user,
-            published_article=published_article,
+            article_publication=article_publication,
         )
 
         return self.format_success_response(

@@ -16,11 +16,7 @@ updates:
           - "*"
 
   - package-ecosystem: "uv"
-    directories:
-      - "/apps/backend"
-      - "/docs/users"
-      - "/docs/alienmark"
-      - "/docs/contributors"
+    directory: "/"
     target-branch: "develop"
     schedule:
       interval: "weekly"

@@ -14,6 +14,8 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "make/node.mk"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/ci.yml"
 
 permissions:
@@ -41,12 +43,20 @@ jobs:
           filters: |
             backend:
               - 'apps/backend/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
             docs-contributors:
               - 'docs/contributors/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
             docs-alienmark:
               - 'docs/alienmark/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
             docs-users:
               - 'docs/users/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
             node:
               - 'apps/alienmark/**'
               - 'apps/frontend/**'
@@ -80,15 +90,15 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          working-directory: apps/backend
+          working-directory: .
           cache-suffix: backend-lint
 
       - name: Install lint dependencies
-        run: uv sync --locked --dev
+        run: uv sync --project ../.. --locked --dev --package alien-commons-backend
 
       - name: Run Ruff
         run: >
-          uv run ruff check
+          uv run --project ../.. --package alien-commons-backend ruff check
           articles
           bookmarks
           comments
@@ -125,16 +135,16 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          working-directory: apps/backend
+          working-directory: .
           cache-suffix: backend-tests
 
       - name: Install backend dependencies
-        run: uv sync --locked --dev
+        run: uv sync --project ../.. --locked --dev --package alien-commons-backend
 
       - name: Run Backend tests
         env:
           DJANGO_SETTINGS_MODULE: backend.settings.test
-        run: uv run python manage.py test
+        run: uv run --project ../.. --package alien-commons-backend python manage.py test
 
   node:
     runs-on: ubuntu-latest
@@ -188,14 +198,14 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          working-directory: docs/contributors
+          working-directory: .
           cache-suffix: docs-validate-contributors
 
       - name: Install documentation dependencies
-        run: uv sync --locked
+        run: uv sync --project ../.. --locked --package alien-commons-contributor-docs
 
       - name: Build and validate MkDocs site
-        run: uv run mkdocs build --strict
+        run: uv run --project ../.. --package alien-commons-contributor-docs mkdocs build --strict
 
   docs-alienmark:
     runs-on: ubuntu-latest
@@ -219,14 +229,14 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          working-directory: docs/alienmark
+          working-directory: .
           cache-suffix: docs-validate-alienmark
 
       - name: Install documentation dependencies
-        run: uv sync --locked
+        run: uv sync --project ../.. --locked --package alienmark-docs
 
       - name: Build and validate MkDocs site
-        run: uv run mkdocs build --strict
+        run: uv run --project ../.. --package alienmark-docs mkdocs build --strict
 
   docs-users:
     runs-on: ubuntu-latest
@@ -250,11 +260,11 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          working-directory: docs/users
+          working-directory: .
           cache-suffix: docs-validate-users
 
       - name: Install documentation dependencies
-        run: uv sync --locked
+        run: uv sync --project ../.. --locked --package alien-commons-user-guide
 
       - name: Build and validate MkDocs site
-        run: uv run mkdocs build --strict
+        run: uv run --project ../.. --package alien-commons-user-guide mkdocs build --strict

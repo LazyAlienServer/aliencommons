@@ -18,9 +18,9 @@ services:
   backend-init:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     command: >
       sh -c "python manage.py migrate && python manage.py init_tasks"
     depends_on:
@@ -30,9 +30,9 @@ services:
   backend-api:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     restart: unless-stopped
     command: >
       sh -c "daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
@@ -45,14 +45,14 @@ services:
       - "traefik.http.routers.backend-production.tls.certresolver=le"
       - "traefik.http.services.backend-production.loadbalancer.server.port=8000"
     volumes:
-      - /srv/alien-commons/pro/static:/code/staticfiles
+      - /srv/alien-commons/pro/static:/code/apps/backend/staticfiles
 
   backend-task-scheduler:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     restart: unless-stopped
     command: >
       sh -c "python manage.py runscheduler"
@@ -60,9 +60,9 @@ services:
   backend-task-worker:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     restart: unless-stopped
     command: >
       sh -c "python manage.py rqworker default email maintenance"

@@ -22,31 +22,31 @@ services:
   backend-init:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     command: >
       sh -c "python manage.py migrate && python manage.py init_tasks"
     depends_on:
       - postgres
       - redis
     volumes:
-      - ../../apps/backend:/code
+      - ../../apps/backend:/code/apps/backend
       - /code/.venv
 
   backend-api:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     restart: unless-stopped
     command: >
       sh -c "daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
     depends_on:
       - alienmark
     volumes:
-      - ../../apps/backend:/code
+      - ../../apps/backend:/code/apps/backend
       - /code/.venv
     ports:
       - "8000:8000"
@@ -54,9 +54,9 @@ services:
   backend-task-scheduler:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     restart: unless-stopped
     command: >
       sh -c "python manage.py runscheduler"
@@ -64,15 +64,15 @@ services:
       - redis
       - postgres
     volumes:
-      - ../../apps/backend:/code
+      - ../../apps/backend:/code/apps/backend
       - /code/.venv
 
   backend-task-worker:
     <<: *stack-env
     build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/backend/Dockerfile
+    working_dir: /code/apps/backend
     restart: unless-stopped
     command: >
       sh -c "python manage.py rqworker default email maintenance"
@@ -80,7 +80,7 @@ services:
       - redis
       - postgres
     volumes:
-      - ../../apps/backend:/code
+      - ../../apps/backend:/code/apps/backend
       - /code/.venv
 
   frontend:

@@ -22,7 +22,7 @@
 
 AlienCommons is a community platform built for the TechMC Minecraft server. It provides a space for players to publish articles, participate in discussions, manage bookmarks, and engage with content through reactions and comments — all under a unified moderation system.
 
-The project is currently in its early stages, with a production-ready backend and a modern frontend under active development.
+The project is currently in its early stages under heavy development.
 
 ## Architecture
 
@@ -147,6 +147,8 @@ aliencommons/
 | AlienMark    | Markdown syntax reference and API         | [`docs/alienmark/`](docs/alienmark/)       |
 
 All documentation is available in English and Chinese (中文) and built with [MkDocs](https://www.mkdocs.org/) using the [Material](https://squidfunk.github.io/mkdocs-material/) theme.
+
+Please note that some materials may be not fully up-to-date in this stage.
 
 ## Environments
 

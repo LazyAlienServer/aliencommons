@@ -9,8 +9,8 @@ resolution-markers = [
 [manifest]
 members = [
     "alien-commons-backend",
-    "alien-commons-contributor-docs",
-    "alien-commons-user-guide",
+    "aliencommons-contributor-docs",
+    "aliencommons-user-guide",
     "alienmark-docs",
 ]
 
@@ -60,7 +60,7 @@ requires-dist = [
 dev = [{ name = "ruff", specifier = "==0.15.12" }]
 
 [[package]]
-name = "alien-commons-contributor-docs"
+name = "aliencommons-contributor-docs"
 version = "0.0.1"
 source = { virtual = "docs/contributors" }
 dependencies = [
@@ -77,7 +77,7 @@ requires-dist = [
 ]
 
 [[package]]
-name = "alien-commons-user-guide"
+name = "aliencommons-user-guide"
 version = "0.1.0"
 source = { virtual = "docs/users" }
 dependencies = [

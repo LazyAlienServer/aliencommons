@@ -89,6 +89,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
+          version: "0.11.23"
           enable-cache: true
           working-directory: .
           cache-suffix: backend-lint
@@ -134,6 +135,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
+          version: "0.11.23"
           enable-cache: true
           working-directory: .
           cache-suffix: backend-tests
@@ -197,15 +199,16 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
+          version: "0.11.23"
           enable-cache: true
           working-directory: .
           cache-suffix: docs-validate-contributors
 
       - name: Install documentation dependencies
-        run: uv sync --project ../.. --locked --package alien-commons-contributor-docs
+        run: uv sync --project ../.. --locked --package aliencommons-contributor-docs
 
       - name: Build and validate MkDocs site
-        run: uv run --project ../.. --package alien-commons-contributor-docs mkdocs build --strict
+        run: uv run --project ../.. --package aliencommons-contributor-docs mkdocs build --strict
 
   docs-alienmark:
     runs-on: ubuntu-latest
@@ -228,6 +231,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
+          version: "0.11.23"
           enable-cache: true
           working-directory: .
           cache-suffix: docs-validate-alienmark
@@ -259,12 +263,13 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
+          version: "0.11.23"
           enable-cache: true
           working-directory: .
           cache-suffix: docs-validate-users
 
       - name: Install documentation dependencies
-        run: uv sync --project ../.. --locked --package alien-commons-user-guide
+        run: uv sync --project ../.. --locked --package aliencommons-user-guide
 
       - name: Build and validate MkDocs site
-        run: uv run --project ../.. --package alien-commons-user-guide mkdocs build --strict
+        run: uv run --project ../.. --package aliencommons-user-guide mkdocs build --strict

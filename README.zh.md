@@ -22,7 +22,7 @@
 
 AlienCommons 是面向 TechMC Minecraft 服务器的社区平台，集文章发布、话题讨论、书签收藏、点赞评论于一体，配有统一的审核体系。
 
-项目尚处早期，后端已可投入生产，前端仍在开发中。
+项目目前仍处于早期阶段，并在密集开发中。
 
 ## 架构
 
@@ -147,6 +147,8 @@ aliencommons/
 | AlienMark | Markdown 语法参考和 API  | [`docs/alienmark/`](docs/alienmark/)       |
 
 所有文档均提供英文和中文版本，使用 [MkDocs](https://www.mkdocs.org/) 和 [Material](https://squidfunk.github.io/mkdocs-material/) 主题构建。
+
+请注意，在当前阶段，部分资料可能尚未完全保持最新。
 
 ## 部署环境
 

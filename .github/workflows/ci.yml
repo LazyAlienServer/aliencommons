@@ -13,6 +13,8 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "vite.config.ts"
       - "make/node.mk"
       - "pyproject.toml"
       - "uv.lock"
@@ -64,6 +66,8 @@ jobs:
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+              - 'vite.config.ts'
               - 'make/node.mk'
             workflow:
               - '.github/workflows/ci.yml'

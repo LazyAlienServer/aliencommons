@@ -94,24 +94,24 @@ make frontend-dev          # → http://localhost:8080
 # 运行后端测试
 make dev-backend-test
 
-# 运行所有 Node 检查（lint、类型检查、代码风格）
+# 通过 Turbo 运行所有 Node 检查
 make node-check
 ```
 
 > 更多命令见 `make/docker.mk` 和 `make/node.mk`。
 
-### Vite+
+### Node 工具链
 
-前端工具链统一使用 [Vite+](https://viteplus.dev) — 一个 `vp` CLI 可以替代 pnpm、Vite、Vitest 和代码检查命令：
+Node workspace 使用 pnpm 管理依赖，使用 Turbo 编排跨包任务，并使用 [Vite+](https://viteplus.dev) 执行各包内的格式检查、lint、类型检查、测试以及库/服务构建。
 
 ```bash
-vp dev          # 启动前端开发服务器
-vp check        # 格式化、代码检查和类型检查
-vp test         # 运行 JavaScript 测试
-vp build        # 构建前端生产版本
+pnpm run check      # Turbo：先构建依赖，再运行各包检查
+pnpm run build      # Turbo：按依赖顺序构建所有 Node 包
+pnpm run test       # Turbo：运行 JavaScript 测试
+pnpm run typecheck  # Turbo：运行各包类型检查
 ```
 
-完整命令列表参见 [Vite+ 指南](https://viteplus.dev/guide/)。项目配置位于 [`vite.config.ts`](vite.config.ts)。
+根目录还提供单包便捷脚本，例如 `pnpm run frontend:check`、`pnpm run alienmark:build` 和 `pnpm run alienmark-service:check`。Turbo 会读取 pnpm workspace 依赖图，因此依赖 `alienmark` 的包会先获得它的构建产物。Vite+ 配置位于 [`vite.config.ts`](vite.config.ts)，Turbo 任务规则位于 [`turbo.json`](turbo.json)。
 
 ## 项目结构
 

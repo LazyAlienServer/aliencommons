@@ -94,24 +94,24 @@ make frontend-dev          # → http://localhost:8080
 # Backend tests
 make dev-backend-test
 
-# Run all Node checks (lint, typecheck, style)
+# Run all Node checks through Turbo
 make node-check
 ```
 
 > For the full set of available commands, see `make/docker.mk` and `make/node.mk`.
 
-### Vite+
+### Node Tooling
 
-The frontend toolchain is unified under [Vite+](https://viteplus.dev) — a single `vp` CLI that replaces pnpm, Vite, Vitest, and linting commands:
+The Node workspace uses pnpm for dependency management, Turbo for cross-package task orchestration, and [Vite+](https://viteplus.dev) for package-level formatting, linting, type checks, tests, and library/service builds.
 
 ```bash
-vp dev          # Start the frontend dev server
-vp check        # Format, lint, and type-check
-vp test         # Run JavaScript tests
-vp build        # Build the frontend for production
+pnpm run check      # Turbo: build dependencies, then run package checks
+pnpm run build      # Turbo: build all Node packages in dependency order
+pnpm run test       # Turbo: run JavaScript tests
+pnpm run typecheck  # Turbo: run package type checks
 ```
 
-See the [Vite+ Guide](https://viteplus.dev/guide/) for the full list of commands. The project configuration lives in [`vite.config.ts`](vite.config.ts).
+Single-package convenience scripts are available from the root, such as `pnpm run frontend:check`, `pnpm run alienmark:build`, and `pnpm run alienmark-service:check`. Turbo uses the pnpm workspace graph so packages depending on `alienmark` get its build first. Vite+ configuration lives in [`vite.config.ts`](vite.config.ts), and Turbo task rules live in [`turbo.json`](turbo.json).
 
 ## Project Structure
 

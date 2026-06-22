@@ -24,7 +24,7 @@ Read the closest applicable `AGENTS.md` before editing in these areas:
 
 ## Tech Stacks
 
-- Monorepo tooling: pnpm workspaces, Make targets, Docker Compose, and GitHub Actions.
+- Monorepo tooling: pnpm workspaces, Turbo task orchestration, Vite+ Node quality/build tooling, Make targets, Docker Compose, and GitHub Actions.
 - Frontend: Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia, and the local `alienmark` workspace package.
 - Backend: Python 3.14, Django 6, Django REST Framework, Django Channels/Daphne, django-filter, django-cors-headers, and environs.
 - Backend persistence and runtime services: PostgreSQL, Redis, django-redis cache, Django sessions, RQ task workers via `django-tasks-rq`, and Pillow for image processing.
@@ -60,8 +60,8 @@ Run the smallest relevant checks for the change. If a check cannot be run, menti
 
 | Area | Command | Notes |
 |------|---------|-------|
-| Node workspace (frontend, alienmark, alienmark-service) | `pnpm run check` | Aggregate gate; matches the CI `node` job. |
-| Node single package | `pnpm --filter <name> check` | Runs lint, typecheck, and style for one package. |
+| Node workspace (frontend, alienmark, alienmark-service) | `pnpm run check` | Turbo aggregate gate; matches the CI `node` job and builds workspace dependencies first. |
+| Node single package | `pnpm run <name>:check` or `pnpm turbo run check --filter=<name>` | Runs the package Vite+ check through the Turbo task graph. Examples: `frontend:check`, `alienmark:check`, `alienmark-service:check`. |
 | Backend (in `apps/backend/`) | `uv run python manage.py test` | See `apps/backend/AGENTS.md` for ruff and per-app guidance. |
 | Backend via Compose | `make dev-backend-test` / `make dev-backend-check` | Uses `infra/compose/docker-compose.dev.yml`. |
 | Docs subproject (in `docs/<name>/`) | `uv run mkdocs build --strict` | Matches the CI `docs-*` jobs. |

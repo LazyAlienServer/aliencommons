@@ -2,7 +2,7 @@ x-stack-env: &stack-env
   env_file:
     - ../../env/.env.dev
 
-name: alien-commons-dev
+name: aliencommons-dev
 
 services:
   postgres:

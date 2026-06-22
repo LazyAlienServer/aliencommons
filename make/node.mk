@@ -3,7 +3,7 @@ PNPM_FRONTEND = $(PNPM) --filter frontend
 PNPM_ALIENMARK = $(PNPM) --filter alienmark
 PNPM_ALIENMARK_SERVICE = $(PNPM) --filter alienmark-service
 
-.PHONY: node-install node-build node-test node-check node-typecheck node-lint node-style frontend-dev frontend-build frontend-check frontend-typecheck frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-typecheck alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check alienmark-service-typecheck
+.PHONY: node-install node-build node-test node-check node-typecheck node-lint node-style node-knip frontend-dev frontend-build frontend-check frontend-typecheck frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-typecheck alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check alienmark-service-typecheck
 
 # NODE WORKSPACE
 node-install:
@@ -26,6 +26,9 @@ node-lint:
 
 node-style:
 	$(PNPM) run style:check
+
+node-knip:
+	$(PNPM) run knip
 
 frontend-dev:
 	$(PNPM_FRONTEND) dev

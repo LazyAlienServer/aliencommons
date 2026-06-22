@@ -8,6 +8,8 @@ AlienCommons uses three Node workspace tools together:
 
 They are layered rather than interchangeable. pnpm answers "which packages exist and how do they depend on each other?", Turbo answers "which package task must run before another?", and Vite+ answers "what does this package's check, format, test, or pack command actually do?"
 
+Knip is also available as an advisory maintenance tool. It does not replace any of the three layers above, and it is not part of the required `pnpm run check` gate. Its job is to report unused files, exports, dependencies, and catalog entries when a maintainer wants to clean up the workspace.
+
 ## Package Graph
 
 The Node workspace is declared in `pnpm-workspace.yaml`:
@@ -109,6 +111,7 @@ pnpm run check      # all package checks through Turbo
 pnpm run build      # all package builds through Turbo
 pnpm run test       # JavaScript tests through Turbo
 pnpm run typecheck  # TypeScript checks through Turbo
+pnpm run knip       # advisory unused-code and unused-dependency report
 ```
 
 Single-package convenience scripts are available when the scope is known:
@@ -130,6 +133,15 @@ pnpm --filter alienmark-service dev
 
 Development servers are intentionally persistent and usually do not need the full workspace task graph.
 
+Knip is intentionally separate from the aggregate check:
+
+```bash
+pnpm run knip         # report findings but exit successfully
+pnpm run knip:strict  # report findings and return a non-zero exit code
+```
+
+Use the default advisory command during cleanup work, dependency pruning, or before larger refactors. Use the strict command only when you deliberately want unused-code findings to block a local run.
+
 ## Maintenance Rules
 
 When adding or changing a Node package:
@@ -140,6 +152,7 @@ When adding or changing a Node package:
 4. Let root scripts and Make targets call Turbo instead of manually sequencing package dependencies.
 5. Update `turbo.json` when a new task has outputs, needs upstream builds, is persistent, or should not be cached.
 6. Update CI path filters when a new root-level Node tooling file can affect the Node job.
+7. Update `knip.jsonc` when a new framework entrypoint, generated type file, or intentionally retained dependency needs to be understood by the unused-code audit.
 
 The intended mental model is:
 
@@ -147,6 +160,7 @@ The intended mental model is:
 pnpm workspace = package map and dependency installation
 Turbo          = cross-package task graph
 Vite+          = package-level quality and build commands
+Knip           = advisory unused-code and dependency audit
 ```
 
 Keeping those responsibilities separate makes the workspace easier to scale as more apps and packages are added.

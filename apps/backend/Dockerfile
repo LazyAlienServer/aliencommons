@@ -17,7 +17,7 @@ COPY ./apps/backend/pyproject.toml ./apps/backend/pyproject.toml
 COPY ./docs/alienmark/pyproject.toml ./docs/alienmark/pyproject.toml
 COPY ./docs/contributors/pyproject.toml ./docs/contributors/pyproject.toml
 COPY ./docs/users/pyproject.toml ./docs/users/pyproject.toml
-RUN uv sync --locked --no-dev --no-install-workspace --package alien-commons-backend
+RUN uv sync --locked --no-dev --no-install-workspace --package aliencommons-backend
 
 # Copy Project
 COPY . .

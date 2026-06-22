@@ -36,6 +36,7 @@ venv/
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+.uv-cache/
 .cache/
 
 # Local databases and scheduler state

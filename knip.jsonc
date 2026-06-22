@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreFiles": ["apps/frontend/env.d.ts"],
+  "ignoreDependencies": [
+    // Kept as an explicit root dependency so JetBrains Vite integration and
+    // Vite+ peer resolution both see the workspace-level Vite version.
+    "vite",
+  ],
+  "ignoreIssues": {
+    // The catalog intentionally pins shared tooling versions even when a
+    // package consumes them indirectly through Vite+.
+    "pnpm-workspace.yaml": ["catalog"],
+  },
+  "workspaces": {
+    "apps/frontend": {},
+    "apps/alienmark": {},
+    "packages/alienmark": {
+      "entry": ["test/**/*.ts"],
+      "project": ["src/**/*.ts", "test/**/*.ts"],
+    },
+  },
+}

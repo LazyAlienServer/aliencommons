@@ -71,8 +71,8 @@ The project is currently in its early stages under heavy development.
 
 ```bash
 # Clone and install dependencies
-git clone https://github.com/LazyAlienServer/alien-commons.git
-cd alien-commons
+git clone https://github.com/LazyAlienServer/aliencommons.git
+cd aliencommons
 pnpm install
 
 # Start the full development stack
@@ -105,9 +105,10 @@ pnpm run check      # Turbo: build dependencies, then run package checks
 pnpm run build      # Turbo: build all Node packages in dependency order
 pnpm run test       # Turbo: run JavaScript tests
 pnpm run typecheck  # Turbo: run package type checks
+pnpm run knip       # Advisory unused-code and unused-dependency report
 ```
 
-Single-package convenience scripts are available from the root, such as `pnpm run frontend:check`, `pnpm run alienmark:build`, and `pnpm run alienmark-service:check`. Turbo uses the pnpm workspace graph so packages depending on `alienmark` get its build first. Vite+ configuration lives in [`vite.config.ts`](vite.config.ts), and Turbo task rules live in [`turbo.json`](turbo.json).
+Single-package convenience scripts are available from the root, such as `pnpm run frontend:check`, `pnpm run alienmark:build`, and `pnpm run alienmark-service:check`. Turbo uses the pnpm workspace graph so packages depending on `alienmark` get its build first. Vite+ configuration lives in [`vite.config.ts`](vite.config.ts), Turbo task rules live in [`turbo.json`](turbo.json), and Knip advisory rules live in [`knip.jsonc`](knip.jsonc). Knip is intentionally separate from `pnpm run check`; use `pnpm run knip:strict` only when you want unused-code findings to produce a non-zero exit code.
 
 ## Project Structure
 

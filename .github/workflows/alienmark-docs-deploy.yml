@@ -1,6 +1,7 @@
 name: "AlienMark Docs: Deploy"
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

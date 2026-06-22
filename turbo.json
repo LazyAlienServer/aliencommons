@@ -18,12 +18,20 @@
     "check": {
       "dependsOn": ["^build"]
     },
+    "check:fix": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
     "lint": {},
     "lint:check": {},
-    "lint:fix": {},
+    "lint:fix": {
+      "cache": false
+    },
     "style": {},
     "style:check": {},
-    "style:fix": {},
+    "style:fix": {
+      "cache": false
+    },
     "dev": {
       "dependsOn": ["^build"],
       "persistent": true,

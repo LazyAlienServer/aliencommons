@@ -20,8 +20,7 @@ FROM deps AS build
 COPY apps/alienmark apps/alienmark
 COPY packages/alienmark packages/alienmark
 
-RUN pnpm --filter alienmark build
-RUN pnpm --filter alienmark-service build
+RUN pnpm turbo run build --filter=alienmark-service
 
 FROM ${NODE_IMAGE} AS runtime
 

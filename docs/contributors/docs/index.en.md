@@ -2,8 +2,8 @@
 
 Welcome to the official documentation of **AlienCommons**.
 
-**AlienCommons** is a website currently designed to host documents and articles
-translated by _**LazyAlienServer techMC Translation Team**_.
+**AlienCommons** is a community platform built for Technical Minecraft players. 
+It provides a space for players to publish articles and participate in discussions.
 
 ---
 

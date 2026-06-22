@@ -15,6 +15,7 @@ nav:
   - Architecture: architecture.md
   - Development:
       - development/setup.md
+      - development/node-tooling.md
 
 theme:
   name: material

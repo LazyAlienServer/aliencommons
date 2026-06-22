@@ -20,7 +20,7 @@
 
 ## Overview
 
-AlienCommons is a community platform built for the TechMC Minecraft server. It provides a space for players to publish articles, participate in discussions, manage bookmarks, and engage with content through reactions and comments — all under a unified moderation system.
+AlienCommons is a community platform built for Technical Minecraft players. It provides a space for players to publish articles and participate in discussions.
 
 The project is currently in its early stages under heavy development.
 

@@ -2,7 +2,8 @@
 
 欢迎来到 **AlienCommons** 的官方文档.
 
-**AlienCommons** 是一个目前用于托管由 ***LazyAlienServer TechMC 翻译组*** 翻译的文档和文章的网站。
+**AlienCommons** 是面向技术向 Minecraft 玩家构建的社区平台。
+它为玩家提供发布文章和参与讨论的空间。
 
 ---
 

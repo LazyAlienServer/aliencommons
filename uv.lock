@@ -8,14 +8,14 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "alien-commons-backend",
+    "aliencommons-backend",
     "aliencommons-contributor-docs",
     "aliencommons-user-guide",
     "alienmark-docs",
 ]
 
 [[package]]
-name = "alien-commons-backend"
+name = "aliencommons-backend"
 version = "0.2.0"
 source = { virtual = "apps/backend" }
 dependencies = [

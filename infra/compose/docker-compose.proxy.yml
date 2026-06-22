@@ -1,4 +1,4 @@
-name: alien-commons-proxy
+name: aliencommons-proxy
 
 services:
   traefik:

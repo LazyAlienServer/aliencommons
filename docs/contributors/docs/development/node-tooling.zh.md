@@ -8,6 +8,8 @@ AlienCommons 同时使用三类 Node workspace 工具：
 
 它们是分层关系，不是彼此替代。pnpm 回答“有哪些包、它们如何依赖彼此”，Turbo 回答“哪个包的任务必须先于另一个任务运行”，Vite+ 回答“这个包里的 check、format、test 或 pack 具体怎么执行”。
 
+Knip 也作为提示性的维护工具可用。它不替代上面三层，也不是必跑的 `pnpm run check` 门禁。它的职责是在维护者想清理 workspace 时，报告未使用文件、导出、依赖和 catalog 条目。
+
 ## 包图
 
 Node workspace 在 `pnpm-workspace.yaml` 中声明：
@@ -109,6 +111,7 @@ pnpm run check      # 通过 Turbo 运行所有包检查
 pnpm run build      # 通过 Turbo 构建所有包
 pnpm run test       # 通过 Turbo 运行 JavaScript 测试
 pnpm run typecheck  # 通过 Turbo 运行 TypeScript 检查
+pnpm run knip       # 提示性的未使用代码和未使用依赖报告
 ```
 
 如果已经知道具体作用域，也可以使用根目录提供的单包便捷脚本：
@@ -130,6 +133,15 @@ pnpm --filter alienmark-service dev
 
 开发服务器是持久任务，通常不需要完整的 workspace 任务图。
 
+Knip 有意与聚合检查分离：
+
+```bash
+pnpm run knip         # 报告问题，但仍成功退出
+pnpm run knip:strict  # 报告问题，并返回非零退出码
+```
+
+默认的提示性命令适合清理、裁剪依赖或大型重构前使用。只有在明确希望未使用代码报告阻塞本地运行时，才使用 strict 命令。
+
 ## 维护规则
 
 新增或修改 Node 包时：
@@ -140,6 +152,7 @@ pnpm --filter alienmark-service dev
 4. 让根脚本和 Make target 调用 Turbo，而不是手写包之间的依赖顺序。
 5. 如果新任务有输出、需要上游构建、是持久任务，或不应被缓存，就更新 `turbo.json`。
 6. 如果新的根级 Node 工具文件会影响 Node job，就同步更新 CI path filter。
+7. 如果新增了框架入口、生成类型文件，或有意保留的依赖需要被未使用代码审计理解，就更新 `knip.jsonc`。
 
 推荐的心智模型是：
 
@@ -147,6 +160,7 @@ pnpm --filter alienmark-service dev
 pnpm workspace = 包地图和依赖安装
 Turbo          = 跨包任务图
 Vite+          = 包内质量检查和构建命令
+Knip           = 提示性的未使用代码和依赖审计
 ```
 
 保持这三层职责分离，可以让 workspace 在增加更多应用和包时更容易扩展。

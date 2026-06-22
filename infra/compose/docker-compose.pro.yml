@@ -2,7 +2,7 @@ x-stack-env: &stack-env
   env_file:
     - ../../env/.env.pro
 
-name: alien-commons-pro
+name: aliencommons-pro
 
 services:
   postgres:
@@ -45,7 +45,7 @@ services:
       - "traefik.http.routers.backend-production.tls.certresolver=le"
       - "traefik.http.services.backend-production.loadbalancer.server.port=8000"
     volumes:
-      - /srv/alien-commons/pro/static:/code/apps/backend/staticfiles
+      - /srv/aliencommons/pro/static:/code/apps/backend/staticfiles
 
   backend-task-scheduler:
     <<: *stack-env
@@ -86,7 +86,7 @@ services:
       - -config.file=/etc/loki/loki.pro.yml
     volumes:
       - ../../o11y/loki/loki.pro.yml:/etc/loki/loki.pro.yml:ro
-      - /srv/alien-commons/pro/loki:/var/lib/loki/data
+      - /srv/aliencommons/pro/loki:/var/lib/loki/data
 
   grafana:
     image: grafana/grafana:latest
@@ -136,7 +136,7 @@ services:
       - "traefik.http.services.static.loadbalancer.server.port=80"
     restart: unless-stopped
     volumes:
-      - /srv/alien-commons/pro/static:/usr/share/nginx/html/static:ro
+      - /srv/aliencommons/pro/static:/usr/share/nginx/html/static:ro
 
 volumes:
   postgres_data_pro:

@@ -62,6 +62,7 @@ Run the smallest relevant checks for the change. If a check cannot be run, menti
 |------|---------|-------|
 | Node workspace (frontend, alienmark, alienmark-service) | `pnpm run check` | Turbo aggregate gate; matches the CI `node` job and builds workspace dependencies first. |
 | Node single package | `pnpm run <name>:check` or `pnpm turbo run check --filter=<name>` | Runs the package Vite+ check through the Turbo task graph. Examples: `frontend:check`, `alienmark:check`, `alienmark-service:check`. |
+| Node unused-code audit | `pnpm run knip` | Advisory only; reports unused files, exports, dependencies, and catalog entries without failing. Use `pnpm run knip:strict` for a blocking local audit. |
 | Backend (in `apps/backend/`) | `uv run python manage.py test` | See `apps/backend/AGENTS.md` for ruff and per-app guidance. |
 | Backend via Compose | `make dev-backend-test` / `make dev-backend-check` | Uses `infra/compose/docker-compose.dev.yml`. |
 | Docs subproject (in `docs/<name>/`) | `uv run mkdocs build --strict` | Matches the CI `docs-*` jobs. |

@@ -1,3 +1,3 @@
 # AlienCommons Overview
 
-Our GitHub Repository: [alien-commons](https://github.com/LazyAlienServer/alien-commons)
+Our GitHub Repository: [aliencommons](https://github.com/LazyAlienServer/aliencommons)

@@ -53,7 +53,7 @@ jobs:
           npm pkg set name="@lazyalienserver/alienmark"
           npm pkg set publishConfig.registry="https://npm.pkg.github.com"
           npm pkg set repository.type="git"
-          npm pkg set repository.url="git+https://github.com/LazyAlienServer/alien-commons.git"
+          npm pkg set repository.url="git+https://github.com/LazyAlienServer/aliencommons.git"
           npm pkg set repository.directory="packages/alienmark"
 
       - name: Publish AlienMark to GitHub Packages

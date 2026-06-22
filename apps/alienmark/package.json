@@ -7,8 +7,14 @@
   "main": "./dist/server.mjs",
   "scripts": {
     "build": "vp pack src/server.ts --format esm --dts false",
-    "typecheck": "tsc --noEmit",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
     "dev": "tsx watch src/server.ts",
+    "lint:check": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "style:check": "vp fmt --check",
+    "style:fix": "vp fmt",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/server.mjs"
   },
   "dependencies": {

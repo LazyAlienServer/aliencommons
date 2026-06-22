@@ -10,10 +10,10 @@ node-install:
 	$(PNPM) install
 
 node-build:
-	$(PNPM) -r --if-present build
+	$(PNPM) run build
 
 node-test:
-	$(PNPM) -r --if-present test
+	$(PNPM) run test
 
 node-check:
 	$(PNPM) run check
@@ -34,10 +34,10 @@ frontend-build:
 	$(PNPM_FRONTEND) build
 
 frontend-check:
-	$(PNPM_FRONTEND) check
+	$(PNPM) run frontend:check
 
 frontend-typecheck:
-	$(PNPM_FRONTEND) typecheck
+	$(PNPM) run frontend:typecheck
 
 frontend-preview:
 	$(PNPM_FRONTEND) preview
@@ -49,13 +49,13 @@ alienmark-build:
 	$(PNPM_ALIENMARK) build
 
 alienmark-test:
-	$(PNPM_ALIENMARK) test
+	$(PNPM) run alienmark:test
 
 alienmark-check:
-	$(PNPM_ALIENMARK) check
+	$(PNPM) run alienmark:check
 
 alienmark-typecheck:
-	$(PNPM_ALIENMARK) typecheck
+	$(PNPM) run alienmark:typecheck
 
 alienmark-service-dev:
 	$(PNPM_ALIENMARK_SERVICE) dev
@@ -67,9 +67,7 @@ alienmark-service-start:
 	$(PNPM_ALIENMARK_SERVICE) start
 
 alienmark-service-check:
-	$(PNPM_ALIENMARK) build
-	$(PNPM_ALIENMARK_SERVICE) check
+	$(PNPM) run alienmark-service:check
 
 alienmark-service-typecheck:
-	$(PNPM_ALIENMARK) build
-	$(PNPM_ALIENMARK_SERVICE) typecheck
+	$(PNPM) run alienmark-service:typecheck

@@ -49,6 +49,7 @@ staticfiles/
 
 # Frontend generated files
 node_modules/
+.turbo/
 .pnpm-store/
 dist/
 dist-ssr/

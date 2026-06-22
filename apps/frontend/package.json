@@ -4,9 +4,15 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "lint:check": "vp lint",
+    "lint:fix": "vp lint --fix",
     "preview": "nuxt preview",
+    "style:check": "vp fmt --check",
+    "style:fix": "vp fmt",
     "typecheck": "vue-tsc --noEmit",
     "postinstall": "nuxt prepare"
   },

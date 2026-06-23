@@ -163,6 +163,3 @@ class MyExceptionHandler(ExceptionHandler):
 
 The structured error-normalization design in this package is inspired by
 [`drf-standardized-errors`](https://github.com/ghazi-git/drf-standardized-errors).
-This package keeps a different outer response contract: every success and error
-response is wrapped in the `success`, `message`, `code`, `data`, `errors`, and
-`meta` envelope.

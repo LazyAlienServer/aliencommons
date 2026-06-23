@@ -1,12 +1,15 @@
 from .exceptions import ServiceError
+from .formatters import ErrorFormatter, format_errors
 from .mixins import EnvelopeMixin
 from .responses import build_payload, format_response
 
 __all__ = [
     "EnvelopeMixin",
+    "ErrorFormatter",
     "ServiceError",
     "build_payload",
     "exception_handler",
+    "format_errors",
     "format_response",
 ]
 

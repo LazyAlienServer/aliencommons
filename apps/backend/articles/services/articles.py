@@ -14,7 +14,7 @@ from articles.models import (
     ArticleSnapshot,
     ArticleEvent,
 )
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.utils.alienmark import render_md_to_html
 from logs.logging import get_logger
 from notifications.services import notify_subscribed_author_posted

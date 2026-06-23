@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from articles.models import ArticlePublication
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.models import ContentTarget
 from core.utils.markdown import (
     render_markdown_mentions,

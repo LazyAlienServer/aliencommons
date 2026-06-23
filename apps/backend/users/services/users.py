@@ -6,7 +6,7 @@ import secrets
 import random
 import hashlib
 
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.utils.cache import add_cache, set_cache, get_cache, delete_cache, incr_cache
 from bookmarks.models import BookmarkFolder
 from users.models import EmailAddress

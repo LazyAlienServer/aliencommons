@@ -5,7 +5,7 @@ from core.tests.testcases import BaseTestCase
 
 
 class StandardPaginationTests(BaseTestCase):
-    def test_get_paginated_response_returns_plain_pagination_dict(self):
+    def test_get_paginated_response_returns_response_with_pagination_data(self):
         paginator = StandardPagination()
         paginator.page = SimpleNamespace(
             paginator=SimpleNamespace(count=21, num_pages=3),
@@ -14,10 +14,10 @@ class StandardPaginationTests(BaseTestCase):
         paginator.request = object()
         paginator.get_page_size = lambda request: 10
 
-        payload = paginator.get_paginated_response([{"id": 1}, {"id": 2}])
+        response = paginator.get_paginated_response([{"id": 1}, {"id": 2}])
 
         self.assertEqual(
-            payload,
+            response.data,
             {
                 "count": 21,
                 "total_pages": 3,

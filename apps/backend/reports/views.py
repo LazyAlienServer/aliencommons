@@ -1,7 +1,8 @@
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
 from core.utils.permissions import is_moderator
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 
 from .models import ContentReport, UserReport
 from .permissions import ReportPermission
@@ -15,7 +16,7 @@ from .serializers import (
 from .services import create_content_report, create_user_report, moderate_report
 
 
-class BaseReportViewSet(MyModelViewSet):
+class BaseReportViewSet(EnvelopeMixin, ModelViewSet):
     permission_classes = [ReportPermission]
     moderation_serializer_class = ReportModerationSerializer
 
@@ -130,4 +131,3 @@ class UserReportViewSet(BaseReportViewSet):
             data=output_serializer.data,
             status_code=status.HTTP_201_CREATED,
         )
-

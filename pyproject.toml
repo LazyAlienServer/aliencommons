@@ -1,5 +1,14 @@
 [tool.uv]
 add-bounds = "exact"
 
+[tool.uv.sources]
+drf-std-response = { workspace = true }
+
 [tool.uv.workspace]
-members = ["apps/backend", "docs/alienmark", "docs/contributors", "docs/users"]
+members = [
+  "apps/backend",
+  "docs/alienmark",
+  "docs/contributors",
+  "docs/users",
+  "packages/drf-std-response",
+]

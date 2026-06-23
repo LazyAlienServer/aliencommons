@@ -1,7 +1,7 @@
 import requests
 from django.conf import settings
 
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 
 
 def render_md_to_html(markdown: str) -> str:

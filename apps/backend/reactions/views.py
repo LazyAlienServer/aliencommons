@@ -2,9 +2,10 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 
 from articles.models import ArticlePublication
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 from posts.models import CommunityPost
 from .models import Reaction
 from .serializers import ReactionReadSerializer, ReactionWriteSerializer
@@ -17,7 +18,7 @@ from .services import (
 )
 
 
-class ReactionViewSet(MyModelViewSet):
+class ReactionViewSet(EnvelopeMixin, ModelViewSet):
     queryset = Reaction.objects.select_related(
         "user",
         "target",

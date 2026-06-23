@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import models
 
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.utils.markdown import (
     render_markdown_mentions,
     serialize_markdown_mentions,

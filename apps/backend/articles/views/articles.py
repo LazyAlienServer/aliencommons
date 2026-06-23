@@ -3,9 +3,10 @@ from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from core.utils.permissions import is_moderator
-from core.views.viewsets import MyModelViewSet, MyReadOnlyModelViewSet
+from drf_std_response import EnvelopeMixin
 from ..filters import ArticleFilter
 from ..models import Article, ArticleEvent, ArticleSnapshot, ArticlePublication
 from ..permissions import (
@@ -27,7 +28,7 @@ from ..services.articles import (
 )
 
 
-class ArticleViewSet(MyModelViewSet):
+class ArticleViewSet(EnvelopeMixin, ModelViewSet):
     queryset = Article.objects.select_related("author", "source")
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = ArticleFilter
@@ -229,7 +230,7 @@ class ArticleViewSet(MyModelViewSet):
         )
 
 
-class ArticlePublicationViewSet(MyReadOnlyModelViewSet):
+class ArticlePublicationViewSet(EnvelopeMixin, ReadOnlyModelViewSet):
     queryset = ArticlePublication.objects.select_related("article").prefetch_related("versions")
     serializer_class = ArticlePublicationSerializer
     permission_classes = [IsAuthenticated]
@@ -248,7 +249,7 @@ class ArticlePublicationViewSet(MyReadOnlyModelViewSet):
         return with_article_publication_comment_count(queryset)
 
 
-class ArticleSnapshotViewSet(MyReadOnlyModelViewSet):
+class ArticleSnapshotViewSet(EnvelopeMixin, ReadOnlyModelViewSet):
     queryset = ArticleSnapshot.objects.all()
     serializer_class = ArticleSnapshotSerializer
     permission_classes = [ModeratorOnly]
@@ -269,7 +270,7 @@ class ArticleSnapshotViewSet(MyReadOnlyModelViewSet):
         )
 
 
-class ArticleEventReadViewset(MyReadOnlyModelViewSet):
+class ArticleEventReadViewset(EnvelopeMixin, ReadOnlyModelViewSet):
     queryset = ArticleEvent.objects.all()
     permission_classes = (ArticleEventPermission,)
     serializer_class = ArticleEventSerializer

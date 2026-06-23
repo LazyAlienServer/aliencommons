@@ -7,12 +7,12 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from core.views.mixins import FormattedResponseMixin
+from drf_std_response import EnvelopeMixin
 from ..serializers import UserLoginSerializer
 from ..services.sessions import create_user_session, delete_user_session
 
 
-class SessionViewSet(FormattedResponseMixin, viewsets.ViewSet):
+class SessionViewSet(EnvelopeMixin, viewsets.ViewSet):
     """
     A viewset that collects API endpoints which relates to UserSession.
 

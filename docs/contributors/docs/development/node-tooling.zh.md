@@ -18,6 +18,7 @@ Node workspace 在 `pnpm-workspace.yaml` 中声明：
 packages:
   - "apps/*"
   - "packages/*"
+  - "!packages/drf-std-response"
 ```
 
 当前相关的 Node 包是：

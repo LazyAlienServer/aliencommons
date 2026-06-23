@@ -11,6 +11,7 @@ dependencies = [
   "django-storages[s3]==1.14.6",
   "django-tasks-rq==0.12.0",
   "djangorestframework==3.17.1",
+  "drf-std-response==0.1.0",
   "environs==15.0.1",
   "pillow==12.2.0",
   "psycopg[binary]==3.3.4",

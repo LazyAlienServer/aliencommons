@@ -80,7 +80,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
-    "EXCEPTION_HANDLER": "core.views.exception_handler.custom_exception_handler",
+    "EXCEPTION_HANDLER": "drf_std_response.exception_handlers.exception_handler",
     "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardPagination",
     "PAGE_SIZE": 20,
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",

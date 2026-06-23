@@ -1,4 +1,4 @@
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.tests.factories import create_user
 from core.tests.testcases import BaseTestCase
 from core.utils.markdown import (

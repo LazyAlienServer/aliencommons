@@ -1,7 +1,8 @@
 from django.db.models import Count
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 from .models import Bookmark, BookmarkFolder
 from .permissions import BookmarkOwnerOnly
 from .serializers import (
@@ -12,7 +13,7 @@ from .serializers import (
 )
 
 
-class BookmarkFolderViewSet(MyModelViewSet):
+class BookmarkFolderViewSet(EnvelopeMixin, ModelViewSet):
     queryset = BookmarkFolder.objects.select_related("user")
     permission_classes = [BookmarkOwnerOnly]
     default_serializer_class = BookmarkFolderReadSerializer
@@ -83,7 +84,7 @@ class BookmarkFolderViewSet(MyModelViewSet):
         return self.update(request, *args, **kwargs)
 
 
-class BookmarkViewSet(MyModelViewSet):
+class BookmarkViewSet(EnvelopeMixin, ModelViewSet):
     queryset = Bookmark.objects.select_related(
         "user",
         "folder",

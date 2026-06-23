@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "apps/backend/**"
+      - "packages/drf-std-response/**"
       - "docs/contributors/**"
       - "docs/alienmark/**"
       - "docs/users/**"
@@ -46,6 +47,7 @@ jobs:
           filters: |
             backend:
               - 'apps/backend/**'
+              - 'packages/drf-std-response/**'
               - 'pyproject.toml'
               - 'uv.lock'
             docs-contributors:

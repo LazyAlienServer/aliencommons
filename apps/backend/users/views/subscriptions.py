@@ -1,12 +1,13 @@
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 from ..models import UserSubscription
 from ..serializers import UserSubscriptionReadSerializer, UserSubscriptionWriteSerializer
 
 
-class UserSubscriptionViewSet(MyModelViewSet):
+class UserSubscriptionViewSet(EnvelopeMixin, ModelViewSet):
     queryset = UserSubscription.objects.select_related("subscriber", "subscribed_to")
     permission_classes = [IsAuthenticated]
     default_serializer_class = UserSubscriptionReadSerializer

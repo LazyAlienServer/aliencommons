@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "!packages/drf-std-response"
 
 allowBuilds:
   "@parcel/watcher": true

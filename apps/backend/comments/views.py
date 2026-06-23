@@ -1,7 +1,8 @@
 from django.db.models import Count, Q
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 from .models import Comment
 from .permissions import CommentPermission
 from .serializers import CommentReadSerializer, CommentWriteSerializer
@@ -14,7 +15,7 @@ from .services import (
 )
 
 
-class CommentViewSet(MyModelViewSet):
+class CommentViewSet(EnvelopeMixin, ModelViewSet):
     queryset = Comment.objects.select_related(
         "author",
         "target",

@@ -17,7 +17,9 @@ COPY ./apps/backend/pyproject.toml ./apps/backend/pyproject.toml
 COPY ./docs/alienmark/pyproject.toml ./docs/alienmark/pyproject.toml
 COPY ./docs/contributors/pyproject.toml ./docs/contributors/pyproject.toml
 COPY ./docs/users/pyproject.toml ./docs/users/pyproject.toml
-RUN uv sync --locked --no-dev --no-install-workspace --package aliencommons-backend
+COPY ./packages/drf-std-response/pyproject.toml ./packages/drf-std-response/pyproject.toml
+COPY ./packages/drf-std-response/src ./packages/drf-std-response/src
+RUN uv sync --locked --no-dev --no-install-project --package aliencommons-backend
 
 # Copy Project
 COPY . .

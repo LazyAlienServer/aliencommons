@@ -4,7 +4,7 @@ from urllib.parse import quote
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 
 
 H1_RE = re.compile(r"^#(?!#)\s+(.+?)\s*$")

@@ -13,7 +13,7 @@ from rest_framework import serializers
 from core.validators import (
     FileTypeValidator, FileSizeValidator
 )
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from ..models import (
     Article,
     ArticleSource,

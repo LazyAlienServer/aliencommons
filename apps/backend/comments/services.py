@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from articles.models import ArticlePublication
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.models import ContentTarget
 from core.services.content_targets import (
     get_or_create_comment_target,

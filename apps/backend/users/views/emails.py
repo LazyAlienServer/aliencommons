@@ -2,12 +2,12 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
-from core.views.mixins import FormattedResponseMixin
+from drf_std_response import EnvelopeMixin
 from ..serializers import EmailVerifyRequestSerializer, EmailVerifyResponseSerializer
 from ..services.users import verify_email
 
 
-class EmailViewSet(FormattedResponseMixin, viewsets.ViewSet):
+class EmailViewSet(EnvelopeMixin, viewsets.ViewSet):
     """
     A viewset that collects endpoints which relate to email models.
     """

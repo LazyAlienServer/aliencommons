@@ -1,6 +1,7 @@
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 
 from .models import CommunityPost
 from .permissions import CommunityPostPermission
@@ -12,7 +13,7 @@ from .services import (
 )
 
 
-class CommunityPostViewSet(MyModelViewSet):
+class CommunityPostViewSet(EnvelopeMixin, ModelViewSet):
     queryset = CommunityPost.objects.filter(is_deleted=False).select_related("author").order_by("-created_at")
     permission_classes = [CommunityPostPermission]
     default_serializer_class = CommunityPostReadSerializer

@@ -1,16 +1,16 @@
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from core.exceptions import ServiceError
-from core.views.viewsets import MyReadOnlyModelViewSet
+from drf_std_response import EnvelopeMixin, ServiceError
 
 from .models import NotificationDelivery, NotificationEvent
 from .serializers import NotificationDeliverySerializer
 from .services import mark_all_deliveries_read, mark_delivery_read
 
 
-class NotificationDeliveryViewSet(MyReadOnlyModelViewSet):
+class NotificationDeliveryViewSet(EnvelopeMixin, ReadOnlyModelViewSet):
     serializer_class = NotificationDeliverySerializer
     permission_classes = [IsAuthenticated]
     queryset = NotificationDelivery.objects.select_related(

@@ -4,12 +4,9 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
-from core.views.mixins import (
-    FormattedResponseMixin,
-    MyListModelMixin,
-    MyRetrieveModelMixin,
-)
+from drf_std_response import EnvelopeMixin
 from ..serializers import (
     UserListSerializer,
     UserRegisterRequestSerializer,
@@ -23,9 +20,9 @@ from ..services.users import register
 User = get_user_model()
 
 
-class UserViewSet(MyListModelMixin,
-                  MyRetrieveModelMixin,
-                  FormattedResponseMixin,
+class UserViewSet(EnvelopeMixin,
+                  ListModelMixin,
+                  RetrieveModelMixin,
                   viewsets.GenericViewSet):
     """
     A viewset that collects API endpoints which relates to User.

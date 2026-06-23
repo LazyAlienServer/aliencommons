@@ -19,7 +19,7 @@ from articles.services.articles import (
     unpublish,
     withdraw,
 )
-from core.exceptions import ServiceError
+from drf_std_response import ServiceError
 from core.tests.factories import (
     create_article_snapshot,
     create_moderator,

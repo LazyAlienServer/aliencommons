@@ -1,8 +1,9 @@
 from django.db.models import Count, Max
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.viewsets import ModelViewSet
 
-from core.views.viewsets import MyModelViewSet
+from drf_std_response import EnvelopeMixin
 from ..models import Collection, CollectionItem
 from ..permissions import CollectionItemPermission, CollectionPermission
 from ..serializers import (
@@ -13,7 +14,7 @@ from ..serializers import (
 )
 
 
-class CollectionViewSet(MyModelViewSet):
+class CollectionViewSet(EnvelopeMixin, ModelViewSet):
     queryset = Collection.objects.select_related("author")
     permission_classes = [CollectionPermission]
     default_serializer_class = CollectionReadSerializer
@@ -82,7 +83,7 @@ class CollectionViewSet(MyModelViewSet):
         return self.update(request, *args, **kwargs)
 
 
-class CollectionItemViewSet(MyModelViewSet):
+class CollectionItemViewSet(EnvelopeMixin, ModelViewSet):
     queryset = CollectionItem.objects.select_related(
         "collection",
         "collection__author",

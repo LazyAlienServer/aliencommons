@@ -18,6 +18,7 @@ The Node workspace is declared in `pnpm-workspace.yaml`:
 packages:
   - "apps/*"
   - "packages/*"
+  - "!packages/drf-std-response"
 ```
 
 At the moment, the relevant Node packages are:

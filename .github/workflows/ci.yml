@@ -1,6 +1,28 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "apps/backend/**"
+      - "packages/drf-std-response/**"
+      - "docs/contributors/**"
+      - "docs/alienmark/**"
+      - "docs/users/**"
+      - "apps/alienmark/**"
+      - "apps/frontend/**"
+      - "packages/alienmark/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "knip.jsonc"
+      - "turbo.json"
+      - "vite.config.ts"
+      - "make/node.mk"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/ci.yml"
   pull_request:
     paths:
       - "apps/backend/**"

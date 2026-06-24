@@ -3,6 +3,13 @@ from .formatters import ErrorFormatter, format_errors
 from .mixins import EnvelopeMixin
 from .responses import build_payload, format_response
 
+
+def exception_handler(*args, **kwargs):
+    from .exception_handlers import exception_handler as _exception_handler
+
+    return _exception_handler(*args, **kwargs)
+
+
 __all__ = [
     "EnvelopeMixin",
     "ErrorFormatter",
@@ -15,8 +22,4 @@ __all__ = [
 
 
 def __getattr__(name):
-    if name == "exception_handler":
-        from .exception_handlers import exception_handler
-
-        return exception_handler
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

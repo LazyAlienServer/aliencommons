@@ -24,6 +24,8 @@ on:
       - "uv.lock"
       - ".github/workflows/ci.yml"
   pull_request:
+    branches:
+      - dev
     paths:
       - "apps/backend/**"
       - "packages/drf-std-response/**"

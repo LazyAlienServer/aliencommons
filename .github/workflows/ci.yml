@@ -64,6 +64,9 @@ jobs:
       workflow: ${{ steps.filter.outputs.workflow }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
       - name: Detect changed CI areas
         id: filter
         uses: dorny/paths-filter@v4

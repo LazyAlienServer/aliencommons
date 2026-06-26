@@ -1,80 +1,126 @@
-# Agent Guide
+# Agent Guide — AlienCommons
 
-Keep changes small, intentional, and consistent with the existing project.
+> **Read this first.** Then read the closest nested `AGENTS.md` for the area you are editing.
+> Keep changes small, intentional, and consistent with the surrounding code.
 
-## Project Shape
+## What this is
 
-This is a monorepo. The main areas are:
+AlienCommons is a community platform for Technical Minecraft players. It is a polyglot monorepo: a Django 6 backend, a Nuxt 4 frontend, an internal Fastify Markdown-rendering service, a TypeScript Markdown parser library, a DRF envelope library, three MkDocs documentation sites, and the Docker/observability wiring to run all of it.
 
-- `apps/` for deployable applications.
-- `packages/` for reusable packages.
-- `docs/` for documentation.
-- `infra/`, `o11y/`, and `make/` for operations and tooling.
+## Repository map
 
-Prefer the conventions already present in the area you are editing.
+```
+aliencommons/
+├── apps/
+│   ├── backend/         Django 6 + DRF API. See apps/backend/AGENTS.md.
+│   ├── frontend/        Nuxt 4 + Vue 3 + Pinia + Tailwind 4. See apps/frontend/AGENTS.md.
+│   └── alienmark/       Internal Fastify service that renders Markdown via packages/alienmark.
+├── packages/
+│   ├── alienmark/        TypeScript Markdown parser + HTML renderer (published to GitHub Packages).
+│   └── drf-std-response/ DRF response-envelope + exception-handler library used by the backend.
+├── docs/                Three MkDocs sites (users, contributors, alienmark). See docs/AGENTS.md.
+├── infra/compose/       Docker Compose files for dev / stg / pro / proxy.
+├── o11y/                Grafana, Loki, Grafana Alloy configs.
+├── make/                docker.mk + node.mk, included by the root Makefile.
+├── env/                 Environment files for local Compose (.env.dev, .env.test).
+└── .github/workflows/   CI/CD. ci.yml is the source of truth for verification gates.
+```
 
-## Nested Guides
+## Nested guides (progressive disclosure)
 
-Read the closest applicable `AGENTS.md` before editing in these areas:
+Read the closest applicable guide **before** editing. The closest guide wins; this file only adds cross-cutting rules.
 
-| Area | Guide |
-|------|-------|
-| `apps/backend/` | `apps/backend/AGENTS.md` |
-| `docs/` (and each docs subproject) | `docs/AGENTS.md` |
+| Area | Guide | Read when |
+|------|-------|-----------|
+| Django backend | [`apps/backend/AGENTS.md`](apps/backend/AGENTS.md) | Touching anything under `apps/backend/` or `packages/drf-std-response/` |
+| Nuxt frontend | [`apps/frontend/AGENTS.md`](apps/frontend/AGENTS.md) | Touching anything under `apps/frontend/` |
+| AlienMark service | [`apps/alienmark/AGENTS.md`](apps/alienmark/AGENTS.md) | Touching the Fastify rendering service |
+| AlienMark parser | [`packages/alienmark/AGENTS.md`](packages/alienmark/AGENTS.md) | Touching the parser library or its public API |
+| DRF envelope lib | [`packages/drf-std-response/AGENTS.md`](packages/drf-std-response/AGENTS.md) | Touching the envelope / exception handler |
+| Documentation | [`docs/AGENTS.md`](docs/AGENTS.md) | Touching anything under `docs/` |
 
-## Tech Stacks
+If an area has no dedicated guide, follow the conventions already present in nearby code.
 
-- Monorepo tooling: pnpm workspaces, Turbo task orchestration, Vite+ Node quality/build tooling, Make targets, Docker Compose, and GitHub Actions.
-- Frontend: Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia, and the local `alienmark` workspace package.
-- Backend: Python 3.14, Django 6, Django REST Framework, Django Channels/Daphne, django-filter, django-cors-headers, and environs.
-- Backend persistence and runtime services: PostgreSQL, Redis, django-redis cache, Django sessions, RQ task workers via `django-tasks-rq`, and Pillow for image processing.
-- Media and storage: local filesystem storage in development/test paths, with S3-compatible storage through `django-storages` for hosted environments when configured.
-- Markdown rendering: `packages/alienmark` is a TypeScript Markdown parser/HTML renderer; `apps/alienmark` exposes it as an internal Fastify service used by the Django backend.
-- Documentation: MkDocs, Material for MkDocs, and `mkdocs-static-i18n`.
-- Operations and observability: Docker, Traefik labels in hosted compose files, Grafana, Loki, and Grafana Alloy.
-- Hosted environments use AWS infrastructure conventions and Cloudflare DNS for `aliencommons.com`.
+## Toolchains at a glance
+
+| Concern | Tool | Pinning |
+|---|---|---|
+| Node workspace | pnpm 11 workspaces + Turbo | `package.json`, `pnpm-workspace.yaml`, `turbo.json` |
+| Node quality/build | [Vite+](https://viteplus.dev) (`vp`) | root `vite.config.ts` (lint, format, type-aware checks) |
+| Python (backend + docs) | uv workspaces | root `pyproject.toml`, `uv.lock` |
+| Python lint | ruff | `apps/backend/ruff.toml` |
+| Containers | Docker Compose | `infra/compose/*.yml`, driven via `make/` |
+| CI | GitHub Actions | `.github/workflows/ci.yml` |
 
 ## Environments
 
-The project uses three environments:
+Three environments. Do not encode environment-specific values in source.
 
-- `dev` is local development.
-- `stg` is hosted on AWS and should mirror production as closely as practical.
-- `pro` is the production environment and is hosted on AWS.
+- **`dev`** — local, via Docker Compose (`make dev-up`).
+- **`stg`** — staging on AWS, mirrors production.
+- **`pro`** — production on AWS. DNS for `aliencommons.com` is in Cloudflare.
 
-DNS is managed in Cloudflare for `aliencommons.com`.
+## Common commands
 
-## Working Rules
+Run from the repository root unless noted.
 
-- Read the nearby code before changing it.
-- Check for nested `AGENTS.md` files and follow the closest applicable instructions.
-- Do not rewrite unrelated files or reformat broad areas without a reason.
-- Do not remove or revert user changes unless explicitly asked.
-- Keep secrets, credentials, and local environment files out of commits.
-- Use existing scripts, Make targets, and package commands when available.
-- Add or update tests when the change affects behavior.
+```bash
+# Full local stack (Postgres, Redis, backend, workers, frontend, AlienMark, observability)
+make dev-up
+
+# Node workspace (matches CI `node` job)
+pnpm install
+pnpm run check              # Turbo: build deps, then per-package check
+pnpm run knip               # advisory; pnpm run knip:strict to fail on findings
+
+# Backend (matches CI `backend-*` jobs)
+make dev-backend-test       # uses settings=test inside the backend-api container
+make dev-backend-check      # python manage.py check inside the backend-api container
+# Or locally inside apps/backend/:
+#   uv run python manage.py test
+#   uv run ruff check <app...> manage.py
+
+# Docs subproject (matches CI `docs-*` jobs); run inside docs/<name>/
+uv run mkdocs build --strict
+
+# Single Node package via Turbo filter
+pnpm turbo run check --filter=frontend
+pnpm turbo run check --filter=alienmark
+pnpm turbo run check --filter=alienmark-service
+```
+
+All other Make targets live in [`make/docker.mk`](make/docker.mk) and [`make/node.mk`](make/node.mk).
 
 ## Verification
 
-Run the smallest relevant checks for the change. If a check cannot be run, mention that in the final response.
+Run the **smallest** check that covers your change. If a check cannot be run, say so in your final response.
 
-| Area | Command | Notes |
-|------|---------|-------|
-| Node workspace (frontend, alienmark, alienmark-service) | `pnpm run check` | Turbo aggregate gate; matches the CI `node` job and builds workspace dependencies first. |
-| Node single package | `pnpm run <name>:check` or `pnpm turbo run check --filter=<name>` | Runs the package Vite+ check through the Turbo task graph. Examples: `frontend:check`, `alienmark:check`, `alienmark-service:check`. |
-| Node unused-code audit | `pnpm run knip` | Advisory only; reports unused files, exports, dependencies, and catalog entries without failing. Use `pnpm run knip:strict` for a blocking local audit. |
-| Backend (in `apps/backend/`) | `uv run python manage.py test` | See `apps/backend/AGENTS.md` for ruff and per-app guidance. |
-| Backend via Compose | `make dev-backend-test` / `make dev-backend-check` | Uses `infra/compose/docker-compose.dev.yml`. |
-| Docs subproject (in `docs/<name>/`) | `uv run mkdocs build --strict` | Matches the CI `docs-*` jobs. |
+| Change | Command |
+|---|---|
+| Any Node package (`apps/frontend`, `apps/alienmark`, `packages/alienmark`) | `pnpm run check` (or the package-specific filter) |
+| Backend behavior | `uv run python manage.py test` from `apps/backend/`, or `make dev-backend-test` |
+| Backend lint | `uv run ruff check <apps> manage.py` from `apps/backend/` |
+| Docs site | `uv run mkdocs build --strict` from `docs/<name>/` |
+| Unused-code audit (advisory) | `pnpm run knip` |
 
-For the full local stack, use `make dev-up`. Other Make targets live in `make/docker.mk` and `make/node.mk`.
+CI mirrors these in `.github/workflows/ci.yml`. If your change alters app names, settings modules, build commands, or verification steps, update the workflow too.
+
+## Working rules
+
+- **Read nearby code first.** Match the conventions already in the file or package you are touching.
+- **Follow the closest nested guide.** It overrides anything generic here.
+- **Don't widen scope.** No unrelated rewrites, no broad reformatting, no reverting user changes unless asked.
+- **Keep secrets out of source.** No credentials, access keys, or bucket names in committed files. Prefer environment variables and IAM roles.
+- **Treat migrations as part of model changes.** Add focused migrations when models change; don't edit applied migrations unless deliberately rewriting history.
+- **Add or update tests when behavior changes** — even if nobody asked.
+- **Keep generated artifacts out of diffs** (`.nuxt/`, `.output/`, `dist/`, `site/`, `staticfiles/`, `media/`, lockfile regeneration) unless the task is explicitly about them.
 
 ## Git
 
-- Use focused commits and clear commit messages.
-- Feature work should normally branch from `dev`. `main` is the release branch.
-- Production releases are represented by git tags. Do not encode release versions in this file.
-- Do not include a `Verification` section in pull request descriptions unless the user explicitly asks for one.
+- Focused commits with clear messages.
+- Feature work branches from `dev`. `main` is the release branch; releases are git tags.
+- Don't encode release versions in `AGENTS.md`.
+- Don't add a `Verification` section to PR descriptions unless explicitly asked.
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

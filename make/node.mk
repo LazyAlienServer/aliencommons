@@ -1,9 +1,6 @@
 PNPM = pnpm
-PNPM_FRONTEND = $(PNPM) --filter frontend
-PNPM_ALIENMARK = $(PNPM) --filter alienmark
-PNPM_ALIENMARK_SERVICE = $(PNPM) --filter alienmark-service
 
-.PHONY: node-install node-build node-test node-check node-typecheck node-lint node-style node-knip frontend-dev frontend-build frontend-check frontend-typecheck frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-typecheck alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check alienmark-service-typecheck
+.PHONY: node-install node-build node-test node-check node-typecheck node-lint node-fmt node-knip frontend-dev frontend-build frontend-check frontend-typecheck frontend-preview alienmark-dev alienmark-build alienmark-test alienmark-check alienmark-typecheck alienmark-service-dev alienmark-service-build alienmark-service-start alienmark-service-check alienmark-service-typecheck
 
 # NODE WORKSPACE
 node-install:
@@ -24,17 +21,17 @@ node-typecheck:
 node-lint:
 	$(PNPM) run lint:check
 
-node-style:
-	$(PNPM) run style:check
+node-fmt:
+	$(PNPM) run fmt:check
 
 node-knip:
 	$(PNPM) run knip
 
 frontend-dev:
-	$(PNPM_FRONTEND) dev
+	$(PNPM) run frontend:dev
 
 frontend-build:
-	$(PNPM_FRONTEND) build
+	$(PNPM) run frontend:build
 
 frontend-check:
 	$(PNPM) run frontend:check
@@ -43,13 +40,13 @@ frontend-typecheck:
 	$(PNPM) run frontend:typecheck
 
 frontend-preview:
-	$(PNPM_FRONTEND) preview
+	$(PNPM) run frontend:preview
 
 alienmark-dev:
-	$(PNPM_ALIENMARK) dev
+	$(PNPM) run alienmark:dev
 
 alienmark-build:
-	$(PNPM_ALIENMARK) build
+	$(PNPM) run alienmark:build
 
 alienmark-test:
 	$(PNPM) run alienmark:test
@@ -61,13 +58,13 @@ alienmark-typecheck:
 	$(PNPM) run alienmark:typecheck
 
 alienmark-service-dev:
-	$(PNPM_ALIENMARK_SERVICE) dev
+	$(PNPM) run alienmark-service:dev
 
 alienmark-service-build:
-	$(PNPM_ALIENMARK_SERVICE) build
+	$(PNPM) run alienmark-service:build
 
 alienmark-service-start:
-	$(PNPM_ALIENMARK_SERVICE) start
+	$(PNPM) run alienmark-service:start
 
 alienmark-service-check:
 	$(PNPM) run alienmark-service:check

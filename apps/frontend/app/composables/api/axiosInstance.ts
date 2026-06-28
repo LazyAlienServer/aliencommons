@@ -86,7 +86,7 @@ api.interceptors.response.use(
       isRefreshing = false;
       refreshPromise = undefined;
     }
-  },
+  }
 );
 
 // for requests outside the users system

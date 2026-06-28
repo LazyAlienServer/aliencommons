@@ -70,6 +70,7 @@ export default defineConfig({
     },
     printWidth: 80,
     sortPackageJson: false,
+    trailingComma: "es5",
     ignorePatterns: [
       "apps/frontend/.nuxt",
       "apps/frontend/.output",

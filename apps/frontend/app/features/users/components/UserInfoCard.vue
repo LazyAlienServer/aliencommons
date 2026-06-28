@@ -8,7 +8,7 @@ const toast = useToast();
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo);
 const avatarUrl = computed(
-  () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar,
+  () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar
 );
 
 const fileInput = ref<HTMLInputElement | undefined>(undefined);

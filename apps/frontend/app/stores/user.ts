@@ -19,7 +19,7 @@ export const useUserStore = defineStore("user", () => {
 
   /* Tools */
   const refreshTimer = ref<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
+    undefined
   );
 
   function scheduleTokenRefresh(expiresInSeconds: number) {
@@ -54,7 +54,7 @@ export const useUserStore = defineStore("user", () => {
     localStorage.setItem("accessToken", newAccess);
     setRefreshToken(
       response.data.data.refresh,
-      parseInt(response.data.data.refresh_token_lifetime),
+      parseInt(response.data.data.refresh_token_lifetime)
     );
 
     await loadUserInfo();

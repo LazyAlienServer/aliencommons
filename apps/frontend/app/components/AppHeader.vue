@@ -28,7 +28,7 @@ const userStore = useUserStore();
 const themeStore = useThemeStore();
 const userInfo = computed(() => userStore.userInfo);
 const avatarUrl = computed(
-  () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar,
+  () => import.meta.env.VITE_API_BASE_URL + userStore.userInfo.avatar
 );
 
 const showPageHeader = computed(() => {

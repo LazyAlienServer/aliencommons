@@ -15,7 +15,7 @@ async function loadSnapshot() {
   } catch (error) {
     console.warn(
       "Failed to fetch channel snapshot:",
-      extractErrorMessage(error),
+      extractErrorMessage(error)
     );
   }
 }

@@ -17,21 +17,21 @@ describe("alienmark", () => {
 
   it("renders inline markdown", () => {
     const html = renderMarkdown(
-      "Use **bold**, __bold too__, *italic*, `code`, and [links](https://example.com).",
+      "Use **bold**, __bold too__, *italic*, `code`, and [links](https://example.com)."
     );
 
     expect(html).toBe(
-      '<p>Use <strong>bold</strong>, <strong>bold too</strong>, <em>italic</em>, <code>code</code>, and <a href="https://example.com">links</a>.</p>',
+      '<p>Use <strong>bold</strong>, <strong>bold too</strong>, <em>italic</em>, <code>code</code>, and <a href="https://example.com">links</a>.</p>'
     );
   });
 
   it("renders images", () => {
     const html = renderMarkdown(
-      'Logo: ![Alien "logo"](https://example.com/logo.png?x=<tag>)',
+      'Logo: ![Alien "logo"](https://example.com/logo.png?x=<tag>)'
     );
 
     expect(html).toBe(
-      '<p>Logo: <img src="https://example.com/logo.png?x=&lt;tag&gt;" alt="Alien &quot;logo&quot;" /></p>',
+      '<p>Logo: <img src="https://example.com/logo.png?x=&lt;tag&gt;" alt="Alien &quot;logo&quot;" /></p>'
     );
   });
 
@@ -52,7 +52,7 @@ describe("alienmark", () => {
     const html = renderMarkdown(markdown);
 
     expect(html).toBe(
-      '<pre><code class="language-ts">const answer = 42;</code></pre><blockquote><p>quoted</p></blockquote><ul><li><p>first</p></li><li><p>second</p></li></ul><hr />',
+      '<pre><code class="language-ts">const answer = 42;</code></pre><blockquote><p>quoted</p></blockquote><ul><li><p>first</p></li><li><p>second</p></li></ul><hr />'
     );
   });
 

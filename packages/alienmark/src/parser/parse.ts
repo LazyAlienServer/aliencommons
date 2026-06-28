@@ -17,7 +17,7 @@ const UNORDERED_LIST_RE = /^[-*]\s+(.*)$/;
 
 export function parse(
   markdown: string,
-  options: ParseOptions = {},
+  options: ParseOptions = {}
 ): DocumentNode {
   const normalized = markdown.replace(/\r\n?/g, "\n");
   const lines = normalized.split("\n");
@@ -87,7 +87,7 @@ export function parse(
 
 function parseCodeBlock(
   lines: string[],
-  startIndex: number,
+  startIndex: number
 ): { node: CodeBlockNode; nextIndex: number } {
   const openingLine = getLine(lines, startIndex).trim();
   const language = openingLine.slice(3).trim() || undefined;
@@ -116,7 +116,7 @@ function parseCodeBlock(
 function parseBlockquote(
   lines: string[],
   startIndex: number,
-  options: ParseOptions,
+  options: ParseOptions
 ): { node: BlockquoteNode; nextIndex: number } {
   const collected: string[] = [];
   let index = startIndex;
@@ -150,7 +150,7 @@ function parseBlockquote(
 function parseList(
   lines: string[],
   startIndex: number,
-  options: ParseOptions,
+  options: ParseOptions
 ): { node: ListNode; nextIndex: number } {
   const firstLine = prepareLine(getLine(lines, startIndex), options);
   const orderedMatch = firstLine.match(ORDERED_LIST_RE);
@@ -200,7 +200,7 @@ function parseList(
 function parseParagraph(
   lines: string[],
   startIndex: number,
-  options: ParseOptions,
+  options: ParseOptions
 ): { node: ParagraphNode; nextIndex: number } {
   const collected: string[] = [];
   let index = startIndex;

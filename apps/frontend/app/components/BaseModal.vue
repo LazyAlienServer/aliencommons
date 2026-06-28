@@ -28,7 +28,7 @@ watch(
       unlockBody();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 function handleKeydown(e) {

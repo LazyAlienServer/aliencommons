@@ -20,7 +20,7 @@ const useThemeStore = defineStore("theme", () => {
       applyTheme(storedTheme);
     } else {
       const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
+        "(prefers-color-scheme: dark)"
       ).matches;
       applyTheme(prefersDark ? "dark" : "light");
     }

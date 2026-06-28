@@ -67,7 +67,7 @@ app.post<{ Body: RenderHtmlBody }>(
     return {
       html: renderMarkdown(request.body.markdown),
     };
-  },
+  }
 );
 
 const host = readHost();

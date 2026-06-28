@@ -18,7 +18,7 @@ function createSourceArticle() {
 function updateSourceArticle(
   id: string | number,
   title: string,
-  markdown: string,
+  markdown: string
 ) {
   return api.patch(
     `/source_articles/${id}/`,
@@ -26,7 +26,7 @@ function updateSourceArticle(
       title: title,
       markdown: markdown,
     },
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 
@@ -34,7 +34,7 @@ function submitArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/submit/`,
     {},
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 
@@ -42,7 +42,7 @@ function withdrawArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/withdraw/`,
     {},
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 
@@ -50,7 +50,7 @@ function approveArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/approve/`,
     {},
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 
@@ -58,7 +58,7 @@ function rejectArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/reject/`,
     {},
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 
@@ -66,7 +66,7 @@ function unpublishArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/unpublish/`,
     {},
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 
@@ -74,7 +74,7 @@ function deleteArticle(id: string | number) {
   return api.post(
     `/source_articles/${id}/delete/`,
     {},
-    { withCredentials: true },
+    { withCredentials: true }
   );
 }
 

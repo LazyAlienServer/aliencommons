@@ -4,14 +4,14 @@ import { renderHtml } from "./renderer/render-html.js";
 
 export function renderMarkdown(
   markdown: string,
-  options?: ParseOptions,
+  options?: ParseOptions
 ): string {
   return renderHtml(parse(markdown, options));
 }
 
 export function parseMarkdown(
   markdown: string,
-  options?: ParseOptions,
+  options?: ParseOptions
 ): DocumentNode {
   return parse(markdown, options);
 }

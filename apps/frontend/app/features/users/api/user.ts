@@ -3,7 +3,7 @@ import { api, apiBare } from "~/composables/api";
 function createProfile(
   email: string,
   password: string,
-  confirmPassword: string,
+  confirmPassword: string
 ) {
   return apiBare.post("/profiles/", {
     email: email,

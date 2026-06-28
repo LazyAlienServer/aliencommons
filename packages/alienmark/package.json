@@ -20,10 +20,10 @@
     "check": "vp check",
     "check:fix": "vp check --fix",
     "dev": "vp pack --watch",
+    "fmt:check": "vp fmt --check",
+    "fmt:fix": "vp fmt",
     "lint:check": "vp lint",
     "lint:fix": "vp lint --fix",
-    "style:check": "vp fmt --check",
-    "style:fix": "vp fmt",
     "typecheck": "tsc --noEmit",
     "test": "vp test run"
   },

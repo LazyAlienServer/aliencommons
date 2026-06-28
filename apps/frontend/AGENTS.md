@@ -40,7 +40,7 @@ Nuxt auto-imports `composables/`, `utils/`, and `components/`. Don't add manual 
 | Full check (lint + format + type-aware) | `pnpm run frontend:check` |
 | Typecheck only | `pnpm run frontend:typecheck` (`vue-tsc --noEmit`) |
 | Lint | `pnpm run frontend:lint` |
-| Format check | `pnpm run frontend:style` |
+| Format check | `pnpm run frontend:fmt` |
 | Production build | `pnpm run frontend:build` (`nuxt build`) |
 | Preview built app | `pnpm run frontend:preview` |
 

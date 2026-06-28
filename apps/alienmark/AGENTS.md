@@ -35,7 +35,7 @@ The server uses top-level `await` on `app.listen` — it's an ESM entrypoint, no
 | Full check | `pnpm run alienmark-service:check` |
 | Typecheck | `pnpm run alienmark-service:typecheck` (`tsc --noEmit`) |
 | Lint | `pnpm run alienmark-service:lint` |
-| Format check | `pnpm run alienmark-service:style` |
+| Format check | `pnpm run alienmark-service:fmt` |
 
 ## Conventions
 

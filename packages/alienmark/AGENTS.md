@@ -73,7 +73,7 @@ test/
 | Full check | `pnpm run alienmark:check` |
 | Typecheck | `pnpm run alienmark:typecheck` (`tsc --noEmit`) |
 | Lint | `pnpm run alienmark:lint` |
-| Format check | `pnpm run alienmark:style` |
+| Format check | `pnpm run alienmark:fmt` |
 
 ## Rules
 

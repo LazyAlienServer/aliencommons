@@ -86,10 +86,10 @@ Vite+ is the package-level tool. Each Node package should expose the same basic 
 {
   "check": "vp check",
   "check:fix": "vp check --fix",
+  "fmt:check": "vp fmt --check",
+  "fmt:fix": "vp fmt",
   "lint:check": "vp lint",
-  "lint:fix": "vp lint --fix",
-  "style:check": "vp fmt --check",
-  "style:fix": "vp fmt"
+  "lint:fix": "vp lint --fix"
 }
 ```
 
@@ -149,7 +149,7 @@ When adding or changing a Node package:
 
 1. Add it under a path included by `pnpm-workspace.yaml`.
 2. Use `workspace:*` for local package dependencies.
-3. Add standard Vite+ scripts such as `check`, `lint:check`, `style:check`, and `typecheck` when applicable.
+3. Add standard Vite+ scripts such as `check`, `fmt:check`, `lint:check`, and `typecheck` when applicable.
 4. Let root scripts and Make targets call Turbo instead of manually sequencing package dependencies.
 5. Update `turbo.json` when a new task has outputs, needs upstream builds, is persistent, or should not be cached.
 6. Update CI path filters when a new root-level Node tooling file can affect the Node job.

@@ -27,9 +27,9 @@
     "lint:fix": {
       "cache": false
     },
-    "style": {},
-    "style:check": {},
-    "style:fix": {
+    "fmt": {},
+    "fmt:check": {},
+    "fmt:fix": {
       "cache": false
     },
     "dev": {

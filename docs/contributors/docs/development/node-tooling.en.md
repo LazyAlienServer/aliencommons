@@ -115,15 +115,15 @@ pnpm run typecheck  # TypeScript checks through Turbo
 pnpm run knip       # advisory unused-code and unused-dependency report
 ```
 
-Single-package convenience scripts are available when the scope is known:
+Use Turbo filters directly when the scope is known:
 
 ```bash
-pnpm run frontend:check
-pnpm run alienmark:build
-pnpm run alienmark-service:check
+pnpm turbo run check --filter=frontend
+pnpm turbo run build --filter=alienmark
+pnpm turbo run check --filter=alienmark-service
 ```
 
-These root convenience scripts should prefer Turbo for tasks that need dependency ordering, especially `build`, `check`, `test`, and `typecheck`.
+Do not add root wrapper scripts such as `frontend:check`; Turbo's filter syntax is the package-scoped interface.
 
 Direct `pnpm --filter <name> ...` commands are still useful for long-running dev servers:
 

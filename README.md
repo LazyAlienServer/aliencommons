@@ -108,7 +108,7 @@ pnpm run typecheck  # Turbo: run package type checks
 pnpm run knip       # Advisory unused-code and unused-dependency report
 ```
 
-Single-package convenience scripts are available from the root, such as `pnpm run frontend:check`, `pnpm run alienmark:build`, and `pnpm run alienmark-service:check`. Turbo uses the pnpm workspace graph so packages depending on `alienmark` get its build first. Vite+ configuration lives in [`vite.config.ts`](vite.config.ts), Turbo task rules live in [`turbo.json`](turbo.json), and Knip advisory rules live in [`knip.jsonc`](knip.jsonc). Knip is intentionally separate from `pnpm run check`; use `pnpm run knip:strict` only when you want unused-code findings to produce a non-zero exit code.
+Use Turbo filters directly for single-package work, for example `pnpm turbo run check --filter=frontend` or `pnpm turbo run build --filter=alienmark-service`. Turbo uses the pnpm workspace graph so packages depending on `alienmark` get its build first. Vite+ configuration lives in [`vite.config.ts`](vite.config.ts), Turbo task rules live in [`turbo.json`](turbo.json), and Knip advisory rules live in [`knip.jsonc`](knip.jsonc). Knip is intentionally separate from `pnpm run check`; use `pnpm run knip:strict` only when you want unused-code findings to produce a non-zero exit code.
 
 ## Project Structure
 

@@ -67,13 +67,13 @@ test/
 
 | Action | Command |
 |---|---|
-| Build (lib) | `pnpm run alienmark:build` |
-| Dev (watch) | `pnpm run alienmark:dev` |
-| Tests | `pnpm run alienmark:test` (`vp test run`) |
-| Full check | `pnpm run alienmark:check` |
-| Typecheck | `pnpm run alienmark:typecheck` (`tsc --noEmit`) |
-| Lint | `pnpm run alienmark:lint` |
-| Format check | `pnpm run alienmark:fmt` |
+| Build (lib) | `pnpm turbo run build --filter=alienmark` |
+| Dev (watch) | `pnpm --filter alienmark dev` |
+| Tests | `pnpm turbo run test --filter=alienmark` (`vp test run`) |
+| Full check | `pnpm turbo run check --filter=alienmark` |
+| Typecheck | `pnpm turbo run typecheck --filter=alienmark` (`tsc --noEmit`) |
+| Lint | `pnpm turbo run lint:check --filter=alienmark` |
+| Format check | `pnpm turbo run fmt:check --filter=alienmark` |
 
 ## Rules
 
@@ -87,9 +87,9 @@ test/
 ## Verification
 
 ```bash
-pnpm run alienmark:test       # Vitest
-pnpm run alienmark:check      # vp check (lint + format + type-aware)
-pnpm run alienmark:typecheck  # tsc --noEmit
+pnpm turbo run test --filter=alienmark       # Vitest
+pnpm turbo run check --filter=alienmark      # vp check (lint + format + type-aware)
+pnpm turbo run typecheck --filter=alienmark  # tsc --noEmit
 ```
 
 CI publishes this package from the `main` branch via `.github/workflows/alienmark-package-publish.yml`. Don't change the publish workflow's package name, registry, or version source without coordinating.

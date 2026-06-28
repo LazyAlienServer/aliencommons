@@ -115,15 +115,15 @@ pnpm run typecheck  # 通过 Turbo 运行 TypeScript 检查
 pnpm run knip       # 提示性的未使用代码和未使用依赖报告
 ```
 
-如果已经知道具体作用域，也可以使用根目录提供的单包便捷脚本：
+如果已经知道具体作用域，直接使用 Turbo filter：
 
 ```bash
-pnpm run frontend:check
-pnpm run alienmark:build
-pnpm run alienmark-service:check
+pnpm turbo run check --filter=frontend
+pnpm turbo run build --filter=alienmark
+pnpm turbo run check --filter=alienmark-service
 ```
 
-这些根便捷脚本在涉及依赖顺序的任务上应优先使用 Turbo，尤其是 `build`、`check`、`test` 和 `typecheck`。
+不要新增类似 `frontend:check` 的根 wrapper 脚本；Turbo 的 filter 语法就是包级作用域接口。
 
 直接使用 `pnpm --filter <name> ...` 仍然适合长期运行的开发服务器：
 

@@ -29,13 +29,13 @@ The server uses top-level `await` on `app.listen` — it's an ESM entrypoint, no
 
 | Action | Command |
 |---|---|
-| Dev (watch) | `pnpm run alienmark-service:dev` (`tsx watch src/server.ts`) |
-| Build | `pnpm run alienmark-service:build` → `dist/server.mjs` |
-| Start (built) | `pnpm run alienmark-service:start` (`node dist/server.mjs`) |
-| Full check | `pnpm run alienmark-service:check` |
-| Typecheck | `pnpm run alienmark-service:typecheck` (`tsc --noEmit`) |
-| Lint | `pnpm run alienmark-service:lint` |
-| Format check | `pnpm run alienmark-service:fmt` |
+| Dev (watch) | `pnpm --filter alienmark-service dev` (`tsx watch src/server.ts`) |
+| Build | `pnpm turbo run build --filter=alienmark-service` → `dist/server.mjs` |
+| Start (built) | `pnpm --filter alienmark-service start` (`node dist/server.mjs`) |
+| Full check | `pnpm turbo run check --filter=alienmark-service` |
+| Typecheck | `pnpm turbo run typecheck --filter=alienmark-service` (`tsc --noEmit`) |
+| Lint | `pnpm turbo run lint:check --filter=alienmark-service` |
+| Format check | `pnpm turbo run fmt:check --filter=alienmark-service` |
 
 ## Conventions
 
@@ -54,14 +54,14 @@ The server uses top-level `await` on `app.listen` — it's an ESM entrypoint, no
 ## Verification
 
 ```bash
-pnpm run alienmark-service:check      # vp check (lint + format + type-aware)
-pnpm run alienmark-service:typecheck  # tsc --noEmit
+pnpm turbo run check --filter=alienmark-service      # vp check (lint + format + type-aware)
+pnpm turbo run typecheck --filter=alienmark-service  # tsc --noEmit
 ```
 
 For behavioral changes, also exercise the running service:
 
 ```bash
-pnpm run alienmark-service:build && pnpm run alienmark-service:start
+pnpm turbo run build --filter=alienmark-service && pnpm --filter alienmark-service start
 # in another terminal:
 curl -s localhost:8787/health
 curl -s -X POST localhost:8787/render-html -H 'content-type: application/json' -d '{"markdown":"# hi"}'

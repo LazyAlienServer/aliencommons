@@ -36,13 +36,13 @@ Nuxt auto-imports `composables/`, `utils/`, and `components/`. Don't add manual 
 
 | Action | Command |
 |---|---|
-| Dev server | `pnpm run frontend:dev` (or `make frontend-dev`) |
-| Full check (lint + format + type-aware) | `pnpm run frontend:check` |
-| Typecheck only | `pnpm run frontend:typecheck` (`vue-tsc --noEmit`) |
-| Lint | `pnpm run frontend:lint` |
-| Format check | `pnpm run frontend:fmt` |
-| Production build | `pnpm run frontend:build` (`nuxt build`) |
-| Preview built app | `pnpm run frontend:preview` |
+| Dev server | `pnpm --filter frontend dev` (or `make frontend-dev`) |
+| Full check (lint + format + type-aware) | `pnpm turbo run check --filter=frontend` |
+| Typecheck only | `pnpm turbo run typecheck --filter=frontend` (`vue-tsc --noEmit`) |
+| Lint | `pnpm turbo run lint:check --filter=frontend` |
+| Format check | `pnpm turbo run fmt:check --filter=frontend` |
+| Production build | `pnpm turbo run build --filter=frontend` (`nuxt build`) |
+| Preview built app | `pnpm --filter frontend preview` |
 
 The check pipeline runs through Turbo with `dependsOn: ["^build"]`, so the `alienmark` workspace dependency is built first. Run `pnpm run check` from the root to check the whole Node workspace in dependency order.
 
@@ -67,8 +67,8 @@ The check pipeline runs through Turbo with `dependsOn: ["^build"]`, so the `alie
 ## Verification
 
 ```bash
-pnpm run frontend:check      # = vp check (lint + format + type-aware)
-pnpm run frontend:typecheck  # vue-tsc only
+pnpm turbo run check --filter=frontend      # = vp check (lint + format + type-aware)
+pnpm turbo run typecheck --filter=frontend  # vue-tsc only
 ```
 
-If a UI/UX change is non-trivial, verify visually in the dev server (`pnpm run frontend:dev`) in addition to the check gate.
+If a UI/UX change is non-trivial, verify visually in the dev server (`pnpm --filter frontend dev`) in addition to the check gate.

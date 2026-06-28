@@ -28,46 +28,46 @@ node-knip:
 	$(PNPM) run knip
 
 frontend-dev:
-	$(PNPM) run frontend:dev
+	$(PNPM) --filter frontend dev
 
 frontend-build:
-	$(PNPM) run frontend:build
+	$(PNPM) turbo run build --filter=frontend
 
 frontend-check:
-	$(PNPM) run frontend:check
+	$(PNPM) turbo run check --filter=frontend
 
 frontend-typecheck:
-	$(PNPM) run frontend:typecheck
+	$(PNPM) turbo run typecheck --filter=frontend
 
 frontend-preview:
-	$(PNPM) run frontend:preview
+	$(PNPM) --filter frontend preview
 
 alienmark-dev:
-	$(PNPM) run alienmark:dev
+	$(PNPM) --filter alienmark dev
 
 alienmark-build:
-	$(PNPM) run alienmark:build
+	$(PNPM) turbo run build --filter=alienmark
 
 alienmark-test:
-	$(PNPM) run alienmark:test
+	$(PNPM) turbo run test --filter=alienmark
 
 alienmark-check:
-	$(PNPM) run alienmark:check
+	$(PNPM) turbo run check --filter=alienmark
 
 alienmark-typecheck:
-	$(PNPM) run alienmark:typecheck
+	$(PNPM) turbo run typecheck --filter=alienmark
 
 alienmark-service-dev:
-	$(PNPM) run alienmark-service:dev
+	$(PNPM) --filter alienmark-service dev
 
 alienmark-service-build:
-	$(PNPM) run alienmark-service:build
+	$(PNPM) turbo run build --filter=alienmark-service
 
 alienmark-service-start:
-	$(PNPM) run alienmark-service:start
+	$(PNPM) --filter alienmark-service start
 
 alienmark-service-check:
-	$(PNPM) run alienmark-service:check
+	$(PNPM) turbo run check --filter=alienmark-service
 
 alienmark-service-typecheck:
-	$(PNPM) run alienmark-service:typecheck
+	$(PNPM) turbo run typecheck --filter=alienmark-service

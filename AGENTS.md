@@ -97,7 +97,7 @@ Run the **smallest** check that covers your change. If a check cannot be run, sa
 
 | Change | Command |
 |---|---|
-| Any Node package (`apps/frontend`, `apps/alienmark`, `packages/alienmark`) | `pnpm run check` (or the package-specific filter) |
+| Any Node package (`apps/frontend`, `apps/alienmark`, `packages/alienmark`) | `pnpm run check` (full workspace) or `pnpm turbo run check --filter=<package>` (single package) |
 | Backend behavior | `uv run python manage.py test` from `apps/backend/`, or `make dev-backend-test` |
 | Backend lint | `uv run ruff check <apps> manage.py` from `apps/backend/` |
 | Docs site | `uv run mkdocs build --strict` from `docs/<name>/` |

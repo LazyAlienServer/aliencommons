@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "alienmark": "workspace:*",
-    "fastify": "^5.6.2"
+    "fastify": "^5.9.0"
   }
 }

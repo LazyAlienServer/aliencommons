@@ -3,7 +3,7 @@ name = "drf-std-response"
 version = "0.1.0"
 description = "Standard response envelope helpers for Django REST Framework."
 requires-python = ">=3.14"
-dependencies = ["django==6.0.6", "djangorestframework==3.17.1"]
+dependencies = ["django==6.0.7", "djangorestframework==3.17.1"]
 
 [tool.uv]
 add-bounds = "exact"

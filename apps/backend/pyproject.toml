@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff==0.15.20"]
+dev = ["ruff==0.15.21"]
 
 [tool.uv]
 add-bounds = "exact"

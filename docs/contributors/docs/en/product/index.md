@@ -40,9 +40,9 @@ AlienCommons primarily serves two groups:
 
 ## Continue Reading
 
-- [User Roles](roles.en.md)
-- [Columns](articles.en.md)
-- [Content Discovery](discovery.en.md)
-- [Community Interaction](community.en.md)
-- [Reports and Administration](moderation.en.md)
-- [Open Questions](open-questions.en.md)
+- [User Roles](roles.md)
+- [Columns](articles.md)
+- [Content Discovery](discovery.md)
+- [Community Interaction](community.md)
+- [Reports and Administration](moderation.md)
+- [Open Questions](open-questions.md)

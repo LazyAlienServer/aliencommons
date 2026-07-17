@@ -5,7 +5,7 @@
 
 ## What this is
 
-AlienCommons is a community platform for Technical Minecraft players. It is a polyglot monorepo: a Django 6 backend, a Nuxt 4 frontend, an internal Fastify Markdown-rendering service, a TypeScript Markdown parser library, a DRF envelope library, three MkDocs documentation sites, and the Docker/observability wiring to run all of it.
+AlienCommons is a community platform for Technical Minecraft players. It is a polyglot monorepo: a Django 6 backend, a Nuxt 4 frontend, an internal Fastify Markdown-rendering service, a TypeScript Markdown parser library, a DRF envelope library, three Zensical documentation sites, and the Docker/observability wiring to run all of it.
 
 ## Repository map
 
@@ -18,7 +18,7 @@ aliencommons/
 ├── packages/
 │   ├── alienmark/        TypeScript Markdown parser + HTML renderer (published to GitHub Packages).
 │   └── drf-std-response/ DRF response-envelope + exception-handler library used by the backend.
-├── docs/                Three MkDocs sites (users, contributors, alienmark). See docs/AGENTS.md.
+├── docs/                Three Zensical sites (users, contributors, alienmark). See docs/AGENTS.md.
 ├── infra/compose/       Docker Compose files for dev / stg / pro / proxy.
 ├── o11y/                Grafana, Loki, Grafana Alloy configs.
 ├── make/                docker.mk + node.mk, included by the root Makefile.
@@ -81,7 +81,8 @@ make dev-backend-check      # python manage.py check inside the backend-api cont
 #   uv run ruff check <app...> manage.py
 
 # Docs subproject (matches CI `docs-*` jobs); run inside docs/<name>/
-uv run mkdocs build --strict
+uv run zensical build --strict
+uv run zensical build --strict --config-file zensical.zh.toml
 
 # Single Node package via Turbo filter
 pnpm turbo run check --filter=frontend
@@ -100,7 +101,7 @@ Run the **smallest** check that covers your change. If a check cannot be run, sa
 | Any Node package (`apps/frontend`, `apps/alienmark`, `packages/alienmark`) | `pnpm run check` (full workspace) or `pnpm turbo run check --filter=<package>` (single package) |
 | Backend behavior | `uv run python manage.py test` from `apps/backend/`, or `make dev-backend-test` |
 | Backend lint | `uv run ruff check <apps> manage.py` from `apps/backend/` |
-| Docs site | `uv run mkdocs build --strict` from `docs/<name>/` |
+| Docs site | Run both strict Zensical builds from `docs/<name>/` (default English config, then `zensical.zh.toml`) |
 | Unused-code audit (advisory) | `pnpm run knip` |
 
 CI mirrors these in `.github/workflows/ci.yml`. If your change alters app names, settings modules, build commands, or verification steps, update the workflow too.

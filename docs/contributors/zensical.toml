@@ -1,0 +1,32 @@
+[project]
+site_name = "AlienCommons Docs"
+site_url = "https://lazyalienserver.github.io/aliencommons/"
+docs_dir = "docs/en"
+site_dir = "site"
+nav = [
+  { Home = "index.md" },
+  { Overview = "overview.md" },
+  { Product = [
+    "product/index.md",
+    { Roles = "product/roles.md" },
+    { Columns = "product/articles.md" },
+    { Discovery = "product/discovery.md" },
+    { Community = "product/community.md" },
+    { Moderation = "product/moderation.md" },
+    { "Open Questions" = "product/open-questions.md" },
+  ] },
+  { Architecture = "architecture.md" },
+  { Development = [
+    { Setup = "development/setup.md" },
+    { "Node Tooling" = "development/node-tooling.md" },
+  ] },
+]
+
+[project.theme]
+language = "en"
+
+[project.extra]
+alternate = [
+  { name = "English", link = "/aliencommons/", lang = "en" },
+  { name = "中文", link = "/aliencommons/zh/", lang = "zh" },
+]

@@ -43,8 +43,11 @@ jobs:
       - name: Install docs dependencies
         run: uv sync --project ../.. --locked --package alienmark-docs
 
-      - name: Build MkDocs site
-        run: uv run --project ../.. --package alienmark-docs mkdocs build --strict
+      - name: Build English Zensical site
+        run: uv run --project ../.. --package alienmark-docs zensical build --strict
+
+      - name: Build Chinese Zensical site
+        run: uv run --project ../.. --package alienmark-docs zensical build --strict --config-file zensical.zh.toml
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6

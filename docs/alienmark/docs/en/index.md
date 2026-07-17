@@ -33,4 +33,4 @@ Supported today:
 
 ## Read Next
 
-- [Syntax Reference](syntax.en.md)
+- [Syntax Reference](syntax.md)

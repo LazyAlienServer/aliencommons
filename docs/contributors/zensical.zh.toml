@@ -1,0 +1,32 @@
+[project]
+site_name = "AlienCommons 文档"
+site_url = "https://lazyalienserver.github.io/aliencommons/zh/"
+docs_dir = "docs/zh"
+site_dir = "site/zh"
+nav = [
+  { "首页" = "index.md" },
+  { "概览" = "overview.md" },
+  { "产品设计" = [
+    "product/index.md",
+    { "用户角色" = "product/roles.md" },
+    { "专栏作品" = "product/articles.md" },
+    { "内容发现" = "product/discovery.md" },
+    { "社区互动" = "product/community.md" },
+    { "举报与管理" = "product/moderation.md" },
+    { "开放问题" = "product/open-questions.md" },
+  ] },
+  { "架构" = "architecture.md" },
+  { "开发" = [
+    { "开发设置" = "development/setup.md" },
+    { "Node 工具链" = "development/node-tooling.md" },
+  ] },
+]
+
+[project.theme]
+language = "zh"
+
+[project.extra]
+alternate = [
+  { name = "English", link = "/aliencommons/", lang = "en" },
+  { name = "中文", link = "/aliencommons/zh/", lang = "zh" },
+]

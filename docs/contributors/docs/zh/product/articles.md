@@ -61,7 +61,7 @@ stateDiagram-v2
 - 新版本审核通过后，才会替换线上公开版本。
 - 被编辑撤稿的作品不会被删除。
 
-撤稿后应进入何种状态，以及是否增加 `Archived` 状态，仍待确定。参见[开放问题](open-questions.zh.md)。
+撤稿后应进入何种状态，以及是否增加 `Archived` 状态，仍待确定。参见[开放问题](open-questions.md)。
 
 ## 文集
 

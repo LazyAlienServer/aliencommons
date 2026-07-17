@@ -1,0 +1,14 @@
+[project]
+site_name = "AlienCommons User Guide"
+docs_dir = "docs/en"
+site_dir = "site"
+nav = [{ Home = "index.md" }]
+
+[project.theme]
+language = "en"
+
+[project.extra]
+alternate = [
+  { name = "English", link = "/", lang = "en" },
+  { name = "中文", link = "/zh/", lang = "zh" },
+]

@@ -143,7 +143,7 @@ aliencommons/
 | 贡献者    | 架构、环境搭建、开发流程 | [`docs/contributors/`](docs/contributors/) |
 | AlienMark | Markdown 语法参考和 API  | [`docs/alienmark/`](docs/alienmark/)       |
 
-所有文档均提供英文和中文版本，使用 [MkDocs](https://www.mkdocs.org/) 和 [Material](https://squidfunk.github.io/mkdocs-material/) 主题构建。
+所有文档均提供英文和中文版本，使用 [Zensical](https://zensical.org/) 构建。
 
 请注意，在当前阶段，部分资料可能尚未完全保持最新。
 

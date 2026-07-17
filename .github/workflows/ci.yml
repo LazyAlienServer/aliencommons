@@ -242,8 +242,11 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --project ../.. --locked --package aliencommons-contributor-docs
 
-      - name: Build and validate MkDocs site
-        run: uv run --project ../.. --package aliencommons-contributor-docs mkdocs build --strict
+      - name: Build and validate English Zensical site
+        run: uv run --project ../.. --package aliencommons-contributor-docs zensical build --strict
+
+      - name: Build and validate Chinese Zensical site
+        run: uv run --project ../.. --package aliencommons-contributor-docs zensical build --strict --config-file zensical.zh.toml
 
   docs-alienmark:
     runs-on: ubuntu-latest
@@ -274,8 +277,11 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --project ../.. --locked --package alienmark-docs
 
-      - name: Build and validate MkDocs site
-        run: uv run --project ../.. --package alienmark-docs mkdocs build --strict
+      - name: Build and validate English Zensical site
+        run: uv run --project ../.. --package alienmark-docs zensical build --strict
+
+      - name: Build and validate Chinese Zensical site
+        run: uv run --project ../.. --package alienmark-docs zensical build --strict --config-file zensical.zh.toml
 
   docs-users:
     runs-on: ubuntu-latest
@@ -306,5 +312,8 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --project ../.. --locked --package aliencommons-user-guide
 
-      - name: Build and validate MkDocs site
-        run: uv run --project ../.. --package aliencommons-user-guide mkdocs build --strict
+      - name: Build and validate English Zensical site
+        run: uv run --project ../.. --package aliencommons-user-guide zensical build --strict
+
+      - name: Build and validate Chinese Zensical site
+        run: uv run --project ../.. --package aliencommons-user-guide zensical build --strict --config-file zensical.zh.toml

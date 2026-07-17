@@ -40,9 +40,9 @@ AlienCommons 主要服务于两类用户：
 
 ## 继续阅读
 
-- [用户角色](roles.zh.md)
-- [专栏作品](articles.zh.md)
-- [内容发现](discovery.zh.md)
-- [社区互动](community.zh.md)
-- [举报与管理](moderation.zh.md)
-- [开放问题](open-questions.zh.md)
+- [用户角色](roles.md)
+- [专栏作品](articles.md)
+- [内容发现](discovery.md)
+- [社区互动](community.md)
+- [举报与管理](moderation.md)
+- [开放问题](open-questions.md)

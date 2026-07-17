@@ -143,7 +143,7 @@ aliencommons/
 | Contributors | Architecture, setup, development workflow | [`docs/contributors/`](docs/contributors/) |
 | AlienMark    | Markdown syntax reference and API         | [`docs/alienmark/`](docs/alienmark/)       |
 
-All documentation is available in English and Chinese (中文) and built with [MkDocs](https://www.mkdocs.org/) using the [Material](https://squidfunk.github.io/mkdocs-material/) theme.
+All documentation is available in English and Chinese (中文) and built with [Zensical](https://zensical.org/).
 
 Please note that some materials may be not fully up-to-date in this stage.
 

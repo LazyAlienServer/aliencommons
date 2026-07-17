@@ -1,0 +1,14 @@
+[project]
+site_name = "AlienCommons 用户指南"
+docs_dir = "docs/zh"
+site_dir = "site/zh"
+nav = [{ "首页" = "index.md" }]
+
+[project.theme]
+language = "zh"
+
+[project.extra]
+alternate = [
+  { name = "English", link = "/", lang = "en" },
+  { name = "中文", link = "/zh/", lang = "zh" },
+]

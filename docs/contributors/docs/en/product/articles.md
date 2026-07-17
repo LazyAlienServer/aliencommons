@@ -61,7 +61,7 @@ Confirmed rules:
 - The new version replaces the public version only after approval.
 - A work unpublished by an editor is not deleted.
 
-The state entered after unpublishing and whether an `Archived` state should be added are still undecided. See [Open Questions](open-questions.en.md).
+The state entered after unpublishing and whether an `Archived` state should be added are still undecided. See [Open Questions](open-questions.md).
 
 ## Collections
 

@@ -51,8 +51,11 @@ jobs:
       - name: Install documentation dependencies
         run: uv sync --project ../.. --locked --package aliencommons-contributor-docs
 
-      - name: Build MkDocs site
-        run: uv run --project ../.. --package aliencommons-contributor-docs mkdocs build --strict
+      - name: Build English Zensical site
+        run: uv run --project ../.. --package aliencommons-contributor-docs zensical build --strict
+
+      - name: Build Chinese Zensical site
+        run: uv run --project ../.. --package aliencommons-contributor-docs zensical build --strict --config-file zensical.zh.toml
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

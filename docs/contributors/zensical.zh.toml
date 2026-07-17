@@ -1,6 +1,6 @@
 [project]
 site_name = "AlienCommons 文档"
-site_url = "https://lazyalienserver.github.io/aliencommons/zh/"
+site_url = "https://developers.aliencommons.com/zh/"
 docs_dir = "docs/zh"
 site_dir = "site/zh"
 nav = [
@@ -27,6 +27,6 @@ language = "zh"
 
 [project.extra]
 alternate = [
-  { name = "English", link = "/aliencommons/", lang = "en" },
-  { name = "中文", link = "/aliencommons/zh/", lang = "zh" },
+  { name = "English", link = "/", lang = "en" },
+  { name = "中文", link = "/zh/", lang = "zh" },
 ]

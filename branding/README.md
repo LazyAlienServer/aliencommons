@@ -31,9 +31,10 @@ branding/
 ```
 
 GitHub-specific presentation assets live separately in `.github/assets/`.
-The current `logo-lockup.png` is a 1280 × 640 horizontal brand card combining
-the logo mark with an Alegreya Medium wordmark. It is used at the beginning of
-the repository READMEs and can also be uploaded as the repository social preview.
+`logo-lockup.png` is a compact 1280 × 448 horizontal brand card combining the
+logo mark with an Alegreya Medium wordmark. It is used at the beginning of the
+repository READMEs. `social-preview.png` preserves the 1280 × 640 (2:1) layout
+for use as the repository social preview on GitHub.
 
 Brand assets are covered by the separate terms in [`LICENSE`](LICENSE), not by
 the repository's MIT License.

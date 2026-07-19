@@ -1,6 +1,6 @@
-# AlienCommons
-
-> The common planet for all Minecraft players — a community platform for publishing, discussion, and discovery.
+<p align="center">
+  <img src=".github/assets/logo-lockup.png" width="720" alt="AlienCommons logo">
+</p>
 
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=flat-square&logo=python)](https://python.org)

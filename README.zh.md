@@ -1,6 +1,6 @@
-# AlienCommons
-
-> 每个 TechMC 玩家的共享空间 —— 集发布、讨论、发现于一体的全栈社区平台。
+<p align="center">
+  <img src=".github/assets/logo-lockup.png" width="720" alt="AlienCommons 标志">
+</p>
 
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=flat-square&logo=python)](https://python.org)

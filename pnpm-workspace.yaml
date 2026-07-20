@@ -8,6 +8,9 @@ allowBuilds:
   esbuild: true
   unrs-resolver: true
 
+overrides:
+  typescript: ^6.0.3
+
 minimumReleaseAgeExclude:
   - '@tailwindcss/node@4.3.3'
   - '@tailwindcss/oxide-android-arm64@4.3.3'

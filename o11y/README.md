@@ -16,6 +16,15 @@ WAL, indexes, chunks, and compactor state under `/loki`, and Grafana stores its
 database and plugins under `/var/lib/grafana`. Keep each host-side directory
 persistent across container replacement.
 
+The official Loki image is distroless. Its container health check therefore
+executes Loki's built-in configuration verifier directly instead of relying on
+shell utilities that aren't present in the image. Alloy and Grafana retry Loki
+requests while its single-node ring finishes becoming ready.
+
+Alloy usage reporting, Alloy pprof, Grafana analytics, update checks, and
+Grafana's default background plugin installation are disabled. Add and pin
+plugins deliberately if the site later needs any beyond Grafana's bundled set.
+
 Before staging or production deployment, define `GRAFANA_ADMIN_USER` and a
 strong `GRAFANA_ADMIN_PASSWORD` in the corresponding ignored `env/.env.*` file.
 The password is required for non-development Compose configuration and startup;

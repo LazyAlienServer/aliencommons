@@ -2,20 +2,39 @@ name: aliencommons-proxy
 
 services:
   traefik:
-    image: traefik:v3.6
+    image: traefik:v3.6.23
+    security_opt:
+      - no-new-privileges:true
     environment:
-      - DOCKER_API_VERSION=1.44
+      DOCKER_API_VERSION: "1.44"
     command:
-      - "--providers.docker=true"
-      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--configFile=/etc/traefik/traefik.yml"
+      - "--certificatesresolvers.le.acme.email=${TRAEFIK_ACME_EMAIL:?Set TRAEFIK_ACME_EMAIL in env/.env.proxy}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../traefik/dynamic:/etc/traefik/dynamic:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
+    name: aliencommons-proxy
+
+volumes:
+  letsencrypt:

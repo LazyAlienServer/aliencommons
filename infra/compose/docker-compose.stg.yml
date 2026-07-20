@@ -42,8 +42,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.backend-api-stg.rule=Host(`api-stg.aliencommons.com`)"
       - "traefik.http.routers.backend-api-stg.entrypoints=websecure"
+      - "traefik.http.routers.backend-api-stg.middlewares=web-secure@file"
       - "traefik.http.routers.backend-api-stg.tls.certresolver=le"
       - "traefik.http.services.backend-api-stg.loadbalancer.server.port=8000"
+    networks:
+      - default
+      - proxy
     volumes:
       - /srv/aliencommons/stg/static:/code/apps/backend/staticfiles
 
@@ -133,8 +137,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana-stg.rule=Host(`grafana-stg.aliencommons.com`)"
       - "traefik.http.routers.grafana-stg.entrypoints=websecure"
+      - "traefik.http.routers.grafana-stg.middlewares=web-secure@file"
       - "traefik.http.routers.grafana-stg.tls.certresolver=le"
       - "traefik.http.services.grafana-stg.loadbalancer.server.port=3000"
+    networks:
+      - default
+      - proxy
     volumes:
       - ../../o11y/grafana/provisioning/datasources/loki.yml:/etc/grafana/provisioning/datasources/loki.yml:ro
       - /srv/aliencommons/stg/grafana:/var/lib/grafana
@@ -155,8 +163,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend-stg.rule=Host(`stg.aliencommons.com`)"
       - "traefik.http.routers.frontend-stg.entrypoints=websecure"
+      - "traefik.http.routers.frontend-stg.middlewares=web-secure@file"
       - "traefik.http.routers.frontend-stg.tls.certresolver=le"
       - "traefik.http.services.frontend-stg.loadbalancer.server.port=80"
+    networks:
+      - default
+      - proxy
 
   alienmark:
     build:
@@ -171,13 +183,21 @@ services:
     image: nginx:alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.static.rule=Host(`api-stg.aliencommons.com`) && PathPrefix(`/static`)"
-      - "traefik.http.routers.static.entrypoints=websecure"
-      - "traefik.http.routers.static.tls.certresolver=le"
-      - "traefik.http.services.static.loadbalancer.server.port=80"
+      - "traefik.http.routers.static-stg.rule=Host(`api-stg.aliencommons.com`) && PathPrefix(`/static`)"
+      - "traefik.http.routers.static-stg.entrypoints=websecure"
+      - "traefik.http.routers.static-stg.middlewares=web-secure@file"
+      - "traefik.http.routers.static-stg.tls.certresolver=le"
+      - "traefik.http.services.static-stg.loadbalancer.server.port=80"
+    networks:
+      - proxy
     restart: unless-stopped
     volumes:
       - /srv/aliencommons/stg/static:/usr/share/nginx/html/static:ro
 
 volumes:
   postgres_data_stg:
+
+networks:
+  proxy:
+    external: true
+    name: aliencommons-proxy

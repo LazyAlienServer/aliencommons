@@ -7,7 +7,7 @@ COMPOSE_PROXY = -f infra/compose/docker-compose.proxy.yml
 DEV_COMPOSE = docker compose --env-file env/.env.dev $(COMPOSE_BASE) $(COMPOSE_DEV)
 STG_COMPOSE = docker compose --env-file env/.env.stg $(COMPOSE_BASE) $(COMPOSE_STG)
 PRO_COMPOSE = docker compose --env-file env/.env.pro $(COMPOSE_BASE) $(COMPOSE_PRO)
-PROXY_COMPOSE = docker compose $(COMPOSE_PROXY)
+PROXY_COMPOSE = docker compose --env-file env/.env.proxy $(COMPOSE_PROXY)
 
 DEV_MANAGE = $(DEV_COMPOSE) run --rm backend-api python manage.py
 DEV_MANAGE_NO_DEPS = $(DEV_COMPOSE) run --rm --no-deps backend-api python manage.py
@@ -24,7 +24,7 @@ APP = backend-api backend-task-scheduler backend-task-worker frontend alienmark
 	dev-backend-init-tasks dev-backend-runscheduler dev-backend-runrqworker \
 	stg-up stg-down stg-down-v stg-backend-api-bash stg-backend-api-log stg-frontend-log \
 	pro-up pro-down pro-backend-api-bash pro-backend-api-log pro-frontend-log \
-	proxy-up proxy-down proxy-log
+	proxy-check proxy-network proxy-up proxy-down proxy-log
 
 # DEVELOPMENT
 dev-db-up:
@@ -79,7 +79,7 @@ dev-backend-runrqworker:
 	$(DEV_MANAGE) rqworker default email maintenance
 
 # STAGING
-stg-up:
+stg-up: proxy-network
 	$(STG_COMPOSE) up -d $(DB)
 	$(STG_COMPOSE) run --rm backend-init
 	$(STG_COMPOSE) up -d $(OBSERVE)
@@ -101,7 +101,7 @@ stg-frontend-log:
 	$(STG_COMPOSE) logs frontend
 
 # PRODUCTION
-pro-up:
+pro-up: proxy-network
 	$(PRO_COMPOSE) up -d $(DB)
 	$(PRO_COMPOSE) run --rm backend-init
 	$(PRO_COMPOSE) up -d $(OBSERVE)
@@ -120,7 +120,13 @@ pro-frontend-log:
 	$(PRO_COMPOSE) logs frontend
 
 # PROXY
-proxy-up:
+proxy-check:
+	$(PROXY_COMPOSE) config --quiet
+
+proxy-network:
+	@docker network inspect aliencommons-proxy >/dev/null 2>&1 || docker network create aliencommons-proxy
+
+proxy-up: proxy-network
 	$(PROXY_COMPOSE) up -d
 
 proxy-down:

@@ -42,8 +42,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.backend-production.rule=Host(`api.aliencommons.com`)"
       - "traefik.http.routers.backend-production.entrypoints=websecure"
+      - "traefik.http.routers.backend-production.middlewares=web-secure@file"
       - "traefik.http.routers.backend-production.tls.certresolver=le"
       - "traefik.http.services.backend-production.loadbalancer.server.port=8000"
+    networks:
+      - default
+      - proxy
     volumes:
       - /srv/aliencommons/pro/static:/code/apps/backend/staticfiles
 
@@ -151,8 +155,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend-production.rule=Host(`aliencommons.com`)"
       - "traefik.http.routers.frontend-production.entrypoints=websecure"
+      - "traefik.http.routers.frontend-production.middlewares=web-secure@file"
       - "traefik.http.routers.frontend-production.tls.certresolver=le"
       - "traefik.http.services.frontend-production.loadbalancer.server.port=80"
+    networks:
+      - default
+      - proxy
 
   alienmark:
     build:
@@ -167,13 +175,21 @@ services:
     image: nginx:alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.static.rule=Host(`api.aliencommons.com`) && PathPrefix(`/static`)"
-      - "traefik.http.routers.static.entrypoints=websecure"
-      - "traefik.http.routers.static.tls.certresolver=le"
-      - "traefik.http.services.static.loadbalancer.server.port=80"
+      - "traefik.http.routers.static-production.rule=Host(`api.aliencommons.com`) && PathPrefix(`/static`)"
+      - "traefik.http.routers.static-production.entrypoints=websecure"
+      - "traefik.http.routers.static-production.middlewares=web-secure@file"
+      - "traefik.http.routers.static-production.tls.certresolver=le"
+      - "traefik.http.services.static-production.loadbalancer.server.port=80"
+    networks:
+      - proxy
     restart: unless-stopped
     volumes:
       - /srv/aliencommons/pro/static:/usr/share/nginx/html/static:ro
 
 volumes:
   postgres_data_pro:
+
+networks:
+  proxy:
+    external: true
+    name: aliencommons-proxy

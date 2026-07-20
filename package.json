@@ -11,6 +11,7 @@
     "lint:fix": "turbo run lint:fix",
     "fmt:check": "turbo run fmt:check",
     "fmt:fix": "turbo run fmt:fix",
+    "license:check": "node scripts/check-licenses.mjs",
     "knip": "knip --no-exit-code",
     "knip:strict": "knip",
     "prepare": "vp config"

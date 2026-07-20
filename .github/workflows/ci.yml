@@ -13,6 +13,11 @@ on:
       - "apps/alienmark/**"
       - "apps/frontend/**"
       - "packages/alienmark/**"
+      - "LICENSE"
+      - "COPYING.md"
+      - "branding/LICENSE"
+      - ".github/assets/**"
+      - "scripts/check-licenses.mjs"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -35,6 +40,11 @@ on:
       - "apps/alienmark/**"
       - "apps/frontend/**"
       - "packages/alienmark/**"
+      - "LICENSE"
+      - "COPYING.md"
+      - "branding/LICENSE"
+      - ".github/assets/**"
+      - "scripts/check-licenses.mjs"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -93,6 +103,11 @@ jobs:
               - 'apps/alienmark/**'
               - 'apps/frontend/**'
               - 'packages/alienmark/**'
+              - 'LICENSE'
+              - 'COPYING.md'
+              - 'branding/LICENSE'
+              - '.github/assets/**'
+              - 'scripts/check-licenses.mjs'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -212,6 +227,9 @@ jobs:
 
       - name: Run Node checks
         run: pnpm run check
+
+      - name: Audit repository licenses
+        run: pnpm run license:check
 
   docs-contributors:
     runs-on: ubuntu-latest

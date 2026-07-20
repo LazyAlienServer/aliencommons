@@ -16,32 +16,13 @@
 
 <!-- README-I18N:END -->
 
-[Overview](#overview) • [Architecture](#architecture) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Project Structure](#project-structure) • [Documentation](#documentation)
+[Overview](#overview) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Project Structure](#project-structure) • [Documentation](#documentation)
 
 ## Overview
 
 AlienCommons is a community platform built for Technical Minecraft players. It provides a space for players to publish articles and participate in discussions.
 
 The project is currently in its early stages under heavy development.
-
-## Architecture
-
-```plaintext
-┌──────────────────────────────────────────────────────┐
-│                       Frontend                       │
-│           Nuxt 4 · Vue 3 · Tailwind CSS 4            │
-└─────────────────┬────────────────────────────────────┘
-                  │ HTTP / WebSocket
-┌─────────────────▼────────────────────────────────────┐
-│                     Backend API                      │
-│           Django 6 · Django REST Framework           │
-└──────┬──────────────┬────────────┬───────────────┬───┘
-       │              │            │               │
-┌──────▼───────┐ ┌────▼────┐ ┌─────▼─────┐ ┌───────▼───────┐
-│  PostgreSQL  │ │  Redis  │ │    RQ     │ │   AlienMark   │
-│      18      │ │    8    │ │  Workers  │ │   (Fastify)   │
-└──────────────┘ └─────────┘ └───────────┘ └───────────────┘
-```
 
 ## Tech Stack
 
@@ -154,3 +135,12 @@ AlienCommons uses three environments:
 - **`dev`** — local development with Docker Compose
 - **`stg`** — staging, hosted on AWS, mirrors production as closely as practical
 - **`pro`** — production, hosted on AWS with Cloudflare DNS for `aliencommons.com`
+
+## License
+
+AlienCommons source code and documentation are licensed under the
+[MIT License](LICENSE). The AlienCommons name, logo, wordmark, and other brand
+assets are excluded from the MIT License and are governed by the separate
+[AlienCommons Brand Assets License](branding/LICENSE).
+
+See [COPYING.md](COPYING.md) for the complete licensing scope.

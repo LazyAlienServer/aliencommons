@@ -4,9 +4,9 @@ COMPOSE_STG = -f infra/compose/docker-compose.stg.yml
 COMPOSE_PRO = -f infra/compose/docker-compose.pro.yml
 COMPOSE_PROXY = -f infra/compose/docker-compose.proxy.yml
 
-DEV_COMPOSE = docker compose $(COMPOSE_BASE) $(COMPOSE_DEV)
-STG_COMPOSE = docker compose $(COMPOSE_BASE) $(COMPOSE_STG)
-PRO_COMPOSE = docker compose $(COMPOSE_BASE) $(COMPOSE_PRO)
+DEV_COMPOSE = docker compose --env-file env/.env.dev $(COMPOSE_BASE) $(COMPOSE_DEV)
+STG_COMPOSE = docker compose --env-file env/.env.stg $(COMPOSE_BASE) $(COMPOSE_STG)
+PRO_COMPOSE = docker compose --env-file env/.env.pro $(COMPOSE_BASE) $(COMPOSE_PRO)
 PROXY_COMPOSE = docker compose $(COMPOSE_PROXY)
 
 DEV_MANAGE = $(DEV_COMPOSE) run --rm backend-api python manage.py

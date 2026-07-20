@@ -81,6 +81,7 @@ env/.env.pro
 env/.env.stg
 
 # Observability runtime data
+o11y/alloy/data/
 o11y/grafana/data/
 o11y/loki/data/
 .gitnexus

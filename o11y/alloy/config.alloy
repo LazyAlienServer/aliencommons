@@ -1,0 +1,61 @@
+logging {
+	level  = "info"
+	format = "logfmt"
+}
+
+discovery.docker "containers" {
+	host             = "unix:///var/run/docker.sock"
+	refresh_interval = "5s"
+}
+
+discovery.relabel "project_services" {
+	targets = discovery.docker.containers.targets
+
+	rule {
+		source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+		regex         = sys.env("ALLOY_COMPOSE_PROJECT")
+		action        = "keep"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+		target_label  = "service_name"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex         = "/(.*)"
+		replacement   = "$1"
+		target_label  = "container"
+	}
+
+	rule {
+		source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+		target_label  = "compose_project"
+	}
+
+	rule {
+		replacement  = sys.env("ALLOY_ENVIRONMENT")
+		target_label = "environment"
+	}
+}
+
+loki.source.docker "project_logs" {
+	host       = "unix:///var/run/docker.sock"
+	targets    = discovery.relabel.project_services.output
+	labels     = {platform = "docker"}
+	forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+	endpoint {
+		name                = "local-loki"
+		url                 = "http://loki:3100/loki/api/v1/push"
+		batch_wait          = "1s"
+		batch_size          = "1MiB"
+		remote_timeout      = "10s"
+		min_backoff_period  = "500ms"
+		max_backoff_period  = "5m"
+		max_backoff_retries = 20
+	}
+}

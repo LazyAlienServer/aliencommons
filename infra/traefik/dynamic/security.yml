@@ -1,0 +1,26 @@
+http:
+  middlewares:
+    response-compression:
+      compress: {}
+    security-headers:
+      headers:
+        contentTypeNosniff: true
+        customResponseHeaders:
+          Server: ""
+        permissionsPolicy: >-
+          camera=(), geolocation=(), microphone=(), payment=(), usb=()
+        referrerPolicy: strict-origin-when-cross-origin
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+    web-secure:
+      chain:
+        middlewares:
+          - response-compression
+          - security-headers
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true

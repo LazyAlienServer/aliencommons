@@ -7,6 +7,9 @@ This directory is intentionally a minimal Nuxt 4 scaffold. It contains no produc
 - Nuxt 4
 - Vue 3
 - Vue Router
+- Pinia
+- Tailwind CSS 4
+- AlienMark workspace library
 - TypeScript
 - Vite through Nuxt
 
@@ -14,6 +17,7 @@ This directory is intentionally a minimal Nuxt 4 scaffold. It contains no produc
 
 ```text
 app/app.vue       Minimal root component
+app/assets/css/   Global Tailwind CSS entrypoint
 public/           Static starter assets
 nuxt.config.ts    Minimal Nuxt configuration
 package.json      Frontend scripts and runtime dependencies

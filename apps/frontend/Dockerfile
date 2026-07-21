@@ -1,20 +1,37 @@
-FROM node:24 AS build-stage
+ARG NODE_IMAGE=node:24-slim
 
-ENV NODE_OPTIONS="--max-old-space-size=512"
+FROM ${NODE_IMAGE} AS deps
 
-COPY package*.json ./
-RUN pnpm install
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
-COPY . .
+WORKDIR /workspace
 
-ARG VITE_MODE=production
-RUN pnpm run build -- --mode ${VITE_MODE}
+RUN corepack enable
 
-FROM nginx:1.27.4-alpine AS production-stage
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/frontend/package.json apps/frontend/package.json
 
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN pnpm install --frozen-lockfile --filter frontend --ignore-scripts
 
-EXPOSE 80
+FROM deps AS build
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY apps/frontend apps/frontend
+
+RUN pnpm --filter frontend build
+
+FROM ${NODE_IMAGE} AS runtime
+
+ENV NODE_ENV=production
+ENV NITRO_HOST=0.0.0.0
+ENV NITRO_PORT=3000
+
+WORKDIR /app
+
+COPY --from=build --chown=node:node /workspace/apps/frontend/.output .output
+
+USER node
+
+EXPOSE 3000
+
+CMD ["node", ".output/server/index.mjs"]

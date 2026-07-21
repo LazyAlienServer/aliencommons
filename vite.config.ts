@@ -65,9 +65,6 @@ export default defineConfig({
     ],
   },
   fmt: {
-    sortTailwindcss: {
-      stylesheet: "./apps/frontend/app/assets/css/main.css",
-    },
     printWidth: 80,
     sortPackageJson: false,
     trailingComma: "es5",

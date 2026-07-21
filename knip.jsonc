@@ -1,11 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreDependencies": [
-    // Kept as an explicit root dependency so JetBrains Vite integration and
-    // Vite+ peer resolution both see the workspace-level Vite version.
-    "vite",
-  ],
-  "ignoreFiles": ["apps/frontend/env.d.ts"],
   "ignoreIssues": {
     // The catalog intentionally pins shared tooling versions even when a
     // package consumes them indirectly through Vite+.
@@ -13,7 +7,10 @@
   },
   "workspaces": {
     "apps/alienmark": {},
-    "apps/frontend": {},
+    "apps/frontend": {
+      // Nuxt loads these framework dependencies indirectly.
+      "ignoreDependencies": ["vue", "vue-router"],
+    },
     "packages/alienmark": {
       "entry": ["test/**/*.ts"],
       "project": ["src/**/*.ts", "test/**/*.ts"],

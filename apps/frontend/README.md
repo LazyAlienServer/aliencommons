@@ -1,4 +1,6 @@
-# Nuxt Minimal Starter
+# AlienCommons Frontend
+
+Minimal Nuxt 4 application scaffold.
 
 ## Setup
 

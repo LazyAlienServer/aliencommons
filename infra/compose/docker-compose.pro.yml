@@ -145,11 +145,8 @@ services:
 
   frontend:
     build:
-      context: ../../apps/frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_MODE: production
-    working_dir: /code
+      context: ../..
+      dockerfile: apps/frontend/Dockerfile
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -157,7 +154,7 @@ services:
       - "traefik.http.routers.frontend-production.entrypoints=websecure"
       - "traefik.http.routers.frontend-production.middlewares=web-secure@file"
       - "traefik.http.routers.frontend-production.tls.certresolver=le"
-      - "traefik.http.services.frontend-production.loadbalancer.server.port=80"
+      - "traefik.http.services.frontend-production.loadbalancer.server.port=3000"
     networks:
       - default
       - proxy

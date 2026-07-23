@@ -16,7 +16,7 @@
 
 <!-- README-I18N:END -->
 
-[Overview](#overview) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Project Structure](#project-structure) • [Documentation](#documentation)
+[Overview](#overview) • [Documentation](#documentation) • [Environments](#environments) • [License](#license) 
 
 ## Overview
 
@@ -24,102 +24,10 @@ AlienCommons is a community platform built for Technical Minecraft players. It p
 
 The project is currently in its early stages under heavy development.
 
-## Tech Stack
-
-<p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=py,django,postgres,redis,ts,nuxt,vue,tailwind,docker,grafana" alt="Tech stack icons" />
-  </a>
-</p>
-
-- Python 3.14, Django 6, Django REST Framework, Django Channels, Daphne
-- PostgreSQL 18, Redis 8, RQ (`django-tasks-rq`)
-- Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia
-- AlienMark — custom TypeScript Markdown parser, internal Fastify rendering service
-- Grafana, Loki, Grafana Alloy
-- Docker Compose, Traefik, AWS, Cloudflare DNS
-- pnpm workspaces, Turbo, uv, GitHub Actions
-
-## Getting Started
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- [Node.js](https://nodejs.org/) 24+ and [pnpm](https://pnpm.io/installation) 11+
-- [Python](https://www.python.org/downloads/) 3.14+ and [uv](https://docs.astral.sh/uv/)
-
-### Quick Start
-
-```bash
-# Clone and install dependencies
-git clone https://github.com/LazyAlienServer/aliencommons.git
-cd aliencommons
-pnpm install
-
-# Start the full development stack
-make dev-up
-```
-
-This launches all services: PostgreSQL, Redis, the backend API, task workers, the frontend dev server, AlienMark, and the observability stack (Grafana, Loki, Alloy).
-
-### Running Individual Components
-
-```bash
-# Frontend only
-make frontend-dev          # → http://localhost:8080
-
-# Backend tests
-make dev-backend-test
-
-# Run all Node checks through Turbo
-make node-check
-```
-
-> For the full set of available commands, see `make/docker.mk` and `make/node.mk`.
-
-### Node Tooling
-
-The Node workspace uses pnpm for dependency management, Turbo for cross-package task orchestration, and [Vite+](https://viteplus.dev) for package-level formatting, linting, type checks, tests, and library/service builds.
-
-```bash
-pnpm run check      # Turbo: build dependencies, then run package checks
-pnpm run build      # Turbo: build all Node packages in dependency order
-pnpm run test       # Turbo: run JavaScript tests
-pnpm run typecheck  # Turbo: run package type checks
-pnpm run knip       # Advisory unused-code and unused-dependency report
-```
-
-Use Turbo filters directly for single-package work, for example `pnpm turbo run check --filter=frontend` or `pnpm turbo run build --filter=alienmark-service`. Turbo uses the pnpm workspace graph so packages depending on `alienmark` get its build first. Vite+ configuration lives in [`vite.config.ts`](vite.config.ts), Turbo task rules live in [`turbo.json`](turbo.json), and Knip advisory rules live in [`knip.jsonc`](knip.jsonc). Knip is intentionally separate from `pnpm run check`; use `pnpm run knip:strict` only when you want unused-code findings to produce a non-zero exit code.
-
-## Project Structure
-
-```
-aliencommons/
-├── apps/
-│   ├── backend/          Django API — articles, posts, comments,
-│   │                     bookmarks, reactions, reports, tasks, users
-│   ├── frontend/         Nuxt 4 frontend application
-│   └── alienmark/        Internal Markdown rendering service (Fastify)
-├── packages/
-│   └── alienmark/        TypeScript Markdown parser and HTML renderer
-├── docs/
-│   ├── users/            User guide (EN / CN)
-│   ├── contributors/     Developer documentation
-│   └── alienmark/        Markdown engine documentation
-├── infra/
-│   └── compose/          Docker Compose configurations (dev / stg / pro)
-├── o11y/
-│   ├── alloy/            Grafana Alloy log collection configs
-│   ├── grafana/          Grafana dashboards and provisioning
-│   └── loki/             Loki log aggregation configs
-├── make/                 Make targets for Docker and Node commands
-└── .github/workflows/    CI/CD pipelines
-```
-
 ## Documentation
 
 | Audience     | Description                               | Link                                       |
-| ------------ | ----------------------------------------- | ------------------------------------------ |
+| ------------ | ----------------------------------------- |--------------------------------------------|
 | Users        | Platform usage guide, community rules     | [`docs/users/`](docs/users/)               |
 | Contributors | Architecture, setup, development workflow | [`docs/contributors/`](docs/contributors/) |
 | AlienMark    | Markdown syntax reference and API         | [`docs/alienmark/`](docs/alienmark/)       |

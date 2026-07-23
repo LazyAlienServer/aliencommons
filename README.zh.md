@@ -16,105 +16,13 @@
 
 <!-- README-I18N:END -->
 
-[概述](#概述) • [技术栈](#技术栈) • [快速开始](#快速开始) • [项目结构](#项目结构) • [文档](#文档)
+[概述](#概述) • [文档](#文档) • [部署环境](#部署环境) • [许可证](#许可证)
 
 ## 概述
 
 AlienCommons 是面向技术向 Minecraft 玩家构建的社区平台，为玩家提供发布文章和参与讨论的空间。
 
 项目目前仍处于早期阶段，并在密集开发中。
-
-## 技术栈
-
-<p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=py,django,postgres,redis,ts,nuxt,vue,tailwind,docker,grafana" alt="技术栈图标" />
-  </a>
-</p>
-
-- Python 3.14, Django 6, Django REST Framework, Django Channels, Daphne
-- PostgreSQL 18, Redis 8, RQ (`django-tasks-rq`)
-- Nuxt 4, Vue 3, TypeScript, Tailwind CSS 4, Pinia
-- AlienMark — 自研 TypeScript Markdown 解析器，内部 Fastify 渲染服务
-- Grafana, Loki, Grafana Alloy
-- Docker Compose, Traefik, AWS, Cloudflare DNS
-- pnpm workspaces, Turbo, uv, GitHub Actions
-
-## 快速开始
-
-### 环境要求
-
-- [Docker](https://docs.docker.com/get-docker/) 和 Docker Compose
-- [Node.js](https://nodejs.org/) 24+ 和 [pnpm](https://pnpm.io/installation) 11+
-- [Python](https://www.python.org/downloads/) 3.14+ 和 [uv](https://docs.astral.sh/uv/)
-
-### 启动项目
-
-```bash
-# 克隆仓库并安装依赖
-git clone https://github.com/LazyAlienServer/aliencommons.git
-cd aliencommons
-pnpm install
-
-# 启动完整开发环境
-make dev-up
-```
-
-这会启动所有服务：PostgreSQL、Redis、后端 API、任务队列、前端开发服务器、AlienMark 以及可观测性栈（Grafana、Loki、Alloy）。
-
-### 运行单个组件
-
-```bash
-# 仅启动前端
-make frontend-dev          # → http://localhost:8080
-
-# 运行后端测试
-make dev-backend-test
-
-# 通过 Turbo 运行所有 Node 检查
-make node-check
-```
-
-> 更多命令见 `make/docker.mk` 和 `make/node.mk`。
-
-### Node 工具链
-
-Node workspace 使用 pnpm 管理依赖，使用 Turbo 编排跨包任务，并使用 [Vite+](https://viteplus.dev) 执行各包内的格式检查、lint、类型检查、测试以及库/服务构建。
-
-```bash
-pnpm run check      # Turbo：先构建依赖，再运行各包检查
-pnpm run build      # Turbo：按依赖顺序构建所有 Node 包
-pnpm run test       # Turbo：运行 JavaScript 测试
-pnpm run typecheck  # Turbo：运行各包类型检查
-pnpm run knip       # 非阻塞的未使用代码和未使用依赖报告
-```
-
-根目录还提供单包便捷脚本，例如 `pnpm run frontend:check`、`pnpm run alienmark:build` 和 `pnpm run alienmark-service:check`。Turbo 会读取 pnpm workspace 依赖图，因此依赖 `alienmark` 的包会先获得它的构建产物。Vite+ 配置位于 [`vite.config.ts`](vite.config.ts)，Turbo 任务规则位于 [`turbo.json`](turbo.json)，Knip 的提示性规则位于 [`knip.jsonc`](knip.jsonc)。Knip 有意与 `pnpm run check` 分离；只有在希望未使用代码报告返回非零退出码时，才使用 `pnpm run knip:strict`。
-
-## 项目结构
-
-```
-aliencommons/
-├── apps/
-│   ├── backend/           Django API — 文章、帖子、评论、
-│   │                      书签、点赞、举报、任务、用户
-│   ├── frontend/          Nuxt 4 前端应用
-│   └── alienmark/         内部 Markdown 渲染服务（Fastify）
-├── packages/
-│   └── alienmark/         TypeScript Markdown 解析器和 HTML 渲染器
-├── docs/
-│   ├── users/             用户指南（EN / CN）
-│   ├── contributors/      开发者文档
-│   └── alienmark/         Markdown 引擎文档
-├── infra/
-│   └── compose/           Docker Compose 配置（dev / stg / pro）
-├── o11y/
-│   ├── alloy/             Grafana Alloy 日志采集配置
-│   ├── grafana/           Grafana 仪表板和配置
-│   └── loki/              Loki 日志聚合配置
-├── make/                  Docker 和 Node 命令的 Make 目标
-└── .github/workflows/     CI/CD 流水线
-```
 
 ## 文档
 

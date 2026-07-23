@@ -2,7 +2,7 @@
 name = "alienmark-docs"
 version = "0.1.0"
 requires-python = ">=3.14"
-dependencies = ["zensical==0.0.50"]
+dependencies = ["zensical==0.0.51"]
 
 [tool.uv]
 add-bounds = "exact"
